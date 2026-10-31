@@ -176,6 +176,7 @@ export interface GraphData {
 }
 
 export interface QueryEvidence {
+  meeting_id?: string;
   meeting_title: string;
   space_name: string;
   quote: string;

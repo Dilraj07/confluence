@@ -491,3 +491,4 @@ export const MeetingDetailView: React.FC<MeetingDetailViewProps> = ({
     </div>
   );
 };
+

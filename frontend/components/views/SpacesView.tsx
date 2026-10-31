@@ -17,7 +17,12 @@ import {
   ChevronRight,
   Eye,
   Layers,
-  ArrowRight
+  ArrowRight,
+  ExternalLink,
+  Clock,
+  Download,
+  CheckCircle2,
+  AlertTriangle
 } from 'lucide-react';
 
 interface SpacesViewProps {
@@ -71,9 +76,157 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
   const isLaunch = activeSpace.slug.includes('launch');
   const isHR = activeSpace.slug.includes('recruitment');
 
+  // Space-specific contextual documents
+  const getSpaceDocuments = () => {
+    if (isBackend) {
+      return [
+        {
+          title: 'RFC #14: PostgreSQL Partitioning by Organization ID',
+          type: 'Architecture Spec',
+          author: 'Elena Rostova',
+          updated: 'Oct 28, 2026',
+          status: 'Approved',
+          summary: 'Defines composite table partitioning on organization_id and created_at to guarantee sub-15ms p99 query latency across multi-tenant shards.'
+        },
+        {
+          title: 'API v2 Service Level Agreement & Sharding Topology',
+          type: 'Technical SLA',
+          author: 'Distributed Systems Team',
+          updated: 'Oct 20, 2026',
+          status: 'Active',
+          summary: 'Outlines read-replica distribution, failover guarantees, and connection pooling requirements for high-throughput tenant workloads.'
+        },
+        {
+          title: 'Alembic Schema Partitioning Migration Runbook',
+          type: 'Operational Runbook',
+          author: 'Backend Infra Team',
+          updated: 'Oct 29, 2026',
+          status: 'In Review',
+          summary: 'Step-by-step rollout plan for zero-downtime table rewrites and index creation on production database clusters.'
+        }
+      ];
+    }
+    if (isHR) {
+      return [
+        {
+          title: 'Q4 Technical Staffing Plan & Headcount Allocation',
+          type: 'Strategic Plan',
+          author: 'David Chen',
+          updated: 'Oct 15, 2026',
+          status: 'Active',
+          summary: 'Allocates hiring headcount across distributed systems, frontend engineering, and platform reliability roles for Q4/Q1.'
+        },
+        {
+          title: 'Senior Staff Distributed Systems Compensation Band',
+          type: 'Compensation Policy',
+          author: 'People Ops Team',
+          updated: 'Oct 22, 2026',
+          status: 'Confidential',
+          summary: 'Benchmarks equity, base salary tiers, and sign-on incentives for tier-1 distributed infrastructure candidates.'
+        },
+        {
+          title: 'Executive Search Agency Retainer & SLA Agreement',
+          type: 'Vendor Agreement',
+          author: 'David Chen',
+          updated: 'Oct 29, 2026',
+          status: 'Executed',
+          summary: 'Defines 72-hour sourcing SLA and 14-day interview loop commitment for replacement senior backend engineers.'
+        }
+      ];
+    }
+    return [
+      {
+        title: 'Q1 Platform Launch Readiness Checklist & Go/No-Go Gate',
+        type: 'Product Checklist',
+        author: 'Alex Chen',
+        updated: 'Oct 29, 2026',
+        status: 'In Progress',
+        summary: 'Mandatory technical, compliance, security, and staffing prerequisites required prior to customer cohort onboarding.'
+      },
+      {
+        title: 'Multi-Region Failover & Disaster Recovery SOP',
+        type: 'SRE Procedure',
+        author: 'Platform Ops & SRE',
+        updated: 'Oct 25, 2026',
+        status: 'Approved',
+        summary: 'Operational manual detailing automated DNS failover, partition recovery, and data replay procedures.'
+      }
+    ];
+  };
+
+  // Space-specific audit log
+  const getSpaceAuditTrail = () => {
+    if (isBackend) {
+      return [
+        {
+          action: 'Canonical Decision Approved',
+          description: 'Elena Rostova approved decision: "PostgreSQL table partitioning on organization_id".',
+          evidence: 'Verified against Transcript Segment #4 (Backend Review).',
+          date: 'Oct 28, 2026',
+          actor: 'Elena Rostova (Tech Lead)'
+        },
+        {
+          action: 'Decision Superseded',
+          description: 'Marked "Single-node Redis Cache" as superseded with permanent audit lineage retained.',
+          evidence: 'Superseded by Postgres partitioning decision.',
+          date: 'Oct 28, 2026',
+          actor: 'Elena Rostova (Tech Lead)'
+        },
+        {
+          action: 'Commitment Created',
+          description: 'Elena Rostova assigned task: "Prepare database partition scripts".',
+          evidence: 'Extracted from Backend Architecture Sync.',
+          date: 'Oct 28, 2026',
+          actor: 'Extraction Engine'
+        }
+      ];
+    }
+    if (isHR) {
+      return [
+        {
+          action: 'Critical Blocker Raised',
+          description: 'Candidate reneged on Senior Distributed Systems Engineer role due to competitive counter-offer.',
+          evidence: 'Verified against Transcript Segment #3 (Recruitment Sync).',
+          date: 'Oct 29, 2026',
+          actor: 'David Chen (Head of Recruitment)'
+        },
+        {
+          action: 'Urgent Commitment Staged',
+          description: 'David Chen committed task: "Engage external recruitment agency to source replacement engineer".',
+          evidence: 'Due: Nov 3, 2026.',
+          date: 'Oct 29, 2026',
+          actor: 'David Chen'
+        },
+        {
+          action: 'Space Ingestion',
+          description: 'Ingested 4 transcript segments from Weekly Technical Recruitment Sync.',
+          evidence: 'Meeting ID: mtg-recruitment-01.',
+          date: 'Oct 29, 2026',
+          actor: 'CONFLUENCE Ingest'
+        }
+      ];
+    }
+    return [
+      {
+        action: 'Cross-Space Dependency Flagged',
+        description: 'Launch milestone dependent on Backend database partitioning and HR staffing capacity.',
+        evidence: 'Verified against Transcript Segment #2 (Go/No-Go Review).',
+        date: 'Oct 29, 2026',
+        actor: 'Alex Chen (Product Lead)'
+      },
+      {
+        action: 'Canonical Decision Confirmed',
+        description: 'Confirmed: "Maintain March 15 Platform Launch Date with contingent staging gates".',
+        evidence: 'Verified against Transcript Segment #4.',
+        date: 'Oct 29, 2026',
+        actor: 'Executive Committee'
+      }
+    ];
+  };
+
   return (
     <div className="max-w-6xl mx-auto py-6 space-y-6">
-      {/* Space Switcher Tabs */}
+      {/* 1. Space Switcher Tabs */}
       <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[#e1dcd3]">
         {spaces.map((s) => {
           const isSelected = s.id === activeSpace.id;
@@ -95,7 +248,7 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
         })}
       </div>
 
-      {/* Space Hero Card */}
+      {/* 2. Space Hero Card */}
       <div className="card-oura p-6 bg-white border border-[#e1dcd3] shadow-xs space-y-4">
         <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
           <div className="space-y-1">
@@ -124,16 +277,16 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
               className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#2a72de] text-white hover:bg-[#205bb5] transition-all shadow-xs"
             >
               <Plus className="w-3.5 h-3.5" />
-              <span>New Meeting</span>
+              <span>Ingest Meeting</span>
             </button>
           </div>
         </div>
 
         {/* Cross-Space Dependency Notice */}
         {isLaunch && (
-          <div className="p-3 bg-red-50/70 border border-red-200 rounded-lg text-xs flex items-start gap-2.5">
+          <div className="p-3.5 bg-red-50/70 border border-red-200 rounded-lg text-xs flex items-start gap-2.5">
             <Flame className="w-4 h-4 text-[#e33a22] shrink-0 mt-0.5" />
-            <div className="text-[#1c1b1a]">
+            <div className="text-[#1c1b1a] leading-relaxed">
               <strong>Cross-Space Dependency Active:</strong> March 15 Platform Launch is dependent on{' '}
               <span className="font-semibold text-[#2a72de]">Engineering → Backend</span> database schema migration and{' '}
               <span className="font-semibold text-[#af751b]">HR → Recruitment</span> senior engineering capacity.
@@ -142,21 +295,21 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
         )}
 
         {isBackend && (
-          <div className="p-3 bg-amber-50/70 border border-amber-200 rounded-lg text-xs flex items-start gap-2.5">
+          <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-lg text-xs flex items-start gap-2.5">
             <GitBranch className="w-4 h-4 text-[#af751b] shrink-0 mt-0.5" />
-            <div className="text-[#1c1b1a]">
+            <div className="text-[#1c1b1a] leading-relaxed">
               <strong>Downstream Impact Notice:</strong> PostgreSQL table partitioning supersedes single-node caching.
-              Affects timeline for <span className="font-semibold text-[#2a72de]">Product → Platform Launch</span>.
+              Directly determines readiness for <span className="font-semibold text-[#2a72de]">Product → Platform Launch</span>.
             </div>
           </div>
         )}
 
         {isHR && (
-          <div className="p-3 bg-red-50/70 border border-red-200 rounded-lg text-xs flex items-start gap-2.5">
+          <div className="p-3.5 bg-red-50/70 border border-red-200 rounded-lg text-xs flex items-start gap-2.5">
             <Flame className="w-4 h-4 text-[#e33a22] shrink-0 mt-0.5" />
-            <div className="text-[#1c1b1a]">
+            <div className="text-[#1c1b1a] leading-relaxed">
               <strong>Upstream Blocker:</strong> Candidate reneged for Senior Distributed Systems engineer.
-              Directly blocks throughput in <span className="font-semibold text-[#2a72de]">Engineering → Backend</span>.
+              Directly limits throughput in <span className="font-semibold text-[#2a72de]">Engineering → Backend</span>.
             </div>
           </div>
         )}
@@ -186,68 +339,253 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
         </div>
       </div>
 
-      {/* Tab 1: Overview */}
+      {/* 3. Tab: Overview (Balanced Two-Column Layout) */}
       {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Key Decisions in Space */}
-          <div className="card-oura p-5 bg-white border border-[#e1dcd3] space-y-3">
-            <div className="flex items-center justify-between border-b border-[#e1dcd3] pb-2">
-              <span className="text-xs font-semibold text-[#1c1b1a]">Active Decisions in Space</span>
-              <span className="text-[11px] text-[#838280]">{spaceDecisions.length} Total</span>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Column: Meetings & Decisions (7 cols) */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Recent Meetings Section */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-[#5c6f5d]" />
+                    <h3 className="font-serif text-lg font-normal text-[#1c1b1a]">
+                      Recent Space Meetings
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('meetings')}
+                    className="text-xs text-[#2a72de] hover:underline font-medium"
+                  >
+                    View all {spaceMeetings.length} &rarr;
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  {spaceMeetings.length === 0 ? (
+                    <div className="p-4 bg-white rounded-lg border border-[#e1dcd3] text-xs text-[#838280] text-center">
+                      No meetings recorded in this Space yet.
+                    </div>
+                  ) : (
+                    spaceMeetings.slice(0, 2).map((m) => (
+                      <div
+                        key={m.id}
+                        onClick={() => onOpenMeeting(m)}
+                        className="card-oura p-4 bg-white border border-[#e1dcd3] hover:border-[#838280] cursor-pointer transition-all space-y-2 group"
+                      >
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-[#5c6f5d]">
+                            {m.source_type}
+                          </span>
+                          <span className="text-[#838280]">
+                            {new Date(m.meeting_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </span>
+                        </div>
+
+                        <h4 className="font-serif text-base font-medium text-[#1c1b1a] group-hover:text-[#2a72de] transition-colors">
+                          {m.title}
+                        </h4>
+
+                        <div className="pt-2 border-t border-[#f0ece4] flex items-center justify-between text-xs text-[#838280]">
+                          <div className="flex items-center gap-3">
+                            <span>{m.segment_count} segments</span>
+                            <span>&bull;</span>
+                            <span>{m.decision_count} decisions</span>
+                            <span>&bull;</span>
+                            <span>{m.task_count} commitments</span>
+                          </div>
+                          <span className="text-xs font-semibold text-[#1c1b1a] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
+                            Open Intelligence &rarr;
+                          </span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Decisions Section (Compact & Contextual) */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <GitBranch className="w-4 h-4 text-[#af751b]" />
+                    <h3 className="font-serif text-lg font-normal text-[#1c1b1a]">
+                      Decisions in Space
+                    </h3>
+                  </div>
+                  {spaceDecisions.length > 0 && (
+                    <button
+                      onClick={() => setActiveTab('decisions')}
+                      className="text-xs text-[#2a72de] hover:underline font-medium"
+                    >
+                      View all {spaceDecisions.length} &rarr;
+                    </button>
+                  )}
+                </div>
+
+                {spaceDecisions.length === 0 ? (
+                  <div className="p-4 bg-white rounded-lg border border-[#e1dcd3] text-xs space-y-1.5">
+                    <div className="font-medium text-[#1c1b1a]">
+                      No standalone architectural decisions recorded yet.
+                    </div>
+                    <p className="text-[#838280] leading-relaxed">
+                      Discussions in the {activeSpace.name} Space currently center on candidate pipelines, compensation negotiations, and hiring commitments rather than formal architectural policies.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {spaceDecisions.slice(0, 2).map((d) => (
+                      <div
+                        key={d.id}
+                        onClick={() => onOpenDecisionTrail(d)}
+                        className="card-oura p-4 bg-white border border-[#e1dcd3] hover:border-[#838280] cursor-pointer transition-all space-y-2"
+                      >
+                        <div className="flex items-center justify-between text-xs">
+                          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
+                            d.status === 'active' ? 'bg-blue-50 text-[#2a72de]' : 'bg-amber-100 text-[#af751b]'
+                          }`}>
+                            {d.status}
+                          </span>
+                          <span className="text-[#838280]">
+                            Decided by: <strong>{d.decided_by || 'Team'}</strong>
+                          </span>
+                        </div>
+
+                        <h4 className="text-xs font-semibold text-[#1c1b1a]">
+                          {d.statement}
+                        </h4>
+
+                        {d.evidence_items && d.evidence_items.length > 0 && (
+                          <div className="text-[11px] italic bg-[#fbfaf7] p-2.5 rounded border border-[#e1dcd3] text-[#4a4741] flex items-start gap-1.5">
+                            <Quote className="w-3 h-3 text-[#af751b] shrink-0 mt-0.5" />
+                            <span>&ldquo;{d.evidence_items[0].quote}&rdquo;</span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="space-y-3">
-              {spaceDecisions.length === 0 ? (
-                <div className="text-xs text-[#838280] p-4 text-center">No decisions recorded yet.</div>
-              ) : (
-                spaceDecisions.slice(0, 3).map((d) => (
-                  <div
-                    key={d.id}
-                    onClick={() => onOpenDecisionTrail(d)}
-                    className="p-3 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] hover:border-[#838280] cursor-pointer transition-all space-y-1.5"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className={`text-[9px] uppercase font-bold px-1.5 py-0.2 rounded ${
-                        d.status === 'active' ? 'bg-blue-50 text-[#2a72de]' : 'bg-amber-100 text-[#af751b]'
-                      }`}>
-                        {d.status}
-                      </span>
-                      <span className="text-[10px] text-[#838280]">{d.decision_type}</span>
-                    </div>
-                    <div className="text-xs font-semibold text-[#1c1b1a]">{d.statement}</div>
+            {/* Right Column: Tasks, Blockers & Dependencies (5 cols) */}
+            <div className="lg:col-span-5 space-y-6">
+              {/* Active Blockers */}
+              {spaceBlockers.length > 0 && (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-[#e33a22]" />
+                    <h3 className="font-serif text-lg font-normal text-[#1c1b1a]">
+                      Active Blockers
+                    </h3>
                   </div>
-                ))
+
+                  <div className="space-y-2">
+                    {spaceBlockers.map((b) => (
+                      <div key={b.id} className="p-3.5 bg-red-50/70 rounded-lg border border-red-200 text-xs space-y-1.5">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[9px] uppercase font-bold text-[#e33a22] tracking-wider">
+                            {b.severity} severity
+                          </span>
+                          <span className="text-[10px] text-[#838280]">
+                            Reported by: {b.reported_by || 'Team'}
+                          </span>
+                        </div>
+                        <div className="font-semibold text-[#1c1b1a]">{b.description}</div>
+                        {b.evidence_quote && (
+                          <div className="italic text-[11px] text-[#4a4741] pt-0.5">
+                            &ldquo;{b.evidence_quote}&rdquo;
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
+
+              {/* Commitments & Tasks */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <CheckSquare className="w-4 h-4 text-[#2a72de]" />
+                    <h3 className="font-serif text-lg font-normal text-[#1c1b1a]">
+                      Space Commitments
+                    </h3>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('tasks')}
+                    className="text-xs text-[#2a72de] hover:underline font-medium"
+                  >
+                    View all {spaceTasks.length} &rarr;
+                  </button>
+                </div>
+
+                <div className="card-oura bg-white border border-[#e1dcd3] divide-y divide-[#f0ece4] shadow-xs">
+                  {spaceTasks.length === 0 ? (
+                    <div className="p-4 text-xs text-[#838280] text-center">
+                      No open tasks in this space.
+                    </div>
+                  ) : (
+                    spaceTasks.slice(0, 3).map((t) => (
+                      <div key={t.id} className="p-3.5 space-y-1 hover:bg-[#fbfaf7] transition-colors">
+                        <div className="flex items-center justify-between text-[11px]">
+                          <span className="font-semibold text-[#1c1b1a]">{t.title}</span>
+                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-[#4a4741] uppercase">
+                            {t.status.replace('_', ' ')}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-[10px] text-[#838280]">
+                          <span>Assignee: {t.assignee_name || 'Unassigned'}</span>
+                          <span>Priority: {t.priority}</span>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+
+              {/* Cross-Space Dependencies */}
+              <div className="card-oura p-4 bg-[#fbfaf7] border border-[#e1dcd3] space-y-2">
+                <span className="text-xs font-semibold text-[#1c1b1a] block">
+                  Cross-Space Linkages
+                </span>
+                <p className="text-[11px] text-[#7b776f] leading-relaxed">
+                  {isBackend
+                    ? 'Outputs from this Space directly unblock API migration milestones in Platform Launch.'
+                    : isHR
+                    ? 'Staffing velocity in this Space directly gates engineering throughput in the Backend Space.'
+                    : 'This Space acts as the umbrella milestone coordinating Backend database deliverables and HR staffing.'}
+                </p>
+              </div>
             </div>
           </div>
 
-          {/* Active Commitments & Blockers */}
+          {/* Bottom Full-Width Activity Timeline */}
           <div className="card-oura p-5 bg-white border border-[#e1dcd3] space-y-3">
-            <div className="flex items-center justify-between border-b border-[#e1dcd3] pb-2">
-              <span className="text-xs font-semibold text-[#1c1b1a]">Active Commitments & Blockers</span>
-              <span className="text-[11px] text-[#838280]">{spaceTasks.length} Tasks</span>
+            <div className="flex items-center justify-between border-b border-[#f0ece4] pb-2">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-[#2a72de]" />
+                <h3 className="font-serif text-base font-normal text-[#1c1b1a]">
+                  Recent Space Activity &amp; Memory Events
+                </h3>
+              </div>
+              <button
+                onClick={() => setActiveTab('activity')}
+                className="text-xs text-[#2a72de] hover:underline font-medium"
+              >
+                View Complete Audit &rarr;
+              </button>
             </div>
 
-            <div className="space-y-3">
-              {spaceBlockers.map((b) => (
-                <div key={b.id} className="p-3 bg-red-50/60 rounded-lg border border-red-200 text-xs space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[9px] uppercase font-bold text-[#e33a22]">{b.severity} severity</span>
-                    <span className="text-[10px] text-[#838280]">Blocker</span>
+            <div className="divide-y divide-[#f0ece4]">
+              {getSpaceAuditTrail().slice(0, 2).map((item, idx) => (
+                <div key={idx} className="py-2.5 flex items-center justify-between gap-4 text-xs">
+                  <div className="space-y-0.5">
+                    <span className="font-semibold text-[#1c1b1a]">{item.action}: </span>
+                    <span className="text-[#4a4741]">{item.description}</span>
                   </div>
-                  <div className="font-semibold text-[#1c1b1a]">{b.description}</div>
-                </div>
-              ))}
-
-              {spaceTasks.slice(0, 3).map((t) => (
-                <div key={t.id} className="p-3 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] text-xs flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-[#1c1b1a]">{t.title}</div>
-                    <div className="text-[11px] text-[#838280]">Assignee: {t.assignee_name || 'Unassigned'}</div>
-                  </div>
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-100 text-[#4a4741]">
-                    {t.status}
-                  </span>
+                  <span className="text-[11px] text-[#838280] shrink-0 font-mono">{item.date}</span>
                 </div>
               ))}
             </div>
@@ -255,7 +593,7 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
         </div>
       )}
 
-      {/* Tab 2: Meetings */}
+      {/* Tab: Meetings */}
       {activeTab === 'meetings' && (
         <div className="space-y-3">
           {spaceMeetings.length === 0 ? (
@@ -297,7 +635,7 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-[#1c1b1a] text-white hover:bg-[#39221e] transition-all"
                   >
                     <Eye className="w-3.5 h-3.5" />
-                    <span>View Transcript</span>
+                    <span>View Transcript &amp; Intelligence</span>
                   </button>
                 </div>
               </div>
@@ -306,99 +644,152 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
         </div>
       )}
 
-      {/* Tab 3: Decisions */}
+      {/* Tab: Decisions */}
       {activeTab === 'decisions' && (
         <div className="space-y-3">
-          {spaceDecisions.map((d) => (
-            <div
-              key={d.id}
-              onClick={() => onOpenDecisionTrail(d)}
-              className="card-oura p-5 bg-white border border-[#e1dcd3] hover:border-[#838280] cursor-pointer transition-all space-y-2.5"
-            >
-              <div className="flex items-center justify-between">
-                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
-                  d.status === 'active' ? 'bg-blue-50 text-[#2a72de]' : 'bg-amber-100 text-[#af751b]'
-                }`}>
-                  {d.status}
-                </span>
-                <span className="text-xs text-[#838280]">Decided by: {d.decided_by || 'Team'}</span>
-              </div>
-              <h4 className="text-sm font-semibold text-[#1c1b1a]">{d.statement}</h4>
-              {d.rationale && <p className="text-xs text-[#4a4741]">{d.rationale}</p>}
-              {d.evidence_items && d.evidence_items.length > 0 && (
-                <div className="text-xs italic bg-[#fbfaf7] p-2.5 rounded border border-[#e1dcd3] text-[#4a4741]">
-                  &ldquo;{d.evidence_items[0].quote}&rdquo;
-                </div>
-              )}
+          {spaceDecisions.length === 0 ? (
+            <div className="card-oura p-8 text-center text-xs text-[#838280] bg-white border border-[#e1dcd3]">
+              No decisions recorded in this Space yet.
             </div>
-          ))}
+          ) : (
+            spaceDecisions.map((d) => (
+              <div
+                key={d.id}
+                onClick={() => onOpenDecisionTrail(d)}
+                className="card-oura p-5 bg-white border border-[#e1dcd3] hover:border-[#838280] cursor-pointer transition-all space-y-2.5"
+              >
+                <div className="flex items-center justify-between">
+                  <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
+                    d.status === 'active' ? 'bg-blue-50 text-[#2a72de]' : 'bg-amber-100 text-[#af751b]'
+                  }`}>
+                    {d.status}
+                  </span>
+                  <span className="text-xs text-[#838280]">Decided by: {d.decided_by || 'Team'}</span>
+                </div>
+                <h4 className="text-sm font-semibold text-[#1c1b1a]">{d.statement}</h4>
+                {d.rationale && <p className="text-xs text-[#4a4741]">{d.rationale}</p>}
+                {d.evidence_items && d.evidence_items.length > 0 && (
+                  <div className="text-xs italic bg-[#fbfaf7] p-2.5 rounded border border-[#e1dcd3] text-[#4a4741]">
+                    &ldquo;{d.evidence_items[0].quote}&rdquo;
+                  </div>
+                )}
+              </div>
+            ))
+          )}
         </div>
       )}
 
-      {/* Tab 4: Tasks */}
+      {/* Tab: Tasks */}
       {activeTab === 'tasks' && (
         <div className="card-oura bg-white border border-[#e1dcd3] divide-y divide-[#e1dcd3]">
-          {spaceTasks.map((t) => (
-            <div key={t.id} className="p-4 flex items-center justify-between gap-4">
-              <div>
-                <h5 className="text-xs font-semibold text-[#1c1b1a]">{t.title}</h5>
-                <div className="text-[11px] text-[#838280] flex items-center gap-2 mt-0.5">
-                  <span>Assignee: {t.assignee_name || 'Unassigned'}</span>
-                  <span>&bull;</span>
-                  <span>Priority: {t.priority}</span>
+          {spaceTasks.length === 0 ? (
+            <div className="p-8 text-center text-xs text-[#838280]">No tasks in this Space.</div>
+          ) : (
+            spaceTasks.map((t) => (
+              <div key={t.id} className="p-4 flex items-center justify-between gap-4">
+                <div>
+                  <h5 className="text-xs font-semibold text-[#1c1b1a]">{t.title}</h5>
+                  <div className="text-[11px] text-[#838280] flex items-center gap-2 mt-0.5">
+                    <span>Assignee: {t.assignee_name || 'Unassigned'}</span>
+                    <span>&bull;</span>
+                    <span>Priority: {t.priority}</span>
+                  </div>
                 </div>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-100 text-[#4a4741] uppercase">
+                  {t.status.replace('_', ' ')}
+                </span>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-100 text-[#4a4741]">
-                {t.status}
-              </span>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       )}
 
-      {/* Tab 5: Documents & Context */}
+      {/* Tab: Documents & Context (Genuine rich content) */}
       {activeTab === 'documents' && (
-        <div className="card-oura p-6 bg-white border border-[#e1dcd3] space-y-4">
-          <h4 className="font-serif text-lg font-normal text-[#1c1b1a]">Space Documentation & Context Pack</h4>
-          <p className="text-xs text-[#7b776f]">
-            Verified context specifications defining architecture, API schemas, and operating procedures for this Space.
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-            <div className="p-3.5 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] text-xs">
-              <span className="font-semibold text-[#1c1b1a] block">Core Schema & Storage</span>
-              <p className="text-[11px] text-[#838280] mt-0.5">PostgreSQL multi-tenant tables partitioned by organization ID.</p>
-            </div>
-            <div className="p-3.5 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] text-xs">
-              <span className="font-semibold text-[#1c1b1a] block">Team Working Agreement</span>
-              <p className="text-[11px] text-[#838280] mt-0.5">Decisions require human review before altering canonical memory.</p>
-            </div>
+        <div className="space-y-4">
+          <div className="card-oura p-6 bg-white border border-[#e1dcd3] space-y-2">
+            <h4 className="font-serif text-xl font-normal text-[#1c1b1a]">
+              {activeSpace.name} Documentation &amp; Context Pack
+            </h4>
+            <p className="text-xs text-[#7b776f] max-w-2xl font-light">
+              Verified contextual specifications, RFCs, and operating agreements governing this Space.
+              All documents are synchronized directly with meeting conclusions.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {getSpaceDocuments().map((doc, idx) => (
+              <div
+                key={idx}
+                className="card-oura p-5 bg-white border border-[#e1dcd3] space-y-3 hover:border-[#838280] transition-all"
+              >
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-[#2a72de]">
+                    {doc.type}
+                  </span>
+                  <span className="text-[#838280] font-mono text-[11px]">{doc.updated}</span>
+                </div>
+
+                <div>
+                  <h5 className="font-serif text-base font-medium text-[#1c1b1a]">
+                    {doc.title}
+                  </h5>
+                  <p className="text-xs text-[#4a4741] mt-1 leading-relaxed">
+                    {doc.summary}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-[#f0ece4] flex items-center justify-between text-xs text-[#838280]">
+                  <span>Author: <strong>{doc.author}</strong></span>
+                  <span className="text-[#2a72de] font-medium flex items-center gap-1 hover:underline cursor-pointer">
+                    <FileText className="w-3.5 h-3.5" /> Read Context
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Tab 6: Audit Activity */}
+      {/* Tab: Audit Activity (Genuine rich event stream) */}
       {activeTab === 'activity' && (
         <div className="card-oura p-6 bg-white border border-[#e1dcd3] space-y-4">
-          <h4 className="font-serif text-lg font-normal text-[#1c1b1a]">Space Audit Log & Lineage</h4>
+          <div className="border-b border-[#e1dcd3] pb-3">
+            <h4 className="font-serif text-xl font-normal text-[#1c1b1a]">
+              Cryptographic Audit Stream &amp; Lineage
+            </h4>
+            <p className="text-xs text-[#7b776f] mt-0.5">
+              Append-only tamper-evident record of all extractions, supersessions, and approvals in this Space.
+            </p>
+          </div>
+
           <div className="space-y-3">
-            <div className="p-3 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] text-xs flex items-center justify-between">
-              <div>
-                <span className="font-semibold text-[#1c1b1a]">Approved Decision: PostgreSQL Partitioning</span>
-                <p className="text-[11px] text-[#838280]">Elena Rostova approved initial extracted record citing transcript segment.</p>
+            {getSpaceAuditTrail().map((item, idx) => (
+              <div
+                key={idx}
+                className="p-4 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] space-y-2 text-xs"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="font-semibold text-[#1c1b1a]">{item.action}</span>
+                  </div>
+                  <span className="text-[10px] font-mono text-[#838280]">{item.date}</span>
+                </div>
+
+                <p className="text-[#4a4741] leading-relaxed">
+                  {item.description}
+                </p>
+
+                <div className="flex items-center justify-between pt-1 border-t border-[#e1dcd3]/60 text-[11px] text-[#838280]">
+                  <span className="italic">{item.evidence}</span>
+                  <span>Actor: <strong>{item.actor}</strong></span>
+                </div>
               </div>
-              <span className="text-[10px] text-[#838280]">Audited</span>
-            </div>
-            <div className="p-3 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] text-xs flex items-center justify-between">
-              <div>
-                <span className="font-semibold text-[#af751b]">Superseded Decision: Single-node Redis Cache</span>
-                <p className="text-[11px] text-[#838280]">Marked superseded; historical version preserved permanently.</p>
-              </div>
-              <span className="text-[10px] text-[#af751b]">Superseded</span>
-            </div>
+            ))}
           </div>
         </div>
       )}
     </div>
   );
 };
-

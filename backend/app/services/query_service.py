@@ -151,6 +151,7 @@ class QueryService:
                     meeting = db.query(Meeting).filter(Meeting.id == d.meeting_id).first()
                     space = db.query(Space).filter(Space.id == d.space_id).first()
                     sources.append(QueryEvidence(
+                        meeting_id=meeting.id if meeting else None,
                         meeting_title=meeting.title if meeting else "Meeting",
                         space_name=space.name if space else "Space",
                         quote=ev.quote,
@@ -165,6 +166,7 @@ class QueryService:
                     meeting = db.query(Meeting).filter(Meeting.id == b.meeting_id).first()
                     space = db.query(Space).filter(Space.id == b.space_id).first()
                     sources.append(QueryEvidence(
+                        meeting_id=meeting.id if meeting else None,
                         meeting_title=meeting.title if meeting else "Meeting",
                         space_name=space.name if space else "Space",
                         quote=b.evidence_quote,

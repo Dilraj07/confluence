@@ -155,6 +155,7 @@ class AskQueryRequest(BaseModel):
     scope: str = "local"  # local, shared, organization
 
 class QueryEvidence(BaseModel):
+    meeting_id: Optional[str] = None
     meeting_title: str
     space_name: str
     quote: str

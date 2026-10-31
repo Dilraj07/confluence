@@ -298,6 +298,10 @@ export default function WorkspacePage() {
                   spaces={spaces}
                   selectedSpaceId={selectedSpaceId}
                   initialQuery={askInitialQuery}
+                  onOpenMeeting={(meetingId) => {
+                    setActiveMeetingId(meetingId);
+                    setCurrentView('meeting-detail');
+                  }}
                 />
               )}
 
