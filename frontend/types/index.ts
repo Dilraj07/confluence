@@ -186,6 +186,12 @@ export interface QueryEvidence {
   timestamp?: string;
 }
 
+export interface ReasoningStep {
+  step: string;
+  detail: string;
+  status: 'completed' | 'in_progress' | 'pending';
+}
+
 export interface AskQueryResponse {
   query: string;
   answer: string;
@@ -194,6 +200,9 @@ export interface AskQueryResponse {
   sources: QueryEvidence[];
   impact_summary?: string;
   related_decision_ids: string[];
+  related_task_ids?: string[];
+  related_blocker_ids?: string[];
+  reasoning_steps?: ReasoningStep[];
   mode?: 'search' | 'task_command' | 'memory_correction';
   proposed_action?: Record<string, any>;
 }

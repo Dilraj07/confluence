@@ -86,6 +86,18 @@ export default function WorkspacePage() {
     loadData();
   }, [selectedSpaceId]);
 
+  // Global ⌘K / Ctrl+K keyboard shortcut to open Ask CONFLUENCE
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCurrentView('ask');
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   const handleResetSeed = async () => {
     try {
       setIsSeeding(true);
@@ -100,10 +112,8 @@ export default function WorkspacePage() {
   const handleOpenAskWithPrompt = (prompt?: string) => {
     if (prompt) {
       setAskInitialQuery(prompt);
-      setCurrentView('ask');
-    } else {
-      setIsAskModalOpen(true);
     }
+    setCurrentView('ask');
   };
 
   const handleOpenDecision = (decisionId: string) => {
@@ -191,7 +201,7 @@ export default function WorkspacePage() {
         selectedSpaceId={selectedSpaceId}
         onSelectSpace={(sId) => setSelectedSpaceId(sId)}
         onOpenIngest={() => setIsIngestOpen(true)}
-        onOpenAsk={() => setIsAskModalOpen(true)}
+        onOpenAsk={() => setCurrentView('ask')}
       />
 
       {/* 2. Main Content Column */}
@@ -203,7 +213,7 @@ export default function WorkspacePage() {
           subtitle={viewMeta.subtitle}
           selectedSpace={selectedSpace}
           onOpenIngest={() => setIsIngestOpen(true)}
-          onOpenAsk={() => setIsAskModalOpen(true)}
+          onOpenAsk={() => setCurrentView('ask')}
         />
 
         {/* Scrollable View Area */}
@@ -332,6 +342,11 @@ export default function WorkspacePage() {
                   onOpenMeeting={(meetingId) => {
                     setActiveMeetingId(meetingId);
                     setCurrentView('meeting-detail');
+                  }}
+                  onOpenDecision={handleOpenDecision}
+                  onNavigateToView={(v) => {
+                    loadData();
+                    setCurrentView(v);
                   }}
                 />
               )}

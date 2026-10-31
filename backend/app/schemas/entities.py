@@ -171,5 +171,18 @@ class AskQueryResponse(BaseModel):
     sources: List[QueryEvidence]
     impact_summary: Optional[str] = None
     related_decision_ids: List[str] = []
+    related_task_ids: List[str] = []
+    related_blocker_ids: List[str] = []
+    reasoning_steps: Optional[List[Dict[str, Any]]] = None
     mode: Optional[str] = "search"  # search, task_command, memory_correction
     proposed_action: Optional[Dict[str, Any]] = None
+
+class ActionExecutionRequest(BaseModel):
+    action_type: str  # create_task, update_decision_metadata, reassign_space_link
+    payload: Dict[str, Any]
+
+class ActionExecutionResponse(BaseModel):
+    success: bool
+    message: str
+    entity_id: Optional[str] = None
+    entity_type: Optional[str] = None
