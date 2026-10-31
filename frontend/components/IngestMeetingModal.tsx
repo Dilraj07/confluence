@@ -12,10 +12,10 @@ interface IngestMeetingModalProps {
   onIngestSuccess: (meetingId: string) => void;
 }
 
-const SAMPLE_TRANSCRIPT = `[00:00:30] Elena Rostova (Staff Backend Architect): Let's make a final call on the query cache architecture.
-[00:01:45] Alex Rivera (Engineering Lead): We agreed we will deprecate the standalone Redis cluster and migrate entirely to native PostgreSQL read replicas with table partitioning.
-[00:03:10] Elena Rostova (Staff Backend Architect): That formally supersedes our Q3 Redis caching setup. I will prepare the read replica failover test plan by next Tuesday.
-[00:04:20] Alex Rivera (Engineering Lead): We are blocked on AWS staging IAM permissions from the infrastructure security squad.`;
+const SAMPLE_TRANSCRIPT = `[00:00:30] Daniel Foster (Payments Lead): In test scenarios where the primary processor experienced a 3-second timeout, the failover route to Stripe triggered an identical authorization request.
+[00:01:45] Maya Chen (Product Manager): So if the primary did actually process it before the timeout, the customer gets charged twice?
+[00:02:15] Elena Petrova (Backend Engineer): Exactly. Without a shared idempotency key and reconciliation protocol, automatic failover creates duplicate transactions.
+[00:03:00] Maya Chen (Product Manager): We cannot expand the pilot under these conditions. I am pausing the 20% rollout until Daniel and Elena verify the idempotent failover logic.`;
 
 export const IngestMeetingModal: React.FC<IngestMeetingModalProps> = ({
   isOpen,
@@ -33,7 +33,7 @@ export const IngestMeetingModal: React.FC<IngestMeetingModalProps> = ({
   if (!isOpen) return null;
 
   const handlePreFill = () => {
-    setTitle('Read Replica Architecture & Cache Deprecation');
+    setTitle('Smart Routing Failover Idempotency Review');
     setTranscriptText(SAMPLE_TRANSCRIPT);
   };
 

@@ -66,160 +66,216 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
       <div className="card-oura p-12 text-center max-w-xl mx-auto my-12 bg-white">
         <Folder className="w-8 h-8 text-[#838280] mx-auto mb-2" />
         <h3 className="font-serif text-xl text-[#1c1b1a]">No Spaces Configured</h3>
-        <p className="text-xs text-[#838280] mt-1">Please seed or create a space to begin.</p>
+        <p className="text-xs text-[#838280] mt-1">Please seed MeridianPay demo scenario to begin.</p>
       </div>
     );
   }
 
-  // Cross-space dependencies detection
-  const isBackend = activeSpace.slug.includes('backend');
-  const isLaunch = activeSpace.slug.includes('launch');
-  const isHR = activeSpace.slug.includes('recruitment');
+  // Cross-space dependencies detection for MeridianPay
+  const isPayments = activeSpace.slug.includes('payments');
+  const isSRE = activeSpace.slug.includes('site-reliability') || activeSpace.slug.includes('sre');
+  const isRisk = activeSpace.slug.includes('risk');
+  const isSecurity = activeSpace.slug.includes('security');
+  const isMerchant = activeSpace.slug.includes('merchant');
+  const isProduct = activeSpace.slug.includes('product');
 
-  // Space-specific contextual documents
+  // Space-specific contextual documents for MeridianPay
   const getSpaceDocuments = () => {
-    if (isBackend) {
+    if (isPayments) {
       return [
         {
-          title: 'RFC #14: PostgreSQL Partitioning by Organization ID',
+          title: 'RFC #42: Idempotency Key Propagation & Processor Retry Rules',
           type: 'Architecture Spec',
-          author: 'Elena Rostova',
-          updated: 'Oct 28, 2026',
-          status: 'Approved',
-          summary: 'Defines composite table partitioning on organization_id and created_at to guarantee sub-15ms p99 query latency across multi-tenant shards.'
-        },
-        {
-          title: 'API v2 Service Level Agreement & Sharding Topology',
-          type: 'Technical SLA',
-          author: 'Distributed Systems Team',
-          updated: 'Oct 20, 2026',
+          author: 'Elena Petrova & Daniel Foster',
+          updated: 'Nov 3, 2026',
           status: 'Active',
-          summary: 'Outlines read-replica distribution, failover guarantees, and connection pooling requirements for high-throughput tenant workloads.'
+          summary: 'Defines end-to-end propagation of idempotency keys through routing logic and processor adapters to guarantee zero duplicate charges.'
         },
         {
-          title: 'Alembic Schema Partitioning Migration Runbook',
+          title: 'Processor Timeout Classification & Safe Reconciliation Runbook',
           type: 'Operational Runbook',
-          author: 'Backend Infra Team',
-          updated: 'Oct 29, 2026',
+          author: 'Elena Petrova',
+          updated: 'Nov 9, 2026',
           status: 'In Review',
-          summary: 'Step-by-step rollout plan for zero-downtime table rewrites and index creation on production database clusters.'
+          summary: 'Distinguishes connection drops, explicit processor declines, and ambiguous timeouts requiring active reconciliation.'
+        },
+        {
+          title: 'Smart Routing Failover SLA & Adapter Specification',
+          type: 'Technical SLA',
+          author: 'Payments Team',
+          updated: 'Nov 2, 2026',
+          status: 'Approved',
+          summary: 'Failover latency boundaries, fallback routing rules, and multi-processor integration contracts.'
         }
       ];
     }
-    if (isHR) {
+    if (isSRE) {
       return [
         {
-          title: 'Q4 Technical Staffing Plan & Headcount Allocation',
-          type: 'Strategic Plan',
-          author: 'David Chen',
-          updated: 'Oct 15, 2026',
+          title: 'Smart Routing v2 Canary Dashboard & Alert Thresholds',
+          type: 'Monitoring Spec',
+          author: 'Priya Nair',
+          updated: 'Nov 6, 2026',
           status: 'Active',
-          summary: 'Allocates hiring headcount across distributed systems, frontend engineering, and platform reliability roles for Q4/Q1.'
+          summary: 'Configures automated canary pause alerts: p95 latency > 650 ms for 10 minutes or overall error rate exceeding 0.5%.'
         },
         {
-          title: 'Senior Staff Distributed Systems Compensation Band',
-          type: 'Compensation Policy',
-          author: 'People Ops Team',
-          updated: 'Oct 22, 2026',
-          status: 'Confidential',
-          summary: 'Benchmarks equity, base salary tiers, and sign-on incentives for tier-1 distributed infrastructure candidates.'
+          title: 'Production Automated Rollback & Traffic Drain SOP',
+          type: 'SRE Runbook',
+          author: 'SRE Platform Team',
+          updated: 'Nov 10, 2026',
+          status: 'In Review',
+          summary: 'Automated procedure for safely draining traffic from canary processor routes back to primary legacy paths.'
+        }
+      ];
+    }
+    if (isRisk) {
+      return [
+        {
+          title: 'Fraud Scoring Decision Continuity During Failover',
+          type: 'Risk Policy',
+          author: 'Omar Hassan & Fatima Ali',
+          updated: 'Nov 4, 2026',
+          status: 'Active',
+          summary: 'Mandates that transaction risk evaluation cannot be bypassed during processor rerouting, and establishes fail-safe defaults.'
         },
         {
-          title: 'Executive Search Agency Retainer & SLA Agreement',
-          type: 'Vendor Agreement',
-          author: 'David Chen',
-          updated: 'Oct 29, 2026',
-          status: 'Executed',
-          summary: 'Defines 72-hour sourcing SLA and 14-day interview loop commitment for replacement senior backend engineers.'
+          title: 'End-to-End Risk Propagation Test Suite Specification',
+          type: 'Testing Protocol',
+          author: 'Fatima Ali',
+          updated: 'Nov 9, 2026',
+          status: 'In Progress',
+          summary: 'Synthetic test scenarios verifying fraud engine continuity across multiple processor retry paths.'
+        }
+      ];
+    }
+    if (isSecurity) {
+      return [
+        {
+          title: 'PCI DSS Data-Flow Specification & Log Redaction Verification',
+          type: 'Security Spec',
+          author: 'James Wilson & Nina Patel',
+          updated: 'Nov 5, 2026',
+          status: 'In Review',
+          summary: 'Verifies that routing service logs, retry metadata, and debug traces contain zero raw card numbers or sensitive authentication data.'
+        },
+        {
+          title: 'Tokenised Reference Architecture & Access Control Policy',
+          type: 'Compliance Standard',
+          author: 'Security & Compliance Team',
+          updated: 'Nov 5, 2026',
+          status: 'Approved',
+          summary: 'Outlines tokenised payment reference lifecycle, encryption-at-rest keys, and audit logging standards.'
+        }
+      ];
+    }
+    if (isMerchant) {
+      return [
+        {
+          title: 'Smart Routing Pilot Merchant Communication Draft',
+          type: 'External Comms',
+          author: 'Sarah Kim & Maya Chen',
+          updated: 'Nov 11, 2026',
+          status: 'Draft (Held)',
+          summary: 'Customer communication explaining routing benefits. Explicitly held in draft pending technical readiness approval.'
+        },
+        {
+          title: 'Merchant Support Escalation & Payment Failure SOP',
+          type: 'Support Runbook',
+          author: 'Sarah Kim',
+          updated: 'Nov 11, 2026',
+          status: 'In Progress',
+          summary: 'Step-by-step triage guide for customer support agents handling payment timeouts during the 5% pilot.'
         }
       ];
     }
     return [
       {
-        title: 'Q1 Platform Launch Readiness Checklist & Go/No-Go Gate',
-        type: 'Product Checklist',
-        author: 'Alex Chen',
-        updated: 'Oct 29, 2026',
-        status: 'In Progress',
-        summary: 'Mandatory technical, compliance, security, and staffing prerequisites required prior to customer cohort onboarding.'
+        title: 'Smart Routing v2 Product Requirements Document (PRD)',
+        type: 'Product Requirements',
+        author: 'Maya Chen',
+        updated: 'Nov 2, 2026',
+        status: 'Active',
+        summary: 'Adaptive payment processor selection to improve authorization rates without requiring merchant API integration changes.'
       },
       {
-        title: 'Multi-Region Failover & Disaster Recovery SOP',
-        type: 'SRE Procedure',
-        author: 'Platform Ops & SRE',
-        updated: 'Oct 25, 2026',
-        status: 'Approved',
-        summary: 'Operational manual detailing automated DNS failover, partition recovery, and data replay procedures.'
+        title: '14 November Technical Readiness Review Gate Checklist',
+        type: 'Launch Gate',
+        author: 'Maya Chen & Executive Committee',
+        updated: 'Nov 10, 2026',
+        status: 'Pending Review',
+        summary: 'Mandatory cross-functional sign-off criteria requiring approval from Payments, SRE, Risk, and Security before 20% expansion.'
       }
     ];
   };
 
-  // Space-specific audit log
+  // Space-specific audit log for MeridianPay
   const getSpaceAuditTrail = () => {
-    if (isBackend) {
-      return [
-        {
-          action: 'Canonical Decision Approved',
-          description: 'Elena Rostova approved decision: "PostgreSQL table partitioning on organization_id".',
-          evidence: 'Verified against Transcript Segment #4 (Backend Review).',
-          date: 'Oct 28, 2026',
-          actor: 'Elena Rostova (Tech Lead)'
-        },
-        {
-          action: 'Decision Superseded',
-          description: 'Marked "Single-node Redis Cache" as superseded with permanent audit lineage retained.',
-          evidence: 'Superseded by Postgres partitioning decision.',
-          date: 'Oct 28, 2026',
-          actor: 'Elena Rostova (Tech Lead)'
-        },
-        {
-          action: 'Commitment Created',
-          description: 'Elena Rostova assigned task: "Prepare database partition scripts".',
-          evidence: 'Extracted from Backend Architecture Sync.',
-          date: 'Oct 28, 2026',
-          actor: 'Extraction Engine'
-        }
-      ];
-    }
-    if (isHR) {
+    if (isPayments) {
       return [
         {
           action: 'Critical Blocker Raised',
-          description: 'Candidate reneged on Senior Distributed Systems Engineer role due to competitive counter-offer.',
-          evidence: 'Verified against Transcript Segment #3 (Recruitment Sync).',
-          date: 'Oct 29, 2026',
-          actor: 'David Chen (Head of Recruitment)'
+          description: 'Ambiguous processor timeouts can trigger unsafe retries and duplicate authorisations.',
+          evidence: 'Verified against Transcript Segment #1 (Pilot Performance Review).',
+          date: 'Nov 09, 2026',
+          actor: 'Daniel Foster & Elena Petrova'
         },
         {
-          action: 'Urgent Commitment Staged',
-          description: 'David Chen committed task: "Engage external recruitment agency to source replacement engineer".',
-          evidence: 'Due: Nov 3, 2026.',
-          date: 'Oct 29, 2026',
-          actor: 'David Chen'
+          action: 'Canonical Decision Confirmed',
+          description: 'Propagate the same idempotency key across routing and processor attempts.',
+          evidence: 'Verified against Transcript Segment #1 (Routing Architecture Review).',
+          date: 'Nov 03, 2026',
+          actor: 'Elena Petrova (Backend Engineer)'
+        }
+      ];
+    }
+    if (isProduct) {
+      return [
+        {
+          action: 'Commitment Superseded',
+          description: 'Replaced planned 20% expansion with 14 November readiness review requiring four team approvals.',
+          evidence: 'Verified against Transcript Segment #1 (Launch Gate Decision).',
+          date: 'Nov 10, 2026',
+          actor: 'Maya Chen (Product Manager)'
         },
         {
-          action: 'Space Ingestion',
-          description: 'Ingested 4 transcript segments from Weekly Technical Recruitment Sync.',
-          evidence: 'Meeting ID: mtg-recruitment-01.',
-          date: 'Oct 29, 2026',
-          actor: 'CONFLUENCE Ingest'
+          action: 'Approval Request Created',
+          description: 'Created pending approval request for 14 November technical readiness gate.',
+          evidence: 'Target ID: 57635a88-8391-573a-b635-5a851de81b75.',
+          date: 'Nov 10, 2026',
+          actor: 'CONFLUENCE Engine'
+        }
+      ];
+    }
+    if (isRisk) {
+      return [
+        {
+          action: 'Risk Blocker Flagged',
+          description: 'Risk decision continuity is not verified end-to-end for failover retries.',
+          evidence: 'Verified against Transcript Segment #1 (Fraud Controls Sync).',
+          date: 'Nov 04, 2026',
+          actor: 'Omar Hassan & Fatima Ali'
+        }
+      ];
+    }
+    if (isSRE) {
+      return [
+        {
+          action: 'Operational Decision Approved',
+          description: 'Canary monitoring alert thresholds set to 650 ms p95 latency and 0.5% error rate.',
+          evidence: 'Verified against Transcript Segment #1 (Canary Observability Review).',
+          date: 'Nov 06, 2026',
+          actor: 'Priya Nair (SRE Lead)'
         }
       ];
     }
     return [
       {
-        action: 'Cross-Space Dependency Flagged',
-        description: 'Launch milestone dependent on Backend database partitioning and HR staffing capacity.',
-        evidence: 'Verified against Transcript Segment #2 (Go/No-Go Review).',
-        date: 'Oct 29, 2026',
-        actor: 'Alex Chen (Product Lead)'
-      },
-      {
-        action: 'Canonical Decision Confirmed',
-        description: 'Confirmed: "Maintain March 15 Platform Launch Date with contingent staging gates".',
-        evidence: 'Verified against Transcript Segment #4.',
-        date: 'Oct 29, 2026',
-        actor: 'Executive Committee'
+        action: 'Communication Decision Held',
+        description: 'Keep merchant launch confirmation in draft until technical readiness is approved.',
+        evidence: 'Verified against Transcript Segment #1 (Merchant Pilot Comms).',
+        date: 'Nov 11, 2026',
+        actor: 'Sarah Kim & Maya Chen'
       }
     ];
   };
@@ -283,33 +339,34 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
         </div>
 
         {/* Cross-Space Dependency Notice */}
-        {isLaunch && (
+        {isPayments && (
           <div className="p-3.5 bg-red-50/70 border border-red-200 rounded-lg text-xs flex items-start gap-2.5">
             <Flame className="w-4 h-4 text-[#e33a22] shrink-0 mt-0.5" />
             <div className="text-[#1c1b1a] leading-relaxed">
-              <strong>Cross-Space Dependency Active:</strong> March 15 Platform Launch is dependent on{' '}
-              <span className="font-semibold text-[#2a72de]">Engineering → Backend</span> database schema migration and{' '}
-              <span className="font-semibold text-[#af751b]">HR → Recruitment</span> senior engineering capacity.
+              <strong>Upstream Blocker:</strong> Ambiguous processor timeouts trigger duplicate authorization hazard.
+              Directly blocks traffic expansion in <span className="font-semibold text-[#2a72de]">Product &amp; Strategy</span>.
             </div>
           </div>
         )}
 
-        {isBackend && (
+        {isProduct && (
           <div className="p-3.5 bg-amber-50/70 border border-amber-200 rounded-lg text-xs flex items-start gap-2.5">
             <GitBranch className="w-4 h-4 text-[#af751b] shrink-0 mt-0.5" />
             <div className="text-[#1c1b1a] leading-relaxed">
-              <strong>Downstream Impact Notice:</strong> PostgreSQL table partitioning supersedes single-node caching.
-              Directly determines readiness for <span className="font-semibold text-[#2a72de]">Product → Platform Launch</span>.
+              <strong>Launch Gate Active:</strong> Planned 20% expansion is superseded. Requires verified readiness approvals from{' '}
+              <span className="font-semibold text-[#2a72de]">Payments Platform</span>,{' '}
+              <span className="font-semibold text-[#af751b]">SRE</span>,{' '}
+              <span className="font-semibold text-[#5c6f5d]">Risk &amp; Fraud</span>, and{' '}
+              <span className="font-semibold text-[#e33a22]">Security</span>.
             </div>
           </div>
         )}
 
-        {isHR && (
-          <div className="p-3.5 bg-red-50/70 border border-red-200 rounded-lg text-xs flex items-start gap-2.5">
-            <Flame className="w-4 h-4 text-[#e33a22] shrink-0 mt-0.5" />
+        {isMerchant && (
+          <div className="p-3.5 bg-blue-50/70 border border-blue-200 rounded-lg text-xs flex items-start gap-2.5">
+            <ShieldCheck className="w-4 h-4 text-[#2a72de] shrink-0 mt-0.5" />
             <div className="text-[#1c1b1a] leading-relaxed">
-              <strong>Upstream Blocker:</strong> Candidate reneged for Senior Distributed Systems engineer.
-              Directly limits throughput in <span className="font-semibold text-[#2a72de]">Engineering → Backend</span>.
+              <strong>External Hold:</strong> Merchant expansion communication remains in draft until the 14 November technical readiness review is approved.
             </div>
           </div>
         )}
@@ -430,7 +487,7 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
                       No standalone architectural decisions recorded yet.
                     </div>
                     <p className="text-[#838280] leading-relaxed">
-                      Discussions in the {activeSpace.name} Space currently center on candidate pipelines, compensation negotiations, and hiring commitments rather than formal architectural policies.
+                      Discussions in the {activeSpace.name} Space currently center on verification testing, audit logs, and operational commitments.
                     </p>
                   </div>
                 ) : (
@@ -531,7 +588,9 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
                       <div key={t.id} className="p-3.5 space-y-1 hover:bg-[#fbfaf7] transition-colors">
                         <div className="flex items-center justify-between text-[11px]">
                           <span className="font-semibold text-[#1c1b1a]">{t.title}</span>
-                          <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-[#4a4741] uppercase">
+                          <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded uppercase ${
+                            t.status === 'blocked' ? 'bg-red-100 text-[#e33a22]' : 'bg-stone-100 text-[#4a4741]'
+                          }`}>
                             {t.status.replace('_', ' ')}
                           </span>
                         </div>
@@ -551,11 +610,17 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
                   Cross-Space Linkages
                 </span>
                 <p className="text-[11px] text-[#7b776f] leading-relaxed">
-                  {isBackend
-                    ? 'Outputs from this Space directly unblock API migration milestones in Platform Launch.'
-                    : isHR
-                    ? 'Staffing velocity in this Space directly gates engineering throughput in the Backend Space.'
-                    : 'This Space acts as the umbrella milestone coordinating Backend database deliverables and HR staffing.'}
+                  {isPayments
+                    ? 'Outputs from this Space govern processor failover safety and directly determine readiness for Product pilot expansion.'
+                    : isSRE
+                    ? 'Canary monitoring latency (650 ms) and rollback runbooks established here gate the 14 November technical readiness review.'
+                    : isRisk
+                    ? 'Risk decision continuity verified in this Space ensures fraud evaluation cannot be bypassed during processor failover.'
+                    : isSecurity
+                    ? 'PCI DSS log redaction evidence verified here gates production authorization across external payment networks.'
+                    : isMerchant
+                    ? 'Merchant communications and support triage runbooks established here protect customer experience during pilot failovers.'
+                    : 'This Space acts as the primary milestone owner coordinating cross-functional readiness across Payments, SRE, Risk, and Security.'}
                 </p>
               </div>
             </div>
@@ -695,7 +760,9 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
                     <span>Priority: {t.priority}</span>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-stone-100 text-[#4a4741] uppercase">
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
+                  t.status === 'blocked' ? 'bg-red-100 text-[#e33a22]' : 'bg-stone-100 text-[#4a4741]'
+                }`}>
                   {t.status.replace('_', ' ')}
                 </span>
               </div>
@@ -704,7 +771,7 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
         </div>
       )}
 
-      {/* Tab: Documents & Context (Genuine rich content) */}
+      {/* Tab: Documents & Context */}
       {activeTab === 'documents' && (
         <div className="space-y-4">
           <div className="card-oura p-6 bg-white border border-[#e1dcd3] space-y-2">
@@ -751,7 +818,7 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
         </div>
       )}
 
-      {/* Tab: Audit Activity (Genuine rich event stream) */}
+      {/* Tab: Audit Activity */}
       {activeTab === 'activity' && (
         <div className="card-oura p-6 bg-white border border-[#e1dcd3] space-y-4">
           <div className="border-b border-[#e1dcd3] pb-3">

@@ -50,7 +50,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
   const [zoom, setZoom] = useState<number>(1);
 
   // Selected decision for Impact Analysis Simulator
-  const [selectedImpactDecisionId, setSelectedImpactDecisionId] = useState<string>('d-launch-01');
+  const [selectedImpactScenarioId, setSelectedImpactScenarioId] = useState<string>('scenario-gate-01');
 
   // Position nodes pseudo-organically in columns so it fills the canvas nicely
   const layoutNodes = useMemo(() => {
@@ -72,23 +72,23 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
     const positioned: Record<string, { x: number; y: number; node: GraphNode }> = {};
 
     spacesList.forEach((s, idx) => {
-      positioned[s.id] = { x: 140, y: 150 + idx * 170, node: s };
+      positioned[s.id] = { x: 130, y: 80 + idx * 100, node: s };
     });
 
     meetingsList.forEach((m, idx) => {
-      positioned[m.id] = { x: 420, y: 110 + idx * 140, node: m };
+      positioned[m.id] = { x: 410, y: 70 + idx * 80, node: m };
     });
 
     decisionsList.forEach((d, idx) => {
-      positioned[d.id] = { x: 740, y: 90 + idx * 150, node: d };
+      positioned[d.id] = { x: 730, y: 65 + idx * 75, node: d };
     });
 
     tasksList.forEach((t, idx) => {
-      positioned[t.id] = { x: 1040, y: 110 + idx * 140, node: t };
+      positioned[t.id] = { x: 1040, y: 65 + idx * 65, node: t };
     });
 
     blockersList.forEach((b, idx) => {
-      positioned[b.id] = { x: 1040, y: 350 + idx * 150, node: b };
+      positioned[b.id] = { x: 1040, y: 440 + idx * 75, node: b };
     });
 
     return positioned;
@@ -134,65 +134,112 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
   const edgeColor = (type: string) => {
     switch (type) {
       case 'SUPERSEDES':
+      case 'SUPERSEDED_BY':
         return '#af751b';
       case 'BLOCKS':
+      case 'TRIGGERS':
         return '#e33a22';
       case 'AFFECTS':
+      case 'MITIGATED_BY':
         return '#2a72de';
       default:
         return '#d3cebe';
     }
   };
 
-  // Timeline events dataset (Chronological evolution)
+  // Timeline events dataset (Chronological evolution for MeridianPay Smart Routing v2)
   const timelineEvents = [
     {
-      date: 'Oct 14, 2026',
-      meetingTitle: 'Architecture Kickoff Sync',
-      spaceName: 'Engineering → Backend',
-      decision: 'Single-node Redis Cache for Session & Object Storage',
+      date: 'Nov 02, 2026',
+      meetingTitle: 'Smart Routing v2 kickoff',
+      spaceName: 'Product & Strategy',
+      decision: 'Begin with a 5% canary for the initial merchant pilot.',
+      status: 'active',
+      decidedBy: 'Maya Chen (Product Manager)',
+      quote: 'Let\'s begin with a 5% canary. Expansion requires reliability and risk checks to pass.',
+      rationale: 'Controlled pilot with 10 merchants to evaluate processor authorization rates without merchant code changes.',
+      evolutionText: 'Initial baseline rollout parameter.'
+    },
+    {
+      date: 'Nov 02, 2026',
+      meetingTitle: 'Smart Routing v2 kickoff',
+      spaceName: 'Product & Strategy',
+      decision: 'Expand the pilot to 20% after the initial canary gate.',
       status: 'superseded',
-      decidedBy: 'Backend Team',
-      quote: 'Redis cache is sufficient for initial development velocity prior to high concurrent tenant volume.',
-      rationale: 'Quick setup during early stage; superseded as volume scaling requirements emerged.',
-      evolutionText: 'Superseded on Oct 28 by PostgreSQL Table Partitioning.'
+      decidedBy: 'Maya Chen (Product Manager)',
+      quote: 'Expand the pilot to 20% after the initial canary gate.',
+      rationale: 'Original aggressive rollout timeline before discovering timeout ambiguity hazards.',
+      evolutionText: 'Superseded on Nov 10 by 14 November technical readiness review.'
     },
     {
-      date: 'Oct 28, 2026',
-      meetingTitle: 'Backend Architecture & Database Review',
-      spaceName: 'Engineering → Backend',
-      decision: 'PostgreSQL Table Partitioning on organization_id',
+      date: 'Nov 03, 2026',
+      meetingTitle: 'Routing architecture and idempotency review',
+      spaceName: 'Payments Platform',
+      decision: 'Propagate the same idempotency key across routing and processor attempts.',
       status: 'active',
-      decidedBy: 'Elena Rostova (Tech Lead)',
-      quote: 'We need table partitioning by organization_id in Postgres; otherwise p99 SLA fails across multi-tenant shards.',
-      rationale: 'Satisfies multi-tenant isolation, query throughput benchmarks, and compliance partitioning.',
-      evolutionText: 'Directly supersedes earlier Redis caching baseline; requires 3 weeks migration.'
+      decidedBy: 'Elena Petrova (Backend Engineer)',
+      quote: 'Carry the same idempotency key across routing and processor attempts. Do not automatically fail over an ambiguous timeout until we have safe reconciliation.',
+      rationale: 'A processor timeout does not prove the original processor never received or authorized payment.',
+      evolutionText: 'Fundamental idempotency constraint.'
     },
     {
-      date: 'Oct 29, 2026',
-      meetingTitle: 'Weekly Technical Recruitment Sync',
-      spaceName: 'HR → Recruitment',
-      decision: 'Engage External Agency to Replace Senior Distributed Engineer',
+      date: 'Nov 04, 2026',
+      meetingTitle: 'Fraud controls during processor failover',
+      spaceName: 'Risk & Fraud',
+      decision: 'Mandatory risk evaluation must not be bypassed during processor failover; fail safely if unavailable.',
       status: 'active',
-      decidedBy: 'David Chen (Head of Recruitment)',
-      quote: 'The senior distributed engineer reneged. We must immediately retain an external agency on a 72-hour sourcing SLA.',
-      rationale: 'In-house sourcing alone cannot fulfill critical backend staffing capacity before the March deadline.',
-      evolutionText: 'Directly addresses backend engineering throughput deficit.'
+      decidedBy: 'Fatima Ali (Risk Engineer)',
+      quote: 'Risk evaluation must be independent of processor selection. If mandatory risk evaluation is unavailable, fail safely rather than routing around it.',
+      rationale: 'Guarantees transaction fraud scoring continuity regardless of secondary processor routing.',
+      evolutionText: 'Risk continuity constraint.'
     },
     {
-      date: 'Oct 29, 2026',
-      meetingTitle: 'Q1 Platform Launch Go/No-Go Review',
-      spaceName: 'Product → Platform Launch',
-      decision: 'Maintain March 15 Platform Launch Date with contingent staging gates',
+      date: 'Nov 06, 2026',
+      meetingTitle: 'Canary observability and production readiness',
+      spaceName: 'Site Reliability Engineering',
+      decision: 'Use canary monitoring and pause expansion at the agreed pilot latency or error thresholds.',
       status: 'active',
-      decidedBy: 'Alex Chen & Executive Committee',
-      quote: 'We will hold March 15 as our baseline, but contingent on backend migration completing by Feb 1.',
-      rationale: 'Maintains enterprise go-to-market commitments while tracking backend schema migration and staffing.',
-      evolutionText: 'Dependent on Backend schema partitioning & HR recruitment resolution.'
+      decidedBy: 'Priya Nair (SRE Lead)',
+      quote: 'For this pilot, pause expansion if p95 latency exceeds 650 ms for ten minutes or the error rate exceeds 0.5%. Pause does not automatically mean rollback.',
+      rationale: 'Establishes clear metrics boundaries for traffic expansion versus automatic pause.',
+      evolutionText: 'SRE canary gates established.'
+    },
+    {
+      date: 'Nov 09, 2026',
+      meetingTitle: 'Pilot performance review: timeout ambiguity',
+      spaceName: 'Payments Platform',
+      decision: 'Pause expansion beyond 5% and disable automatic cross-processor retries for ambiguous timeouts.',
+      status: 'active',
+      decidedBy: 'Elena Petrova (Backend Engineer)',
+      quote: 'Some requests are retried even though we cannot tell whether the original processor completed authorisation. Disable automatic cross-processor retries for ambiguous outcomes.',
+      rationale: 'Observed pilot timeouts exposed risk of duplicate authorisations against cardholders.',
+      evolutionText: 'Direct trigger for launch gate halt.'
+    },
+    {
+      date: 'Nov 10, 2026',
+      meetingTitle: 'Smart Routing launch gate decision',
+      spaceName: 'Product & Strategy',
+      decision: 'Replace the planned 20% expansion with a 14 November readiness review requiring four team approvals.',
+      status: 'active',
+      decidedBy: 'Maya Chen & Executive Committee',
+      quote: 'Replace the planned 20% expansion date with a 14 November readiness review. Payments, SRE, Risk, and Security must approve before expansion.',
+      rationale: 'Blocks traffic growth until Payments, SRE, Risk, and Security verified evidence is approved.',
+      evolutionText: 'Supersedes 2 Nov 20% rollout commitment.'
+    },
+    {
+      date: 'Nov 11, 2026',
+      meetingTitle: 'Merchant pilot communications and support readiness',
+      spaceName: 'Merchant Operations',
+      decision: 'Keep merchant launch confirmation in draft until technical readiness is approved.',
+      status: 'active',
+      decidedBy: 'Sarah Kim & Maya Chen',
+      quote: 'Keep merchant communication in draft. Do not confirm the expansion date until the technical readiness review is approved.',
+      rationale: 'Protects merchant relationships by preventing external dates before technical sign-off.',
+      evolutionText: 'Merchant external communications gate.'
     }
   ];
 
-  // Impact simulation datasets
+  // Impact simulation datasets for MeridianPay Smart Routing v2
   const impactScenarios: Record<string, {
     title: string;
     space: string;
@@ -203,120 +250,141 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
     downstreamBlockers: string[];
     mitigations: string[];
   }> = {
-    'd-launch-01': {
-      title: 'Maintain March 15 Platform Launch Date',
-      space: 'Product → Platform Launch',
-      description: 'Simulating a 4-week slippage or change to the March 15 Platform Launch milestone.',
+    'scenario-gate-01': {
+      title: 'Replace 20% Expansion with 14 Nov Multi-Team Readiness Review',
+      space: 'Product & Strategy',
+      description: 'Simulating the impact of superseding the planned 20% expansion and requiring 4 departmental sign-offs.',
       riskLevel: 'Critical',
       affectedSpaces: [
         {
-          name: 'Engineering (Backend)',
-          impact: 'Relieves urgent pressure on Alembic migration scripts; enables 2 additional weeks of staging load testing.'
+          name: 'Payments Platform',
+          impact: 'Must implement safe timeout classification, idempotency key propagation, and disable automatic cross-processor retries.'
         },
         {
-          name: 'HR (Recruitment)',
-          impact: 'Provides 3 additional weeks for the external agency to onboard the Senior Distributed Systems engineer.'
+          name: 'Site Reliability Engineering',
+          impact: 'Must validate canary latency alerts (650 ms p95, 0.5% error) and execute automated rollback drill in staging.'
         },
         {
-          name: 'Product & Go-To-Market',
-          impact: 'Requires rescheduling customer onboarding cohorts and updating executive steering board.'
+          name: 'Risk & Fraud',
+          impact: 'Must run end-to-end risk propagation tests to guarantee fraud evaluation continuity during retries.'
+        },
+        {
+          name: 'Security & Compliance',
+          impact: 'Must review error traces and application logs confirming zero raw PANs or sensitive authentication data.'
+        },
+        {
+          name: 'Merchant Operations',
+          impact: 'Must hold merchant expansion communications in draft status and prepare support failure runbooks.'
         }
       ],
       affectedCommitments: [
         {
-          task: 'Prepare database partition scripts',
-          owner: 'Elena Rostova',
-          currentStatus: 'In progress',
-          consequence: 'Timeline extended; staging deploy moved to Feb 14.'
+          task: 'Implement safe timeout classification and retry restrictions',
+          owner: 'Elena Petrova',
+          currentStatus: 'Blocked',
+          consequence: 'P0 launch prerequisite; blocks all traffic expansion.'
         },
         {
-          task: 'Engage external recruitment agency',
-          owner: 'David Chen',
-          currentStatus: 'Urgent',
-          consequence: 'Sourcing SLA target relaxed from 72h to 10 days.'
-        },
-        {
-          task: 'Benchmark partition migration on staging',
-          owner: 'Elena Rostova',
+          task: 'Run end-to-end risk propagation tests',
+          owner: 'Fatima Ali',
           currentStatus: 'Todo',
-          consequence: 'Benchmarking window rescheduled after schema freeze.'
-        }
-      ],
-      downstreamBlockers: [
-        'Candidate reneged for Senior Distributed Systems engineer (HR)',
-        'PostgreSQL table migration script lock during staging tests (Engineering)'
-      ],
-      mitigations: [
-        'CONFLUENCE Proactive Step: Retain agency contract immediately to ensure new hire starts by Feb 1.',
-        'Decouple non-critical API v2 endpoints to deploy in cohort 2 rather than launch day.',
-        'Stage zero-downtime partition rewrite using shadow tables.'
-      ]
-    },
-    'd-backend-01': {
-      title: 'PostgreSQL Table Partitioning by organization_id',
-      space: 'Engineering → Backend',
-      description: 'Simulating reverting or pausing the table partitioning architecture.',
-      riskLevel: 'Warning',
-      affectedSpaces: [
-        {
-          name: 'Engineering (Backend)',
-          impact: 'Avoids complex Alembic partition scripts but risks p99 query latency degradation above 5,000 tenants.'
+          consequence: 'Must be verified prior to 14 November review.'
         },
         {
-          name: 'Product (Platform Launch)',
-          impact: 'Removes 3-week migration prerequisite; however, violates customer multi-tenant SLA commitments.'
-        }
-      ],
-      affectedCommitments: [
+          task: 'Validate canary metrics and rollback procedure',
+          owner: 'Priya Nair',
+          currentStatus: 'Todo',
+          consequence: 'SRE sign-off prerequisite for staging rollback safety.'
+        },
         {
-          task: 'Prepare database partition scripts',
-          owner: 'Elena Rostova',
+          task: 'Complete security review evidence for the routing service',
+          owner: 'Nina Patel',
+          currentStatus: 'Todo',
+          consequence: 'PCI DSS log review evidence required for compliance approval.'
+        },
+        {
+          task: 'Prepare merchant pilot communication and support runbook',
+          owner: 'Sarah Kim',
           currentStatus: 'In progress',
-          consequence: 'Task would be cancelled or replaced by read-replica sharding.'
+          consequence: 'Comms held in draft until technical approvals are submitted.'
         }
       ],
       downstreamBlockers: [
-        'High latency bottleneck on unpartitioned transactional tables at scale.'
+        'Ambiguous processor timeouts can trigger unsafe retries (Payments Platform)',
+        'Risk decision continuity is not verified end to end (Risk & Fraud)',
+        'Canary monitoring and rollback validation are incomplete (SRE)',
+        'Merchant support readiness is incomplete (Merchant Operations)'
       ],
       mitigations: [
-        'Retain table partitioning architecture as approved by Tech Lead Elena Rostova.',
-        'Use pre-tested Alembic partition scripts with automated rollback guards.'
+        'CONFLUENCE Proactive Step: Enforce 14 November technical readiness approval gate before routing traffic > 5%.',
+        'Stage shadow reconciliation service to confirm processor state before initiating any secondary attempt.',
+        'Hold merchant communications in draft to avoid premature customer commitments.'
       ]
     },
-    'd-hr-01': {
-      title: 'Candidate Reneged - Senior Distributed Systems Hire',
-      space: 'HR → Recruitment',
-      description: 'Simulating failure to source replacement senior distributed engineer within 14 days.',
+    'scenario-timeout-01': {
+      title: 'Ambiguous Processor Timeouts Trigger Unsafe Retries',
+      space: 'Payments Platform',
+      description: 'Simulating the operational hazard where processor timeouts cause duplicate customer authorizations.',
       riskLevel: 'Critical',
       affectedSpaces: [
         {
-          name: 'Engineering (Backend)',
-          impact: 'Deficit of 1 senior engineer causes 4-week delivery delay on distributed transaction handlers.'
+          name: 'Payments Platform',
+          impact: 'High risk of duplicate ledger entries and chargebacks if secondary attempts proceed uncoordinated.'
         },
         {
-          name: 'Product (Platform Launch)',
-          impact: 'Directly blocks the March 15 platform launch milestone.'
+          name: 'Merchant Operations',
+          impact: 'Customer complaints and merchant billing inquiries if cardholders are double-authorized.'
         }
       ],
       affectedCommitments: [
         {
-          task: 'Engage external recruitment agency',
-          owner: 'David Chen',
-          currentStatus: 'Urgent',
-          consequence: 'Must expedite retained agency search with sign-on compensation flexibility.'
+          task: 'Implement safe timeout classification and retry restrictions',
+          owner: 'Elena Petrova',
+          currentStatus: 'Blocked',
+          consequence: 'Must distinguish timeout ambiguity from explicit network declines.'
         }
       ],
       downstreamBlockers: [
-        'Senior backend engineering delivery capacity shortfall.'
+        'Ambiguous processor timeouts trigger duplicate authorization hazard.'
       ],
       mitigations: [
-        'Offer accelerated compensation band approved in People Ops guidelines.',
-        'Contract specialized distributed systems consultant for interim 6-week sprint.'
+        'Disable automatic cross-processor retries for ambiguous outcomes immediately as decided on Nov 9.',
+        'Propagate stable idempotency keys across all processor attempts.'
+      ]
+    },
+    'scenario-risk-01': {
+      title: 'Risk Decision Continuity During Failovers',
+      space: 'Risk & Fraud',
+      description: 'Simulating fraud control failure if secondary processor routing bypasses original risk score.',
+      riskLevel: 'Critical',
+      affectedSpaces: [
+        {
+          name: 'Risk & Fraud',
+          impact: 'Unchecked fraud exposure if failover routes do not inherit risk decisions.'
+        },
+        {
+          name: 'Security & Compliance',
+          impact: 'Regulatory non-compliance if high-risk transactions bypass screening.'
+        }
+      ],
+      affectedCommitments: [
+        {
+          task: 'Verify risk decision propagation across processor adapters',
+          owner: 'Fatima Ali',
+          currentStatus: 'Todo',
+          consequence: 'Requires synthetic test coverage across all failover routes.'
+        }
+      ],
+      downstreamBlockers: [
+        'Risk decision continuity is not verified end to end.'
+      ],
+      mitigations: [
+        'Enforce fail-safe rejection: if risk evaluation is unavailable, reject transaction rather than routing around.'
       ]
     }
   };
 
-  const currentImpact = impactScenarios[selectedImpactDecisionId] || impactScenarios['d-launch-01'];
+  const currentImpact = impactScenarios[selectedImpactScenarioId] || impactScenarios['scenario-gate-01'];
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto py-6">
@@ -325,7 +393,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#2a72de] bg-blue-50 px-2 py-0.5 rounded">
-              Organisational Memory Graph
+              MeridianPay Memory Graph
             </span>
             <span className="text-xs text-[#838280]">
               {graphData.nodes.length} Nodes &bull; {graphData.edges.length} Edges
@@ -335,7 +403,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
             Decision Network &amp; Lineage
           </h2>
           <p className="text-xs text-[#7b776f] mt-0.5 font-light">
-            Navigate cross-team decisions, inspect historical evolution, and simulate downstream impacts.
+            Navigate cross-team decisions, inspect historical evolution, and simulate downstream impacts for Smart Routing v2.
           </p>
         </div>
 
@@ -441,10 +509,10 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                   <span className="w-3 h-0.5 bg-[#af751b]" /> SUPERSEDES
                 </span>
                 <span className="flex items-center gap-1.5 text-[#e33a22] font-medium">
-                  <span className="w-3 h-0.5 bg-[#e33a22]" /> BLOCKS
+                  <span className="w-3 h-0.5 bg-[#e33a22]" /> BLOCKS / TRIGGERS
                 </span>
                 <span className="flex items-center gap-1.5 text-[#2a72de] font-medium">
-                  <span className="w-3 h-0.5 bg-[#2a72de]" /> AFFECTS
+                  <span className="w-3 h-0.5 bg-[#2a72de]" /> AFFECTS / MITIGATED
                 </span>
               </div>
 
@@ -474,14 +542,14 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                   const tgt = layoutNodes[edge.target];
                   if (!src || !tgt) return null;
 
-                  const isSpecial = ['SUPERSEDES', 'BLOCKS', 'AFFECTS'].includes(edge.type);
+                  const isSpecial = ['SUPERSEDES', 'SUPERSEDED_BY', 'BLOCKS', 'TRIGGERS', 'AFFECTS', 'MITIGATED_BY'].includes(edge.type);
                   const color = edgeColor(edge.type);
                   const marker =
-                    edge.type === 'SUPERSEDES'
+                    ['SUPERSEDES', 'SUPERSEDED_BY'].includes(edge.type)
                       ? 'url(#arrow-gold)'
-                      : edge.type === 'BLOCKS'
+                      : ['BLOCKS', 'TRIGGERS'].includes(edge.type)
                       ? 'url(#arrow-red)'
-                      : edge.type === 'AFFECTS'
+                      : ['AFFECTS', 'MITIGATED_BY'].includes(edge.type)
                       ? 'url(#arrow-blue)'
                       : 'url(#arrow-gray)';
 
@@ -497,7 +565,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                         y2={tgt.y}
                         stroke={color}
                         strokeWidth={isSpecial ? 2.5 : 1.2}
-                        strokeDasharray={edge.type === 'SUPERSEDES' ? '5 3' : undefined}
+                        strokeDasharray={['SUPERSEDES', 'SUPERSEDED_BY'].includes(edge.type) ? '5 3' : undefined}
                         markerEnd={marker}
                         className="transition-all"
                       />
@@ -531,7 +599,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       className="cursor-pointer group"
                     >
                       <circle
-                        r={isSelected ? 30 : 25}
+                        r={isSelected ? 26 : 22}
                         fill={colors.bg}
                         stroke={colors.stroke}
                         strokeWidth={isSelected ? 3 : 1.8}
@@ -540,7 +608,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       <text
                         textAnchor="middle"
                         dy="4"
-                        fontSize="10"
+                        fontSize="9"
                         fontWeight="700"
                         fill={colors.fill}
                         className="select-none pointer-events-none uppercase tracking-wider"
@@ -551,19 +619,19 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       {/* Label */}
                       <text
                         textAnchor="middle"
-                        dy="42"
-                        fontSize="11"
+                        dy="36"
+                        fontSize="10"
                         fontWeight="500"
                         fill="#1c1b1a"
                         className="select-none pointer-events-none"
                       >
-                        {node.label.length > 28 ? node.label.slice(0, 28) + '...' : node.label}
+                        {node.label.length > 26 ? node.label.slice(0, 26) + '...' : node.label}
                       </text>
                       {node.subtext && (
                         <text
                           textAnchor="middle"
-                          dy="56"
-                          fontSize="9"
+                          dy="48"
+                          fontSize="8"
                           fill="#838280"
                           className="select-none pointer-events-none"
                         >
@@ -672,7 +740,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
               )}
 
               <div className="pt-3 border-t border-[#e1dcd3] text-[11px] text-[#838280]">
-                Database verified &bull; Nodes reflect canonical PostgreSQL records.
+                Database verified &bull; Nodes reflect canonical MeridianPay PostgreSQL records.
               </div>
             </div>
           </div>
@@ -686,10 +754,10 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
         <div className="space-y-6">
           <div className="card-oura p-6 bg-white border border-[#e1dcd3] space-y-2 shadow-xs">
             <h3 className="font-serif text-xl font-normal text-[#1c1b1a]">
-              Decision Evolution &amp; Supersession Timeline
+              Smart Routing v2 Decision Evolution Timeline
             </h3>
             <p className="text-xs text-[#7b776f] max-w-2xl font-light">
-              Track how architectural decisions evolved across meetings over time. Earlier decisions are permanently retained with explicit supersession lineage and reasoning.
+              Track how routing, idempotency, and launch decisions evolved across meetings from 2 to 11 November 2026. The initial 20% expansion commitment is permanently retained with full supersession rationale.
             </p>
           </div>
 
@@ -751,7 +819,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                       </span>
                       <button
                         onClick={() => {
-                          const m = meetings.find(item => item.title.includes(evt.meetingTitle.split(' ')[0]));
+                          const m = meetings.find(item => item.title.includes(evt.meetingTitle.slice(0, 15)));
                           if (m) onOpenMeeting(m);
                         }}
                         className="text-xs text-[#2a72de] font-semibold hover:underline flex items-center gap-1"
@@ -784,7 +852,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                   What gets affected when a decision or date changes?
                 </h3>
                 <p className="text-xs text-[#7b776f] mt-0.5 font-light">
-                  Select a milestone or architectural commitment below to simulate cascading consequences across Engineering, HR, and Product.
+                  Select a Smart Routing milestone or failure mode below to simulate cascading consequences across Payments, SRE, Risk, and Security.
                 </p>
               </div>
 
@@ -794,13 +862,13 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                   Select Target Decision to Simulate:
                 </label>
                 <select
-                  value={selectedImpactDecisionId}
-                  onChange={(e) => setSelectedImpactDecisionId(e.target.value)}
+                  value={selectedImpactScenarioId}
+                  onChange={(e) => setSelectedImpactScenarioId(e.target.value)}
                   className="w-full text-xs p-2.5 rounded-lg border border-[#e1dcd3] bg-[#fbfaf7] text-[#1c1b1a] font-medium focus:outline-none focus:ring-1 focus:ring-[#2a72de]"
                 >
-                  <option value="d-launch-01">Milestone: Maintain March 15 Platform Launch Date</option>
-                  <option value="d-backend-01">Architecture: PostgreSQL Table Partitioning</option>
-                  <option value="d-hr-01">Staffing: Senior Distributed Engineer Renege</option>
+                  <option value="scenario-gate-01">Launch Gate: Replace 20% Expansion with 14 Nov Review</option>
+                  <option value="scenario-timeout-01">Failure Hazard: Ambiguous Processor Timeout Retries</option>
+                  <option value="scenario-risk-01">Risk Continuity: Mandatory Risk Evaluation During Failovers</option>
                 </select>
               </div>
             </div>
@@ -829,7 +897,7 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
               <div className="flex items-center gap-2 border-b border-[#f0ece4] pb-3">
                 <Layers className="w-4 h-4 text-[#2a72de]" />
                 <h4 className="font-serif text-lg font-normal text-[#1c1b1a]">
-                  Affected Spaces &amp; Departments
+                  Affected Departments &amp; Spaces
                 </h4>
               </div>
 
@@ -861,7 +929,9 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
                   <div key={idx} className="py-3 space-y-1 text-xs">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-[#1c1b1a]">{c.task}</span>
-                      <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-stone-100 text-[#4a4741] uppercase">
+                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded uppercase ${
+                        c.currentStatus === 'Blocked' ? 'bg-red-100 text-[#e33a22]' : 'bg-stone-100 text-[#4a4741]'
+                      }`}>
                         {c.currentStatus}
                       </span>
                     </div>

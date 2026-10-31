@@ -54,7 +54,7 @@ class Department(Base):
     id = Column(String(36), primary_key=True, default=generate_uuid)
     organization_id = Column(String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
     name = Column(String(255), nullable=False)
-    slug = Column(String(255), nullable=False)
+    slug = Column(String(255), nullable=True)
     description = Column(Text, nullable=True)
     created_at = Column(DateTime, default=utc_now, nullable=False)
 
@@ -69,7 +69,7 @@ class Space(Base):
     department_id = Column(String(36), ForeignKey("departments.id", ondelete="SET NULL"), nullable=True)
     parent_space_id = Column(String(36), ForeignKey("spaces.id", ondelete="SET NULL"), nullable=True)
     name = Column(String(255), nullable=False)
-    slug = Column(String(255), nullable=False)
+    slug = Column(String(255), nullable=True)
     space_type = Column(String(50), nullable=False, default="project")  # department, project, topic
     description = Column(Text, nullable=True)
     sensitivity_level = Column(String(50), default="internal", nullable=False)  # public, internal, confidential, restricted
@@ -299,4 +299,53 @@ class AuditEvent(Base):
     entity_id = Column(String(36), nullable=False)
     details_json = Column(Text, nullable=True)
     created_at = Column(DateTime, default=utc_now, nullable=False)
+
+class OpenQuestion(Base):
+    __tablename__ = "open_questions"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    organization_id = Column(String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+    question = Column(Text, nullable=False)
+    status = Column(String(50), default="open", nullable=False)
+    source_meeting_id = Column(String(36), ForeignKey("meetings.id", ondelete="SET NULL"), nullable=True)
+    owner_user_id = Column(String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
+
+class Finding(Base):
+    __tablename__ = "findings"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    organization_id = Column(String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+    finding_type = Column(String(50), nullable=False)
+    severity = Column(String(50), default="medium", nullable=False)
+    title = Column(String(255), nullable=False)
+    explanation = Column(Text, nullable=False)
+    confidence = Column(Numeric(4, 2), default=0.9)
+    status = Column(String(50), default="confirmed", nullable=False)
+    source_meeting_id = Column(String(36), ForeignKey("meetings.id", ondelete="SET NULL"), nullable=True)
+    created_at = Column(DateTime, default=utc_now, nullable=False)
+
+class FindingRecord(Base):
+    __tablename__ = "finding_records"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    finding_id = Column(String(36), ForeignKey("findings.id", ondelete="CASCADE"), nullable=False)
+    record_type = Column(String(50), nullable=False)
+    record_id = Column(String(36), nullable=False)
+    relationship = Column(String(50), nullable=False)
+
+class ApprovalRequest(Base):
+    __tablename__ = "approval_requests"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    organization_id = Column(String(36), ForeignKey("organizations.id", ondelete="CASCADE"), nullable=False)
+    requested_by = Column(String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    reviewed_by = Column(String(36), ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    target_type = Column(String(50), nullable=False)
+    target_id = Column(String(36), nullable=False)
+    proposed_action = Column(Text, nullable=False)
+    status = Column(String(50), default="pending", nullable=False)  # pending, approved, rejected
+    created_at = Column(DateTime, default=utc_now, nullable=False)
+    reviewed_at = Column(DateTime, nullable=True)
+
 

@@ -29,14 +29,22 @@ export const MyWorkView: React.FC<MyWorkViewProps> = ({
   selectedSpaceId,
   onOpenIngest
 }) => {
-  const [filterTab, setFilterTab] = useState<'assigned_me' | 'upcoming' | 'overdue' | 'blocked' | 'completed'>('assigned_me');
+  const [filterTab, setFilterTab] = useState<'all' | 'assigned_me' | 'upcoming' | 'overdue' | 'blocked' | 'completed'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedAssignee, setSelectedAssignee] = useState<string>('all');
 
-  // Current logged in user is simulated as Alex Rivera
-  const currentUserName = 'Alex Rivera';
+  // Current logged in user is simulated as Maya Chen (Product Manager)
+  const currentUserName = 'Maya Chen';
+
+  // Extract unique assignees for dropdown
+  const assignees = Array.from(new Set(tasks.map(t => t.assignee_name).filter(Boolean))) as string[];
 
   const filteredTasks = tasks.filter((t) => {
     if (selectedSpaceId && t.space_id !== selectedSpaceId) return false;
+
+    if (selectedAssignee !== 'all' && t.assignee_name !== selectedAssignee) {
+      return false;
+    }
 
     if (searchTerm) {
       const q = searchTerm.toLowerCase();
@@ -48,7 +56,7 @@ export const MyWorkView: React.FC<MyWorkViewProps> = ({
     }
 
     if (filterTab === 'assigned_me') {
-      return (t.assignee_name && t.assignee_name.includes('Alex')) || !t.assignee_name;
+      return (t.assignee_name && t.assignee_name.includes('Maya')) || !t.assignee_name;
     }
     if (filterTab === 'upcoming') {
       return t.status === 'todo' || t.status === 'in_progress';
@@ -93,6 +101,19 @@ export const MyWorkView: React.FC<MyWorkViewProps> = ({
             <Search className="w-3.5 h-3.5 text-[#838280] absolute left-2.5 top-2.5" />
           </div>
 
+          <select
+            value={selectedAssignee}
+            onChange={(e) => setSelectedAssignee(e.target.value)}
+            className="text-xs p-2 rounded-lg border border-[#e1dcd3] bg-white text-[#1c1b1a] focus:outline-none focus:ring-1 focus:ring-[#2a72de]"
+          >
+            <option value="all">All Assignees ({tasks.length})</option>
+            {assignees.map((a) => (
+              <option key={a} value={a}>
+                {a} ({tasks.filter(t => t.assignee_name === a).length})
+              </option>
+            ))}
+          </select>
+
           <button
             onClick={onOpenIngest}
             className="flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#2a72de] text-white hover:bg-[#205bb5] transition-all shadow-xs"
@@ -104,24 +125,30 @@ export const MyWorkView: React.FC<MyWorkViewProps> = ({
       </div>
 
       {/* Tabs Filter Bar */}
-      <div className="flex items-center gap-1 border-b border-[#e1dcd3] pb-2 text-xs">
+      <div className="flex items-center gap-1 border-b border-[#e1dcd3] pb-2 text-xs overflow-x-auto">
         {[
-          { id: 'assigned_me', label: 'Assigned to Me' },
-          { id: 'upcoming', label: 'Upcoming' },
-          { id: 'overdue', label: 'Overdue' },
-          { id: 'blocked', label: 'High Priority / Blocked' },
-          { id: 'completed', label: 'Completed' },
+          { id: 'all', label: 'All Tasks', count: tasks.length },
+          { id: 'assigned_me', label: 'Assigned to Me (Maya)', count: tasks.filter(t => t.assignee_name && t.assignee_name.includes('Maya')).length },
+          { id: 'upcoming', label: 'Upcoming', count: tasks.filter(t => t.status === 'todo' || t.status === 'in_progress').length },
+          { id: 'blocked', label: 'High Priority / Blocked', count: tasks.filter(t => t.status === 'blocked' || t.priority === 'urgent').length },
+          { id: 'overdue', label: 'Overdue', count: tasks.filter(t => t.due_date && new Date(t.due_date).getTime() < Date.now() && t.status !== 'done').length },
+          { id: 'completed', label: 'Completed', count: tasks.filter(t => t.status === 'done').length },
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setFilterTab(tab.id as any)}
-            className={`px-3.5 py-1.5 rounded-md font-medium transition-all ${
+            className={`px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
               filterTab === tab.id
                 ? 'bg-[#1c1b1a] text-white font-semibold'
                 : 'text-[#4a4741] hover:bg-black/5'
             }`}
           >
-            {tab.label}
+            <span>{tab.label}</span>
+            <span className={`text-[10px] px-1.5 py-0.2 rounded-full ${
+              filterTab === tab.id ? 'bg-white/20 text-white' : 'bg-black/5 text-[#838280]'
+            }`}>
+              {tab.count}
+            </span>
           </button>
         ))}
       </div>

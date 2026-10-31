@@ -60,7 +60,7 @@ export const CommandCentre: React.FC<CommandCentreProps> = ({
             {selectedSpace ? `${selectedSpace.name} Command Centre` : 'Organisational Memory Overview'}
           </h1>
           <p className="text-sm text-[#4a4741] mt-1.5 max-w-2xl font-light">
-            Evidence-backed decision lineage, cross-team commitments, and operational dependencies across Acme Cloud Technologies.
+            Evidence-backed decision lineage, cross-team commitments, and operational dependencies across MeridianPay Smart Routing v2.
           </p>
         </div>
 
@@ -173,7 +173,7 @@ export const CommandCentre: React.FC<CommandCentreProps> = ({
               </span>
             </div>
             <p className="text-sm text-[#1c1b1a] mt-1 font-normal">
-              Database schema partitioning decision (Engineering &rarr; Backend) + Senior Backend hiring delay (HR &rarr; Recruitment) threatens the March 15 launch target.
+              Processor timeout retry without idempotency creates duplicate transaction hazard. 20% rollout paused pending 14 Nov four-team readiness review.
             </p>
           </div>
         </div>

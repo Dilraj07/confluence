@@ -18,17 +18,18 @@ def test_list_spaces():
     res = client.get("/api/v1/spaces")
     assert res.status_code == 200
     spaces = res.json()
-    assert len(spaces) >= 3
+    assert len(spaces) >= 6
     names = [s["name"] for s in spaces]
-    assert "Backend" in names
-    assert "Recruitment" in names
-    assert "Platform Launch" in names
+    assert "Payments Platform" in names
+    assert "Site Reliability Engineering" in names
+    assert "Risk & Fraud" in names
+    assert "Product & Strategy" in names
 
 def test_metrics_summary():
     res = client.get("/api/v1/graph/metrics")
     assert res.status_code == 200
     data = res.json()
-    assert data["active_decisions"] >= 2
+    assert data["active_decisions"] >= 5
     assert data["superseded_decisions"] >= 1
     assert data["cross_space_risks"] >= 1
 
@@ -45,28 +46,28 @@ def test_decision_network_graph():
 
 def test_ask_cross_space_launch_risk():
     res = client.post("/api/v1/query/ask", json={
-        "query": "What is putting the Platform Launch at risk?",
+        "query": "Why was the Smart Routing rollout paused?",
         "scope": "organization"
     })
     assert res.status_code == 200
     ans = res.json()
-    assert "Platform Launch" in ans["answer"] or "risk" in ans["answer"]
+    assert "paused" in ans["answer"].lower() or "timeout" in ans["answer"].lower()
     assert len(ans["sources"]) > 0
     assert ans["memory_scope_used"] == "organization"
 
 def test_meeting_ingest_and_candidate_extraction():
-    # Fetch Backend space
+    # Fetch Payments Platform space
     spaces = client.get("/api/v1/spaces").json()
-    backend_space = next(s for s in spaces if s["name"] == "Backend")
+    payments_space = next(s for s in spaces if s["name"] == "Payments Platform")
 
     # Ingest a new test meeting
     transcript = (
-        "[00:01:00] Alice Rivera (Lead): We decided we will use JSONB columns for audit metadata.\n"
-        "[00:02:00] Elena Rostova: I will update the SQLAlchemy model by Monday."
+        "[00:01:00] Maya Chen (Lead): We decided we will enforce idempotency keys on all retry routes.\n"
+        "[00:02:00] Elena Petrova: I will prepare the reconciliation script by Monday."
     )
     res = client.post("/api/v1/meetings", json={
-        "title": "Database Schema Audit Extension",
-        "primary_space_id": backend_space["id"],
+        "title": "Idempotency and Reconciliation Architecture Extension",
+        "primary_space_id": payments_space["id"],
         "source_type": "paste",
         "transcript_text": transcript
     })

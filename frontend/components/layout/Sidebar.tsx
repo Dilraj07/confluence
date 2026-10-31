@@ -55,14 +55,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-[#e1dcd3] shadow-xs hover:border-[#838280] transition-all cursor-pointer">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-7 h-7 rounded-md bg-[#1c1b1a] text-[#f7f1e8] flex items-center justify-center font-serif text-sm font-semibold shrink-0">
-                A
+                M
               </div>
               <div className="min-w-0">
                 <div className="text-xs font-semibold text-[#1c1b1a] truncate leading-tight">
-                  Acme Cloud
+                  MeridianPay
                 </div>
                 <div className="text-[10px] text-[#838280] truncate leading-tight">
-                  Enterprise Memory
+                  Smart Routing v2
                 </div>
               </div>
             </div>
@@ -189,14 +189,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
         <div className="pt-2 mt-1 border-t border-[#e1dcd3]/60 flex items-center justify-between px-2">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-6 h-6 rounded-full bg-[#1c1b1a] text-white flex items-center justify-center text-[10px] font-semibold shrink-0">
-              AR
+              MC
             </div>
             <div className="min-w-0">
               <div className="text-xs font-medium text-[#1c1b1a] truncate leading-tight">
-                Alex Rivera
+                Maya Chen
               </div>
               <div className="text-[10px] text-[#838280] truncate leading-tight">
-                Engineering Lead
+                Product Manager
               </div>
             </div>
           </div>

@@ -10,7 +10,7 @@ Think of Wispr Flow as the **voice interface, not the AI brain**. It empowers le
 
 ```
   ┌────────────────┐
-  │  User Speaks   │  "Why is our January platform launch at risk?"
+  │  User Speaks   │  "Why was the Smart Routing rollout paused?"
   └───────┬────────┘
           │ Speech audio
   ┌───────▼────────┐
@@ -19,13 +19,13 @@ Think of Wispr Flow as the **voice interface, not the AI brain**. It empowers le
   └───────┬────────┘
           │ Dictated text prompt
   ┌───────▼────────┐
-  │ Context Router │  Determines relevant Space (Backend, Launch, HR),
+  │ Context Router │  Determines relevant Space (Payments, SRE, Risk),
   │ & Permissions  │  project scope, and user access permissions
   └───────┬────────┘
           │ Scoped retrieval request
   ┌───────▼────────┐
   │ Memory Engine  │  Retrieves relevant Decisions, Tasks, Blockers,
-  │   & Postgres   │  and Transcript Segments
+  │   & Database   │  and Transcript Segments
   └───────┬────────┘
           │ Evidence candidates
   ┌───────▼────────┐
@@ -45,10 +45,11 @@ Think of Wispr Flow as the **voice interface, not the AI brain**. It empowers le
 
 ### Mode A: Voice-Powered Organisational Search
 Users dictate complex, cross-team questions without manual typing:
-* *"Why was the platform launch date put at risk?"*
-* *"What did the backend team decide in its last meeting?"*
-* *"Why was single-node Redis caching superseded?"*
-* *"Which unresolved blockers are affecting recruitment and engineering?"*
+* *"Why was the Smart Routing rollout paused?"*
+* *"What changed from the original rollout plan?"*
+* *"What must happen before we can expand to 20%?"*
+* *"Which teams still have launch blockers, and who owns each action?"*
+* *"Can Merchant Operations confirm the pilot expansion date?"*
 
 **Result**: CONFLUENCE queries across permitted Space boundaries and delivers an evidence-backed answer citing verified transcript quotes with speaker names and timestamps.
 
@@ -56,9 +57,9 @@ Users dictate complex, cross-team questions without manual typing:
 
 ### Mode B: Voice-Driven Task & Commitment Management
 Users command and navigate execution state verbally:
-* *"Show me all high-priority tasks in Backend."*
-* *"Find all active blockers affecting March 15 launch."*
-* *"Create a follow-up commitment for Elena to prepare Alembic partition scripts."*
+* *"Show me all high-priority tasks in Payments Platform."*
+* *"Find all active blockers affecting the 14 November readiness review."*
+* *"Create a follow-up commitment for Daniel Foster to verify idempotent failover retry logic."*
 
 **Result**: CONFLUENCE filters execution state or proposes a new commitment draft in the **Action Review Drawer** for human approval before persisting to canonical storage.
 
@@ -66,9 +67,9 @@ Users command and navigate execution state verbally:
 
 ### Mode C: Correcting Meeting Intelligence
 Meeting transcripts and automated extractions can have nuances that require human refinement:
-* *"The database partition deadline is tentative, not final."*
-* *"This decision belongs to Engineering → Backend, not Infrastructure."*
-* *"The platform launch depends on the Senior Backend hire capacity."*
+* *"The 20% pilot expansion was superseded, not approved."*
+* *"Risk team sign-off requires shadow mode data through 13 November."*
+* *"Merchant communications must remain on hold until the 14 November gate."*
 
 **Result**: CONFLUENCE interprets the dictated correction, verifies against existing evidence, and creates a proposed update with full audit logging upon user approval.
 

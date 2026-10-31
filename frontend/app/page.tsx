@@ -109,55 +109,55 @@ export default function WorkspacePage() {
     switch (currentView) {
       case 'home':
         return {
-          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Workspace Home' }],
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Smart Routing v2' }],
           title: 'Workspace Overview',
           subtitle: 'Connected organizational context, decisions, commitments, and blockers.'
         };
       case 'spaces':
         return {
-          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Spaces' }, { label: selectedSpace?.name || 'All Spaces' }],
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Spaces' }, { label: selectedSpace?.name || 'All Spaces' }],
           title: selectedSpace ? `${selectedSpace.name} Space` : 'Collaborative Spaces',
           subtitle: selectedSpace?.description || 'Scoped organizational memory for teams and projects.'
         };
       case 'meetings':
         return {
-          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Meetings' }],
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Meetings' }],
           title: 'Meetings & Transcripts',
           subtitle: 'Turn-by-turn transcript logs with stable evidence segment citations.'
         };
       case 'meeting-detail':
         return {
-          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Meetings' }, { label: 'Meeting Intelligence' }],
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Meetings' }, { label: 'Meeting Intelligence' }],
           title: 'Meeting Intelligence & Lineage',
           subtitle: 'Turn-by-turn discussions, conclusions, commitments, and cross-meeting connections.'
         };
       case 'knowledge':
         return {
-          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Knowledge Graph' }],
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Knowledge Graph' }],
           title: 'Decision Network',
           subtitle: 'Interactive map of decisions, commitments, blockers, and cross-team dependencies.'
         };
       case 'my-work':
         return {
-          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'My Work' }],
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'My Work' }],
           title: 'Execution & Commitments',
           subtitle: 'Track commitments, assigned tasks, and delivery milestones directly tied to meetings.'
         };
       case 'ask':
         return {
-          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Ask CONFLUENCE' }],
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Ask CONFLUENCE' }],
           title: 'Ask CONFLUENCE',
           subtitle: 'Natural language and Wispr Flow voice search across organizational memory.'
         };
       case 'settings':
         return {
-          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Settings' }],
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Settings' }],
           title: 'Settings & Administration',
           subtitle: 'Workspace profile, space sensitivity permissions, and scenario reset.'
         };
       default:
         return {
-          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'CONFLUENCE' }],
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'CONFLUENCE' }],
           title: 'Workspace',
           subtitle: ''
         };

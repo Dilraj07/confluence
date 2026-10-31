@@ -51,11 +51,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         <div className="grid grid-cols-2 gap-4 text-xs">
           <div>
             <span className="text-[#838280] block text-[11px]">Organization Name</span>
-            <span className="font-semibold text-[#1c1b1a]">Acme Cloud Technologies</span>
+            <span className="font-semibold text-[#1c1b1a]">MeridianPay Inc.</span>
           </div>
           <div>
             <span className="text-[#838280] block text-[11px]">Tenant Slug</span>
-            <span className="font-mono text-[#1c1b1a]">acme-corp</span>
+            <span className="font-mono text-[#1c1b1a]">meridianpay-prod</span>
           </div>
           <div>
             <span className="text-[#838280] block text-[11px]">Canonical Storage</span>
@@ -91,16 +91,16 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       {/* Hackathon Demo Reset Tool */}
       <div className="card-oura p-6 bg-white border border-[#e1dcd3] space-y-3 shadow-xs">
         <h3 className="font-serif text-lg font-normal text-[#1c1b1a] border-b border-[#e1dcd3] pb-2">
-          Demo Scenario Baseline Reset
+          MeridianPay Dataset Reset
         </h3>
         <p className="text-xs text-[#7b776f] font-light">
-          Resets the database to the 5-minute hackathon evaluation scenario defined in <code>DEMO_SCRIPT.md</code> (Engineering database partitioning, HR recruitment blocker, and Product launch dependency).
+          Resets the database to the official MeridianPay Smart Routing v2 evaluation scenario (Payments Platform timeout ambiguity, duplicate authorization hazard, SRE circuit breaker, Risk shadow mode gate, and Merchant Ops hold).
         </p>
 
         {resetSuccess && (
           <div className="p-3 text-xs bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-200 flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-            <span>Database successfully reset and re-seeded to hackathon baseline!</span>
+            <span>Database successfully reset and re-seeded to MeridianPay baseline!</span>
           </div>
         )}
 
@@ -111,7 +111,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-[#1c1b1a] text-white hover:bg-[#39221e] disabled:opacity-50 transition-all shadow-xs"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSeeding ? 'animate-spin text-[#2a72de]' : ''}`} />
-            <span>{isSeeding ? 'Resetting Demo Database...' : 'Re-Seed Hackathon Demo Dataset'}</span>
+            <span>{isSeeding ? 'Resetting Demo Database...' : 'Re-Seed MeridianPay Dataset'}</span>
           </button>
         </div>
       </div>

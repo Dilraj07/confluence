@@ -159,44 +159,48 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
   };
 
   const modeAPrompts = [
-    'Why is our January platform launch at risk?',
-    'What did the backend team decide in its last meeting?',
-    'Which unresolved blockers are affecting the platform launch?',
-    'What commitments did HR make last week?'
+    'Why was the Smart Routing rollout paused?',
+    'What changed from the original rollout plan?',
+    'What must happen before we can expand to 20%?',
+    'Which teams still have launch blockers, and who owns each action?',
+    'Can Merchant Operations confirm the pilot expansion date?'
   ];
 
   const modeBPrompts = [
     'Show me all overdue tasks assigned to me.',
-    'Find all blockers related to the January launch.',
-    'Create a follow-up task for the API team to resolve the authentication issue.'
+    'Find all blockers affecting the 14 November readiness review.',
+    'Create a follow-up task for Daniel Foster to complete the 3-second timeout reconciliation.',
+    'Review all pending commitments for the Payments Platform team.'
   ];
 
   const modeCPrompts = [
-    'The API deadline was tentative, not final.',
-    'This discussion belongs to the Backend Space.',
-    'The marketing commitment depends on the final launch date.'
+    'The 20% pilot expansion was superseded, not approved.',
+    'Risk team sign-off requires shadow mode data through 13 November.',
+    'Merchant communications must remain on hold until the 14 November gate.',
+    'The 3-second processor timeout creates duplicate transaction risk.'
   ];
 
   const getFollowUpQuestions = () => {
     if (!response) return [];
     const text = (response.query + ' ' + response.answer).toLowerCase();
-    if (text.includes('launch') || text.includes('risk')) {
+    if (text.includes('pause') || text.includes('timeout') || text.includes('duplicate')) {
       return [
-        'What did Elena Rostova commit to regarding database partitioning?',
-        'Who is responsible for resolving the HR hiring shortfall?',
-        'Show me the full supersession history of the Redis decision.'
+        'What changed from the original rollout plan?',
+        'What must happen before we can expand to 20%?',
+        'Show the supersession history of the pilot expansion decision.'
       ];
     }
-    if (text.includes('backend') || text.includes('partition')) {
+    if (text.includes('blocker') || text.includes('gate') || text.includes('14 november') || text.includes('readiness')) {
       return [
-        'How does table partitioning affect the March 15 launch?',
-        'What was the original kickoff architecture before Redis was superseded?',
-        'Are there any active blockers logged in the Backend Space?'
+        'Which teams still have launch blockers, and who owns each action?',
+        'Can Merchant Operations confirm the pilot expansion date?',
+        'What did Priya Nair commit to regarding the SRE circuit-breaker testing?'
       ];
     }
     return [
-      'Show me all active commitments in this Space.',
-      'Which cross-space dependencies are at risk?'
+      'Why was the Smart Routing rollout paused?',
+      'What must happen before we can expand to 20%?',
+      'Which teams still have launch blockers, and who owns each action?'
     ];
   };
 

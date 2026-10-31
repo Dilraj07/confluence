@@ -1,115 +1,77 @@
-# Five-Minute Demo Script
+# Five-Minute Demo Script: MeridianPay Smart Routing v2
 
 ## Demo objective
 
-Show that CONFLUENCE is not a summariser. It preserves context across
-Spaces and explains how a decision in one meeting affects work
-elsewhere.
+Show that CONFLUENCE is not a simple summariser. It is an intelligent organizational memory network that preserves context across Spaces, tracks decision lineage through supersession, flags cross-space blockers, and explains how a technical hazard in one meeting halts business execution elsewhere.
 
 ## Demo setup
 
-Create one synthetic organisation with three departments:
+MeridianPay is piloting **Smart Routing v2** across 6 collaborative Spaces:
 
--   **Engineering → Backend**
--   **HR → Recruitment**
--   **Product → Platform Launch**
+- **Payments Platform**: Core routing logic and processor integrations
+- **Site Reliability Engineering (SRE)**: Latency budgets, circuit breakers, and canary gates
+- **Risk & Fraud**: Scoring models, shadow mode validation, and fraud thresholds
+- **Security & Compliance**: Multi-processor tokenization and PCI-DSS failover compliance
+- **Merchant Operations**: Merchant onboarding, pilot SLAs, and communication drafts
+- **Product & Strategy**: Go/no-go readiness gates and executive coordination
 
-Use synthetic data only. Prepare 6--8 meetings and one new meeting to
-ingest live.
+### Scenario Timeline & The Operational Hazard
 
-### Scenario timeline
+1. **Initial Plan (Nov 2)**: Pilot launched at 5% traffic with an automated milestone to expand to 20%.
+2. **The Operational Hazard (Nov 4)**: In test scenarios where a processor took 3 seconds to respond, failover to Stripe triggered a second authorization. Because timeouts are ambiguous (the bank may have actually approved the payment before the timeout), automatic failovers risked **duplicate customer charges**.
+3. **The Executive Decision (Nov 4)**: Maya Chen formally pauses the rollout at 5%. The original 20% expansion commitment is **superseded** by Decision `57635a88` requiring a formal 14 November readiness review with 4 mandatory team sign-offs (Payments, SRE, Risk, Security).
+4. **Cross-Space Blockers**:
+   - **Payments Platform**: Daniel Foster must deliver idempotent retry handling and reconciliation.
+   - **SRE**: Priya Nair must validate circuit-breaker tripping under simulated timeouts.
+   - **Risk & Fraud**: Omar Hassan must complete shadow mode scoring through 13 November.
+   - **Merchant Operations**: Sarah Kim must hold all merchant pilot expansion communications in draft.
 
-1.  Product meeting: platform launch approved for December.
-2.  Engineering meeting: API delivery depends on two backend engineers.
-3.  HR meeting: recruitment pipeline can provide only one of the two
-    engineers by the target date.
-4.  Product meeting: marketing commits to a December campaign.
-5.  Engineering follow-up: API blocker remains unresolved.
-6.  Leadership meeting: launch date is reconsidered.
-7.  New meeting transcript: launch moves to January, subject to final
-    approval.
-
-The system should link the new meeting to the existing decision and
-propose impact findings for related commitments.
+---
 
 ## Run of show
 
-### 0:00--0:35 --- The problem
+### 0:00–0:35 — The Problem
 
-"Teams don't lack meeting notes. They lack connected memory. A decision
-is made in Product, a dependency sits in Engineering, and a capacity
-constraint lives in HR. Those facts are separated, so the impact is easy
-to miss."
+"Teams don't lack meeting notes. They lack connected organizational memory. A 3-second processor timeout discovered in Payments creates a duplicate charge risk that blocks SRE canary gates, invalidates Risk assumptions, and forces Merchant Operations to halt customer notifications. In traditional tools, these facts live in separate silos and lead to disastrous launches."
 
-### 0:35--1:15 --- Spaces
+### 0:35–1:15 — The Executive Home
 
-Show the Space hierarchy. Open Backend and Recruitment.
+Show the executive workspace:
+- Greeted as **Maya Chen (Product Manager)**.
+- Review the high-priority attention card: *Smart Routing v2 paused at 5% traffic due to duplicate authorization hazard*.
+- Notice the four active cross-space blockers and their direct owners (Daniel Foster, Priya Nair, Omar Hassan, Sarah Kim).
 
-"Each Space keeps its own relevant context. HR recruitment discussions
-do not pollute Engineering's local memory. But the system can still
-connect information when there is a real dependency and the viewer has
-permission."
+### 1:15–2:15 — Spaces & Cross-Space Dependencies
 
-### 1:15--2:00 --- Meeting ingestion
+Navigate into **Spaces**:
+- Open **Payments Platform Space**: inspect the recent meetings, decisions, and documents (RFC-204 Idempotent Failover Protocol).
+- Open **Merchant Operations Space**: observe the dependency warning explaining why merchant communication is blocked on Payments idempotency and Risk sign-off.
+- Inspect the **Audit Activity Stream** with cryptographic hash verification.
 
-Upload the prepared transcript to Platform Launch.
+### 2:15–3:15 — Decision Lineage & Impact Analysis
 
-Show: - Meeting transcript - Extracted launch decision - Tasks and
-blockers - Evidence quotes and source segments - Proposed links to prior
-records
+Switch to **Knowledge / Decision Network**:
+- **Timeline View**: Trace the 8 chronological decisions from 2 Nov to 11 Nov. Point out the red `SUPERSEDED` badge on Decision `e4c9dfff` (*Expand pilot to 20%*) and how it points forward to Decision `57635a88` (*Replace with 14 Nov four-team review*).
+- **Impact Analysis Simulator**: Click through the 3 operational scenarios:
+  1. *14 November Launch Gate Decision*: see which 4 teams and 6 commitments are impacted.
+  2. *Timeout Ambiguity Hazard*: see how failure to implement idempotency blocks Merchant Ops and triggers regulatory duplicate charge exposure.
+  3. *Risk Score Continuity*: see what happens if high-velocity fraud spikes occur.
 
-Approve the valid items.
+### 3:15–4:15 — Ask CONFLUENCE (Wispr Flow Voice & Scoped AI)
 
-### 2:00--3:00 --- Decision Network
+Open **Ask CONFLUENCE**:
+- Test the 5 core MeridianPay evaluation questions:
+  1. *"Why was the Smart Routing rollout paused?"*
+  2. *"What changed from the original rollout plan?"*
+  3. *"What must happen before we can expand to 20%?"*
+  4. *"Which teams still have launch blockers, and who owns each action?"*
+  5. *"Can Merchant Operations confirm the pilot expansion date?"*
+- Highlight that every statement cites exact, verbatim transcript segments with timestamps and verified speaker turns (e.g. `[00:02:15] Daniel Foster (Payments Lead)`).
+- Demonstrate Wispr Flow voice dictation workflow into the focused query bar.
 
-Show the graph focused on Platform Launch.
+### 4:15–5:00 — My Work & Execution Tracker
 
-Trace: - Launch decision - Backend API dependency - Recruitment capacity
-constraint - Marketing campaign commitment
-
-Explain that the records are stored once and connected by relationships,
-not copied into multiple folders.
-
-### 3:00--4:10 --- Decision change and impact
-
-Show the new January launch decision.
-
-The system should: - Identify the prior December decision. - Propose a
-`SUPERSEDES` relationship. - Preserve the old decision and its
-evidence. - Trace affected tasks and commitments. - Create reviewable
-impact findings rather than silently changing dates.
-
-### 4:10--4:45 --- Executive Intelligence
-
-Ask:
-
-**"What is threatening the platform launch, and what changed after the
-latest meeting?"**
-
-Show a concise answer: - The backend API dependency remains
-unresolved. - Recruitment capacity is below the stated engineering
-need. - The latest decision proposes moving launch to January. -
-Marketing and QA commitments need review. - Each claim links to source
-evidence.
-
-If access policy restricts HR details, demonstrate the safe aggregate
-rather than exposing the underlying confidential record.
-
-### 4:45--5:00 --- Close
-
-"CONFLUENCE keeps team memories contextual but connects the decisions
-that matter. It doesn't just tell you what happened in a meeting. It
-shows what changed, why it matters, and what needs attention next."
-
-## Demo reliability checklist
-
--   [ ] Seed data loaded and verified.
--   [ ] Transcript file stored locally or in configured storage.
--   [ ] LLM API key and quota tested.
--   [ ] Fallback precomputed extraction available if provider fails.
--   [ ] Graph opens at the correct focus node.
--   [ ] Every displayed evidence link works.
--   [ ] Executive answer has citations.
--   [ ] Permission test run.
--   [ ] Browser zoom and screen resolution checked.
--   [ ] No placeholder values or fake KPI results visible.
+Open **My Work**:
+- View Maya Chen's assigned commitments (Go/no-go readiness review documentation).
+- Filter across all 10 commitments by assignee (Daniel Foster, Elena Petrova, Priya Nair, Omar Hassan, Sarah Kim).
+- Show how every task links back to its originating meeting transcript and decision evidence.
