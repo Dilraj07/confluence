@@ -7,10 +7,11 @@ import { api } from '@/lib/api';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 
-import { HomeView } from '@/components/views/HomeView';
+import { OverviewView } from '@/components/views/OverviewView';
 import { SpacesView } from '@/components/views/SpacesView';
 import { MeetingsView } from '@/components/views/MeetingsView';
 import { KnowledgeView } from '@/components/views/KnowledgeView';
+import { DecisionDetailView } from '@/components/views/DecisionDetailView';
 import { MyWorkView } from '@/components/views/MyWorkView';
 import { AskConfluenceView } from '@/components/views/AskConfluenceView';
 import { SettingsView } from '@/components/views/SettingsView';
@@ -23,7 +24,7 @@ import { MeetingDetailModal } from '@/components/MeetingDetailModal';
 import { DecisionTrailModal } from '@/components/DecisionTrailModal';
 
 export default function WorkspacePage() {
-  const [currentView, setCurrentView] = useState<string>('home');
+  const [currentView, setCurrentView] = useState<string>('overview');
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [selectedSpaceId, setSelectedSpaceId] = useState<string | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -35,12 +36,13 @@ export default function WorkspacePage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [isSeeding, setIsSeeding] = useState<boolean>(false);
 
-  // Modals state
+  // Modals & Active Records state
   const [isIngestOpen, setIsIngestOpen] = useState<boolean>(false);
   const [isAskModalOpen, setIsAskModalOpen] = useState<boolean>(false);
   const [askInitialQuery, setAskInitialQuery] = useState<string>('');
   const [reviewMeetingId, setReviewMeetingId] = useState<string | null>(null);
   const [activeMeetingId, setActiveMeetingId] = useState<string | null>(null);
+  const [activeDecisionId, setActiveDecisionId] = useState<string>('dec-014');
   const [activeMeetingDetail, setActiveMeetingDetail] = useState<Meeting | null>(null);
   const [activeDecisionTrail, setActiveDecisionTrail] = useState<Decision | null>(null);
 
@@ -104,55 +106,68 @@ export default function WorkspacePage() {
     }
   };
 
+  const handleOpenDecision = (decisionId: string) => {
+    setActiveDecisionId(decisionId);
+    setCurrentView('decision-detail');
+  };
+
   // Compute breadcrumbs and title based on current view
   const getViewMeta = () => {
     switch (currentView) {
+      case 'overview':
       case 'home':
         return {
-          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Smart Routing v2' }],
-          title: 'Workspace Overview',
-          subtitle: 'Connected organizational context, decisions, commitments, and blockers.'
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Overview' }],
+          title: 'Overview',
+          subtitle: 'Prioritised attention, important organisational changes, and pending actions.'
         };
       case 'spaces':
         return {
           breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Spaces' }, { label: selectedSpace?.name || 'All Spaces' }],
-          title: selectedSpace ? `${selectedSpace.name} Space` : 'Collaborative Spaces',
+          title: selectedSpace ? `${selectedSpace.name} Space` : 'Spaces',
           subtitle: selectedSpace?.description || 'Scoped organizational memory for teams and projects.'
         };
       case 'meetings':
         return {
           breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Meetings' }],
-          title: 'Meetings & Transcripts',
-          subtitle: 'Turn-by-turn transcript logs with stable evidence segment citations.'
+          title: 'Meetings',
+          subtitle: 'Searchable meeting repository with verbatim turn-by-turn evidence citations.'
         };
       case 'meeting-detail':
         return {
-          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Meetings' }, { label: 'Meeting Intelligence' }],
-          title: 'Meeting Intelligence & Lineage',
-          subtitle: 'Turn-by-turn discussions, conclusions, commitments, and cross-meeting connections.'
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Meetings' }, { label: 'Meeting Detail' }],
+          title: 'Meeting Detail',
+          subtitle: 'Discussions, decisions, actions, blockers, and turn-by-turn searchable transcript.'
         };
+      case 'decisions':
       case 'knowledge':
         return {
-          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Decision Intelligence' }],
-          title: 'Decision Intelligence & Traceability',
-          subtitle: 'Trace decisions, understand their evolution, and investigate their impact across teams.'
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Decision Explorer' }],
+          title: 'Decision Explorer',
+          subtitle: 'Trace decisions, understand their evolution, and investigate their impact.'
+        };
+      case 'decision-detail':
+        return {
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Decision Explorer' }, { label: 'Decision Detail' }],
+          title: 'Decision Detail',
+          subtitle: 'Single canonical record answering origin, evidence, version history, and downstream impact.'
         };
       case 'my-work':
         return {
           breadcrumbs: [{ label: 'MeridianPay' }, { label: 'My Work' }],
-          title: 'Execution & Commitments',
-          subtitle: 'Track commitments, assigned tasks, and delivery milestones directly tied to meetings.'
+          title: 'My Work',
+          subtitle: 'Personalized commitments and execution tracking for Maya Chen.'
         };
       case 'ask':
         return {
           breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Ask CONFLUENCE' }],
           title: 'Ask CONFLUENCE',
-          subtitle: 'Natural language and Wispr Flow voice search across organizational memory.'
+          subtitle: 'Conversational search with cited evidence and Wispr Flow voice integration.'
         };
       case 'settings':
         return {
           breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Settings' }],
-          title: 'Settings & Administration',
+          title: 'Settings',
           subtitle: 'Workspace profile, space sensitivity permissions, and scenario reset.'
         };
       default:
@@ -201,25 +216,21 @@ export default function WorkspacePage() {
             </div>
           ) : (
             <>
-              {currentView === 'home' && (
-                <HomeView
+              {(currentView === 'overview' || currentView === 'home') && (
+                <OverviewView
                   decisions={decisions}
                   meetings={meetings}
                   tasks={tasks}
                   blockers={blockers}
                   spaces={spaces}
                   selectedSpace={selectedSpace}
-                  onOpenAskWithPrompt={handleOpenAskWithPrompt}
-                  onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
+                  onOpenDecision={handleOpenDecision}
                   onOpenMeeting={(m) => {
                     setActiveMeetingId(m.id);
                     setCurrentView('meeting-detail');
                   }}
-                  onReviewPending={() => {
-                    const firstMeeting = meetings[0]?.id;
-                    if (firstMeeting) setReviewMeetingId(firstMeeting);
-                  }}
                   onNavigateToView={(v) => setCurrentView(v)}
+                  onOpenAskWithPrompt={handleOpenAskWithPrompt}
                 />
               )}
 
@@ -236,6 +247,7 @@ export default function WorkspacePage() {
                     setActiveMeetingId(m.id);
                     setCurrentView('meeting-detail');
                   }}
+                  onOpenDecision={handleOpenDecision}
                   onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
                   onOpenCandidates={(mId) => setReviewMeetingId(mId)}
                   onOpenIngest={() => setIsIngestOpen(true)}
@@ -260,6 +272,7 @@ export default function WorkspacePage() {
                 <MeetingDetailView
                   meetingId={activeMeetingId}
                   onBack={() => setCurrentView('meetings')}
+                  onOpenDecision={handleOpenDecision}
                   onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
                   onOpenCandidates={(mId) => setReviewMeetingId(mId)}
                   onOpenConnectedMeeting={(connId) => setActiveMeetingId(connId)}
@@ -270,7 +283,7 @@ export default function WorkspacePage() {
                 />
               )}
 
-              {currentView === 'knowledge' && (
+              {(currentView === 'decisions' || currentView === 'knowledge') && (
                 <KnowledgeView
                   graphData={graphData}
                   decisions={decisions}
@@ -281,6 +294,19 @@ export default function WorkspacePage() {
                     setActiveMeetingId(m.id);
                     setCurrentView('meeting-detail');
                   }}
+                  onOpenDecisionDetail={handleOpenDecision}
+                />
+              )}
+
+              {currentView === 'decision-detail' && (
+                <DecisionDetailView
+                  decisionId={activeDecisionId}
+                  onBack={() => setCurrentView('decisions')}
+                  onOpenMeeting={(mId) => {
+                    setActiveMeetingId(mId);
+                    setCurrentView('meeting-detail');
+                  }}
+                  onNavigateToView={(v) => setCurrentView(v)}
                 />
               )}
 
@@ -290,6 +316,11 @@ export default function WorkspacePage() {
                   spaces={spaces}
                   selectedSpaceId={selectedSpaceId}
                   onOpenIngest={() => setIsIngestOpen(true)}
+                  onOpenMeeting={(mId) => {
+                    setActiveMeetingId(mId);
+                    setCurrentView('meeting-detail');
+                  }}
+                  onOpenDecision={handleOpenDecision}
                 />
               )}
 

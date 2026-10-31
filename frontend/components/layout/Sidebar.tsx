@@ -7,6 +7,7 @@ import {
   Layers,
   Calendar,
   Network,
+  GitBranch,
   CheckSquare,
   Sparkles,
   Settings,
@@ -38,10 +39,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenAsk
 }) => {
   const navItems = [
-    { id: 'home', label: 'Home', icon: Home },
+    { id: 'overview', label: 'Overview', icon: Compass },
     { id: 'spaces', label: 'Spaces', icon: Layers },
     { id: 'meetings', label: 'Meetings', icon: Calendar },
-    { id: 'knowledge', label: 'Decision Intelligence', icon: Network },
+    { id: 'decisions', label: 'Decision Explorer', icon: GitBranch },
     { id: 'my-work', label: 'My Work', icon: CheckSquare },
     { id: 'ask', label: 'Ask CONFLUENCE', icon: Sparkles, accent: true },
   ];
@@ -182,7 +183,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           }`}
         >
           <Settings className="w-4 h-4 text-[#838280]" />
-          <span>Workspace Settings</span>
+          <span>Settings</span>
         </button>
 
         {/* User Card */}

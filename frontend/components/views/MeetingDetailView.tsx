@@ -25,6 +25,7 @@ import {
 interface MeetingDetailViewProps {
   meetingId: string;
   onBack: () => void;
+  onOpenDecision?: (decisionId: string) => void;
   onOpenDecisionTrail: (decision: Decision) => void;
   onOpenCandidates: (meetingId: string) => void;
   onOpenConnectedMeeting: (connectedMeetingId: string) => void;
@@ -34,6 +35,7 @@ interface MeetingDetailViewProps {
 export const MeetingDetailView: React.FC<MeetingDetailViewProps> = ({
   meetingId,
   onBack,
+  onOpenDecision,
   onOpenDecisionTrail,
   onOpenCandidates,
   onOpenConnectedMeeting,
@@ -230,7 +232,14 @@ export const MeetingDetailView: React.FC<MeetingDetailViewProps> = ({
 
             <div className="space-y-3">
               {(meeting.decisions || []).map(d => (
-                <div key={d.id} className="p-3.5 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] space-y-2">
+                <div
+                  key={d.id}
+                  onClick={() => {
+                    if (onOpenDecision) onOpenDecision(d.id);
+                    else onOpenDecisionTrail(d);
+                  }}
+                  className="p-3.5 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] hover:border-[#2a72de] cursor-pointer transition-all space-y-2"
+                >
                   <div className="flex items-center justify-between">
                     <span className="text-[9px] uppercase font-bold bg-blue-50 text-[#2a72de] px-2 py-0.5 rounded">
                       {d.status} &bull; {d.impact_level} impact
@@ -239,6 +248,9 @@ export const MeetingDetailView: React.FC<MeetingDetailViewProps> = ({
                   </div>
                   <h4 className="text-xs font-semibold text-[#1c1b1a]">{d.statement}</h4>
                   {d.rationale && <p className="text-xs text-[#4a4741] font-light">{d.rationale}</p>}
+                  <div className="text-[10px] text-[#2a72de] font-semibold pt-1">
+                    Inspect canonical decision detail &rarr;
+                  </div>
                 </div>
               ))}
             </div>
@@ -340,8 +352,11 @@ export const MeetingDetailView: React.FC<MeetingDetailViewProps> = ({
             meeting.decisions.map(d => (
               <div
                 key={d.id}
-                onClick={() => onOpenDecisionTrail(d)}
-                className="card-oura p-6 bg-white border border-[#e1dcd3] hover:border-[#838280] cursor-pointer transition-all space-y-3"
+                onClick={() => {
+                  if (onOpenDecision) onOpenDecision(d.id);
+                  else onOpenDecisionTrail(d);
+                }}
+                className="card-oura p-6 bg-white border border-[#e1dcd3] hover:border-[#2a72de] cursor-pointer transition-all space-y-3"
               >
                 <div className="flex items-center justify-between">
                   <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${

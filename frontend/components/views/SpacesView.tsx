@@ -34,6 +34,7 @@ interface SpacesViewProps {
   tasks: Task[];
   blockers: Blocker[];
   onOpenMeeting: (meeting: Meeting) => void;
+  onOpenDecision?: (decisionId: string) => void;
   onOpenDecisionTrail: (decision: Decision) => void;
   onOpenCandidates: (meetingId: string) => void;
   onOpenIngest: () => void;
@@ -48,6 +49,7 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
   tasks,
   blockers,
   onOpenMeeting,
+  onOpenDecision,
   onOpenDecisionTrail,
   onOpenCandidates,
   onOpenIngest
@@ -495,7 +497,10 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
                     {spaceDecisions.slice(0, 2).map((d) => (
                       <div
                         key={d.id}
-                        onClick={() => onOpenDecisionTrail(d)}
+                        onClick={() => {
+                          if (onOpenDecision) onOpenDecision(d.id);
+                          else onOpenDecisionTrail(d);
+                        }}
                         className="card-oura p-4 bg-white border border-[#e1dcd3] hover:border-[#838280] cursor-pointer transition-all space-y-2"
                       >
                         <div className="flex items-center justify-between text-xs">
@@ -720,7 +725,10 @@ export const SpacesView: React.FC<SpacesViewProps> = ({
             spaceDecisions.map((d) => (
               <div
                 key={d.id}
-                onClick={() => onOpenDecisionTrail(d)}
+                onClick={() => {
+                  if (onOpenDecision) onOpenDecision(d.id);
+                  else onOpenDecisionTrail(d);
+                }}
                 className="card-oura p-5 bg-white border border-[#e1dcd3] hover:border-[#838280] cursor-pointer transition-all space-y-2.5"
               >
                 <div className="flex items-center justify-between">
