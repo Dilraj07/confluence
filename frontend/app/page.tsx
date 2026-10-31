@@ -241,6 +241,7 @@ export default function WorkspacePage() {
                   }}
                   onNavigateToView={(v) => setCurrentView(v)}
                   onOpenAskWithPrompt={handleOpenAskWithPrompt}
+                  onTaskCreated={(newTask) => setTasks((prev) => [newTask, ...prev])}
                 />
               )}
 

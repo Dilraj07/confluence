@@ -391,6 +391,70 @@ class QueryService:
             )
             impact_summary = "High Risk: Rollout paused at 5% canary pending resolution of processor timeout ambiguity and idempotency propagation."
 
+        # Query: User's Work / My Tasks / Pending Commitments
+        elif any(w in query_text for w in ["my task", "my work", "my commitment", "pending task", "what am i working on", "current work", "tasks assigned to me", "my pending work", "my open tasks", "his work", "his task"]):
+            tasks_q = db.query(Task).filter(Task.organization_id == organization_id)
+            maya_tasks = tasks_q.filter(Task.assignee_name.ilike("%Maya%")).all()
+            if not maya_tasks:
+                maya_tasks = tasks_q.filter(Task.status.in_(["todo", "in_progress", "blocked"])).limit(4).all()
+
+            matching_task_ids = [t.id for t in maya_tasks]
+            task_lines = []
+            for t in maya_tasks:
+                space = db.query(Space).filter(Space.id == t.space_id).first()
+                due_str = f" • Due {t.due_date.strftime('%b %d')}" if t.due_date else ""
+                task_lines.append(f"- **{t.title}** ({space.name if space else 'Workspace'} • Priority: `{t.priority.upper()}` • Status: `{t.status}`{due_str})")
+
+            answer = (
+                f"📋 **Personal Execution Queue (Maya Chen)**:\n\n"
+                f"You have **{len(maya_tasks)} active commitments** requiring executive coordination for the 14 November launch gate:\n\n"
+                + "\n".join(task_lines) +
+                "\n\n*All actions sync directly with the My Work Tracker and canonical meeting transcripts.*"
+            )
+            impact_summary = f"{len(maya_tasks)} commitments tracked for Maya Chen."
+            used_scope = "shared"
+
+        # Query: Cross-Team Updates / Daily Status
+        elif any(w in query_text for w in ["update", "updates", "status update", "today's update", "cross-team update", "what's new", "standup", "latest status", "progress", "his updates"]):
+            answer = (
+                "🔄 **Cross-Team Operational Updates (Smart Routing v2)**:\n\n"
+                "1. **Platform Launch Gate (`Product & Strategy`)**:\n"
+                "   - 5% canary rollout remains paused. The 14 November technical readiness review requires explicit sign-offs from Payments, SRE, Risk, and Security.\n\n"
+                "2. **Payments Platform**:\n"
+                "   - **Elena Petrova** and **Daniel Foster** are rolling out 72-hour idempotency key retention (`DEC-014`) and disabling blind retries on 3-second processor timeouts.\n\n"
+                "3. **Site Reliability Engineering (`SRE`)**:\n"
+                "   - **Priya Nair** has established canary guardrails (p95 latency threshold: 650 ms, error rate: 0.5%) and automated staging rollback validation.\n\n"
+                "4. **Risk & Fraud**:\n"
+                "   - **Fatima Ali** & **Omar Hassan** are conducting shadow mode scoring through 13 November to prevent failover hops from bypassing fraud rules.\n\n"
+                "5. **Merchant Operations**:\n"
+                "   - **Sarah Kim** confirms external merchant communications remain in draft status until technical readiness sign-offs are complete."
+            )
+            impact_summary = "Cross-Team Synced: 4 teams executing towards 14 November readiness review gate."
+            used_scope = "organization"
+
+        # Query: General Decisions Inquiries
+        elif ("decision" in query_text or "decisions" in query_text or "decided" in query_text) and not any(k in query_text for k in ["what changed", "original", "superseded"]):
+            d_list = db.query(Decision).filter(Decision.organization_id == organization_id, Decision.status == "active").limit(5).all()
+            for d in d_list:
+                matching_decision_ids.append(d.id)
+
+            answer = (
+                "⚖️ **Canonical Decision Network (Smart Routing v2)**:\n\n"
+                "Here are the active architectural and policy decisions governing the pilot:\n\n"
+                "1. **DEC-014: Idempotency Keys for Payment Routing** (`Payments Platform`)\n"
+                "   - *Decided*: Propagate the same idempotency key across all routing and processor attempts with 72h retention.\n"
+                "   - *Decided by*: Elena Petrova • Approved by: Daniel Foster\n\n"
+                "2. **DEC-002: 14 November Readiness Review Gate** (`Product & Strategy`)\n"
+                "   - *Decided*: Replaced automated 20% expansion with a strict four-team approval gate.\n"
+                "   - *Decided by*: Maya Chen • Approved by: Executive Committee\n\n"
+                "3. **DEC-018: Mandatory Risk Evaluation Continuity** (`Risk & Fraud`)\n"
+                "   - *Decided*: If fraud evaluation is unavailable during processor failover, fail safely rather than routing around it.\n"
+                "   - *Decided by*: Fatima Ali • Approved by: Omar Hassan\n\n"
+                "Click on any decision badge below to inspect its origin meeting, version lineage, and downstream impact."
+            )
+            impact_summary = "Displaying 3 active canonical decisions."
+            used_scope = "organization"
+
         # Query 2: What changed from original plan / supersession history
         elif "what changed" in query_text or "superseded" in query_text or "original" in query_text or "supersession" in query_text:
             answer = (

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Decision, Meeting, Task, Blocker, Space } from '@/types';
+import { OverviewChatbot } from '@/components/chat/OverviewChatbot';
 import {
   Sparkles,
   Flame,
@@ -34,6 +35,7 @@ interface OverviewViewProps {
   onOpenMeeting: (meeting: Meeting) => void;
   onNavigateToView: (view: string) => void;
   onOpenAskWithPrompt: (prompt?: string) => void;
+  onTaskCreated?: (task: Task) => void;
 }
 
 export const OverviewView: React.FC<OverviewViewProps> = ({
@@ -46,7 +48,8 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   onOpenDecision,
   onOpenMeeting,
   onNavigateToView,
-  onOpenAskWithPrompt
+  onOpenAskWithPrompt,
+  onTaskCreated
 }) => {
   const activeBlockers = blockers.filter(b => b.status === 'active');
   const myCommitments = tasks.filter(t => t.status === 'in_progress' || t.status === 'blocked' || t.status === 'todo');
@@ -54,30 +57,34 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
   return (
     <div className="space-y-7 max-w-5xl mx-auto py-6">
       {/* 1. Executive Briefing Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-[#e1dcd3] pb-4">
-        <div>
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#838280]">
-            Executive Briefing &bull; {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-          </span>
-          <h1 className="font-serif text-3xl font-normal text-[#1c1b1a] mt-1 tracking-tight">
-            Good morning, Maya.
-          </h1>
-          <p className="text-xs text-[#7b776f] mt-0.5 font-light">
-            Here is what requires executive attention across MeridianPay Smart Routing v2.
-          </p>
-        </div>
-
-        {/* Quick Search Shortcut */}
-        <button
-          onClick={() => onOpenAskWithPrompt()}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#e1dcd3] bg-white text-xs text-[#4a4741] hover:text-[#1c1b1a] hover:border-[#838280] shadow-xs transition-all self-start sm:self-auto"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-[#2a72de]" />
-          <span>Ask CONFLUENCE...</span>
-        </button>
+      <div className="space-y-1">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-[#838280]">
+          Executive Briefing &bull; {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+        </span>
+        <h1 className="font-serif text-3xl font-normal text-[#1c1b1a] tracking-tight">
+          Good morning, Maya.
+        </h1>
+        <p className="text-xs text-[#7b776f] font-light">
+          Here is what requires executive attention across MeridianPay Smart Routing v2.
+        </p>
       </div>
 
-      {/* 2. Prioritised Attention Item (The Core Operational Risk) */}
+      {/* 2. Interactive Workspace Copilot Chatbot */}
+      <OverviewChatbot
+        spaces={spaces}
+        selectedSpace={selectedSpace}
+        onOpenDecision={onOpenDecision}
+        onOpenMeeting={onOpenMeeting}
+        onNavigateToView={onNavigateToView}
+        onOpenAskWithPrompt={onOpenAskWithPrompt}
+        meetings={meetings}
+        tasks={tasks}
+        decisions={decisions}
+        blockers={blockers}
+        onTaskCreated={onTaskCreated}
+      />
+
+      {/* 3. Prioritised Attention Item (The Core Operational Risk) */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
