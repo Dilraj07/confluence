@@ -299,3 +299,4 @@ class AuditEvent(Base):
     entity_id = Column(String(36), nullable=False)
     details_json = Column(Text, nullable=True)
     created_at = Column(DateTime, default=utc_now, nullable=False)
+

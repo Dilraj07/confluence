@@ -285,3 +285,4 @@ export const SpaceView: React.FC<SpaceViewProps> = ({
     </div>
   );
 };
+

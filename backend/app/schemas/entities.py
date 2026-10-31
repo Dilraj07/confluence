@@ -170,3 +170,5 @@ class AskQueryResponse(BaseModel):
     sources: List[QueryEvidence]
     impact_summary: Optional[str] = None
     related_decision_ids: List[str] = []
+    mode: Optional[str] = "search"  # search, task_command, memory_correction
+    proposed_action: Optional[Dict[str, Any]] = None

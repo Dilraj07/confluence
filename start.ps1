@@ -25,3 +25,4 @@ npm run dev
 
 # Cleanup on exit
 Stop-Process -Id $backendProc.Id -Force -ErrorAction SilentlyContinue
+

@@ -46,3 +46,4 @@ class SpaceService:
             "blocker_count": blocker_count,
             "member_count": member_count,
         }
+

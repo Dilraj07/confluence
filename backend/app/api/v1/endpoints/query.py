@@ -16,3 +16,4 @@ def ask_confluence(
     if not org:
         raise HTTPException(status_code=400, detail="Organization not initialized.")
     return QueryService.answer_query(db, org.id, payload)
+

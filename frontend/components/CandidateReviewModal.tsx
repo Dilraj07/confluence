@@ -169,3 +169,4 @@ export const CandidateReviewModal: React.FC<CandidateReviewModalProps> = ({
     </div>
   );
 };
+

@@ -144,3 +144,4 @@ class MeetingService:
         if space_id:
             query = query.join(MeetingSpace).filter(MeetingSpace.space_id == space_id)
         return query.order_by(Meeting.meeting_date.desc()).all()
+

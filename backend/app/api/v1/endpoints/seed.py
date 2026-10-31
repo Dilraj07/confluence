@@ -7,3 +7,4 @@ router = APIRouter()
 def trigger_seed():
     run_seed()
     return {"status": "success", "message": "Demo data successfully seeded"}
+

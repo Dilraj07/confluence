@@ -88,3 +88,4 @@ def test_meeting_ingest_and_candidate_extraction():
     )
     assert rev_res.status_code == 200
     assert rev_res.json()["status"] == "approved"
+

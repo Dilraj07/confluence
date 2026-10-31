@@ -102,3 +102,4 @@ class DecisionService:
             "prior_decision_id": prior_dec.id,
             "relationship": "SUPERSEDES"
         }
+

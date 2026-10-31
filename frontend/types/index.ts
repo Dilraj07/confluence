@@ -179,6 +179,8 @@ export interface AskQueryResponse {
   sources: QueryEvidence[];
   impact_summary?: string;
   related_decision_ids: string[];
+  mode?: 'search' | 'task_command' | 'memory_correction';
+  proposed_action?: Record<string, any>;
 }
 
 export interface MetricsSummary {
@@ -189,3 +191,4 @@ export interface MetricsSummary {
   pending_reviews: number;
   cross_space_risks: number;
 }
+

@@ -210,3 +210,4 @@ class IntegrityService:
             "pending_reviews": pending_reviews,
             "cross_space_risks": max(cross_space_risks, active_blockers)
         }
+

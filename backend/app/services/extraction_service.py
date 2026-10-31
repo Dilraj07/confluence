@@ -194,3 +194,4 @@ class ExtractionService:
             "entity_type": entity_type,
             "entity_id": created_entity_id
         }
+

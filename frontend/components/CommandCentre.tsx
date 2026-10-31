@@ -13,7 +13,9 @@ import {
   User,
   Quote,
   Flame,
-  ExternalLink
+  ExternalLink,
+  Sparkles,
+  Mic
 } from 'lucide-react';
 
 interface CommandCentreProps {
@@ -67,6 +69,46 @@ export const CommandCentre: React.FC<CommandCentreProps> = ({
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             Live Sync: Postgres Canonical Store
           </span>
+        </div>
+      </div>
+
+      {/* ORGANISATIONAL INTELLIGENCE — Wispr Flow Voice Hero */}
+      <div className="card-oura p-6 bg-white border border-[#e1dcd3] shadow-sm space-y-4">
+        <div>
+          <div className="flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-[#2a72de]" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#2a72de]">
+              ORGANISATIONAL INTELLIGENCE
+            </span>
+          </div>
+          <h2 className="font-serif text-2xl font-normal text-[#1c1b1a] mt-1">
+            Ask your organisation.
+          </h2>
+          <p className="text-xs text-[#4a4741] mt-0.5 font-light">
+            Search decisions, understand blockers and retrieve context across your Spaces.
+          </p>
+        </div>
+
+        <div className="relative cursor-pointer" onClick={onOpenAskLaunchRisk}>
+          <input
+            type="text"
+            readOnly
+            placeholder='Try dictating: "Why is our January platform launch at risk?"'
+            className="w-full text-xs p-3.5 pl-4 pr-44 rounded-full border border-[#e1dcd3] bg-[#f7f1e8]/30 text-[#1c1b1a] cursor-pointer hover:border-[#838280] shadow-inner transition-all"
+          />
+          <div className="absolute right-2 top-2 flex items-center gap-1.5 bg-white border border-[#e1dcd3] px-3.5 py-1.5 rounded-full text-[11px] font-semibold text-[#1c1b1a] shadow-sm">
+            <Mic className="w-3.5 h-3.5 text-[#2a72de] animate-pulse" />
+            <span>Dictate with Wispr Flow</span>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 text-[11px] text-[#838280] pt-1">
+          <span className="font-medium text-[#1c1b1a]">Wispr Flow Voice Interface:</span>
+          <span>1. Organisational Search</span>
+          <span>•</span>
+          <span>2. Task Commands</span>
+          <span>•</span>
+          <span>3. Memory Corrections</span>
         </div>
       </div>
 
@@ -310,3 +352,4 @@ export const CommandCentre: React.FC<CommandCentreProps> = ({
     </div>
   );
 };
+

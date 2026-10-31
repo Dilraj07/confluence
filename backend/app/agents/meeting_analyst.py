@@ -164,3 +164,4 @@ Return ONLY valid JSON array of objects with structure:
             return json.loads(clean)
         else:
             raise RuntimeError(f"Gemini API returned status {resp.status_code}")
+

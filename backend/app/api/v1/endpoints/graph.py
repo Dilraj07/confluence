@@ -34,3 +34,4 @@ def get_metrics(
             "cross_space_risks": 0
         }
     return IntegrityService.get_command_centre_summary(db, org.id, space_id)
+

@@ -74,3 +74,4 @@ def create_space(payload: SpaceCreate, db: Session = Depends(get_db)):
         sensitivity_level=s.sensitivity_level,
         created_at=s.created_at
     )
+
