@@ -41,7 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'home', label: 'Home', icon: Home },
     { id: 'spaces', label: 'Spaces', icon: Layers },
     { id: 'meetings', label: 'Meetings', icon: Calendar },
-    { id: 'knowledge', label: 'Knowledge Graph', icon: Network },
+    { id: 'knowledge', label: 'Decision Intelligence', icon: Network },
     { id: 'my-work', label: 'My Work', icon: CheckSquare },
     { id: 'ask', label: 'Ask CONFLUENCE', icon: Sparkles, accent: true },
   ];

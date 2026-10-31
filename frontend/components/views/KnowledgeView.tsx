@@ -1,29 +1,38 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { GraphData, GraphNode, Decision, Meeting, Space } from '@/types';
+import { GraphData, Decision, Meeting, Space } from '@/types';
 import {
   GitBranch,
-  ZoomIn,
-  ZoomOut,
-  Maximize2,
-  Info,
-  Quote,
+  Search,
+  Filter,
+  ArrowRight,
   Clock,
   Layers,
   Calendar,
   AlertTriangle,
   User,
-  ArrowRight,
+  Quote,
   ShieldCheck,
-  RefreshCw,
-  Activity,
-  Flame,
   CheckCircle2,
-  SlidersHorizontal,
+  Flame,
   ChevronRight,
   ExternalLink,
-  Target
+  Target,
+  FileText,
+  SlidersHorizontal,
+  RefreshCw,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Plus,
+  MessageSquare,
+  AlertCircle,
+  Check,
+  X,
+  History,
+  Network,
+  Compass
 } from 'lucide-react';
 
 interface KnowledgeViewProps {
@@ -35,6 +44,751 @@ interface KnowledgeViewProps {
   onOpenMeeting: (meeting: Meeting) => void;
 }
 
+export interface DecisionIntelligenceRecord {
+  id: string;
+  code: string;
+  title: string;
+  shortTitle: string;
+  status: 'active' | 'revised' | 'superseded' | 'blocked' | 'under_review';
+  statusLabel: string;
+  impactLevel: 'low' | 'medium' | 'high' | 'critical';
+  space: string;
+  decisionType: string;
+  owner: string;
+  ownerRole: string;
+  originMeeting: string;
+  originDate: string;
+  latestUpdate: string;
+  firstProposedDate: string;
+  lastRevisedDate: string;
+  linkedMeetingsCount: number;
+  affectedTeamsCount: number;
+  openDependenciesCount: number;
+  summary: string;
+  problemRationale: string;
+  evidence: {
+    segmentId: string;
+    quote: string;
+    speaker: string;
+    speakerRole: string;
+    meetingName: string;
+    meetingDate: string;
+    timestamp: string;
+  };
+  history: Array<{
+    step: number;
+    date: string;
+    phase: 'Problem identified' | 'Initial proposal' | 'Architecture approval' | 'Revision' | 'Superseded' | 'Validation';
+    title: string;
+    description: string;
+    statusBadge: string;
+    statusBadgeColor: string;
+    meeting: string;
+    evidenceId: string;
+    actor: string;
+  }>;
+  affectedWorkstreams: Array<{
+    team: string;
+    category: 'routing' | 'integration' | 'qa' | 'risk' | 'compliance' | 'merchant';
+    impact: string;
+    status: 'In progress' | 'Blocked' | 'Completed' | 'Pending';
+  }>;
+  downstreamMilestone: {
+    name: string;
+    status: 'At risk · validation incomplete' | 'Pending four-team review' | 'On hold';
+    description: string;
+  };
+  lineageNodes: Array<{
+    id: string;
+    type: 'origin' | 'proposal' | 'decision' | 'revision' | 'outcome';
+    column: number;
+    title: string;
+    sub: string;
+    date: string;
+    badge: string;
+    badgeColor: string;
+  }>;
+  lineageEdges: Array<{
+    from: string;
+    to: string;
+    label: string;
+  }>;
+  dependencies: Array<{
+    type: 'Depends on' | 'Affects' | 'Supersedes' | 'Contradicts' | 'Evidence for' | 'Mitigates';
+    target: string;
+    team: string;
+    relationshipReason: string;
+    establishedInMeeting: string;
+    severity?: 'critical' | 'high' | 'medium';
+  }>;
+}
+
+// 1. Core Canonical Decision Dataset for MeridianPay Smart Routing v2
+const CANONICAL_DECISION_INTELLIGENCE: DecisionIntelligenceRecord[] = [
+  {
+    id: 'dec-014',
+    code: 'DEC-014',
+    title: 'Adopt idempotency keys for payment retries',
+    shortTitle: 'Payment idempotency',
+    status: 'revised',
+    statusLabel: 'Revised',
+    impactLevel: 'high',
+    space: 'Payments Platform',
+    decisionType: 'Architecture decision',
+    owner: 'Payments Engineering',
+    ownerRole: 'Elena Petrova (Staff Backend) & Daniel Foster (Lead)',
+    originMeeting: 'Payment Incident Review',
+    originDate: '18 Oct 2026',
+    latestUpdate: '29 Oct 2026',
+    firstProposedDate: '18 October 2026',
+    lastRevisedDate: '29 October 2026',
+    linkedMeetingsCount: 4,
+    affectedTeamsCount: 3,
+    openDependenciesCount: 1,
+    summary:
+      'Every logical payment must carry a stable idempotency key. Retry attempts for that payment must reuse the same key so the system can identify duplicate requests and return the original result instead of executing the payment again.',
+    problemRationale:
+      'Payment provider timeouts created severe ambiguity about whether transactions had actually succeeded at the banking partner. Retrying without a stable request identity risked duplicate customer charges.',
+    evidence: {
+      segmentId: 'S-018',
+      quote:
+        'We received a timeout, but the provider may already have processed the payment. Retrying it as a new request is exactly where duplicate execution can happen.',
+      speaker: 'Elena Petrova',
+      speakerRole: 'Staff Backend Architect',
+      meetingName: 'Payment Incident Review',
+      meetingDate: '18 Oct 2026',
+      timestamp: '14:32'
+    },
+    history: [
+      {
+        step: 1,
+        date: '18 Oct',
+        phase: 'Problem identified',
+        title: 'Duplicate execution risk discovered after provider timeouts',
+        description:
+          'Payment Operations flagged duplicate authorization incidents on test merchant accounts following 3-second processor timeouts.',
+        statusBadge: 'Incident logged',
+        statusBadgeColor: 'bg-red-50 text-red-700 border-red-200',
+        meeting: 'Payment Incident Review',
+        evidenceId: 'S-018',
+        actor: 'Elena Petrova'
+      },
+      {
+        step: 2,
+        date: '20 Oct',
+        phase: 'Initial proposal',
+        title: 'Introduce exponential backoff for retry handling',
+        description:
+          'Engineering initially proposed retrying timeout requests with randomized exponential backoff intervals.',
+        statusBadge: 'Superseded in part',
+        statusBadgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+        meeting: 'Engineering Design Sync',
+        evidenceId: 'S-021',
+        actor: 'Daniel Foster'
+      },
+      {
+        step: 3,
+        date: '24 Oct',
+        phase: 'Architecture approval',
+        title: 'Adopt stable idempotency keys across retries',
+        description:
+          'Payments Architecture approved mandating the same client idempotency key across all internal retry and provider failover paths.',
+        statusBadge: 'Approved',
+        statusBadgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+        meeting: 'Architecture Review Board',
+        evidenceId: 'S-029',
+        actor: 'Architecture Review'
+      },
+      {
+        step: 4,
+        date: '29 Oct',
+        phase: 'Revision',
+        title: 'Extend key-retention policy from 24h to 72h',
+        description:
+          'QA testing revealed delayed asynchronous processor webhooks arriving past 24 hours. Retention extended to 72 hours.',
+        statusBadge: 'Current version',
+        statusBadgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
+        meeting: 'Reliability Test Review',
+        evidenceId: 'S-035',
+        actor: 'Elena Petrova & QA'
+      }
+    ],
+    affectedWorkstreams: [
+      {
+        team: 'Payments Platform',
+        category: 'routing',
+        impact: 'Routing service updates to attach stable idempotency headers across gateway nodes.',
+        status: 'In progress'
+      },
+      {
+        team: 'Merchant Integrations',
+        category: 'integration',
+        impact: 'Propagate merchant client keys to downstream Stripe & Adyen provider adapters.',
+        status: 'Blocked'
+      },
+      {
+        team: 'QA & Reliability',
+        category: 'qa',
+        impact: 'Execute multi-provider timeout injection and duplicate-request fuzz testing.',
+        status: 'In progress'
+      },
+      {
+        team: 'Risk & Fraud',
+        category: 'risk',
+        impact: 'Ensure shadow fraud scoring does not recalculate or diverge on idempotent retries.',
+        status: 'Completed'
+      }
+    ],
+    downstreamMilestone: {
+      name: 'Smart Routing v2 readiness',
+      status: 'At risk · validation incomplete',
+      description:
+        'Downstream pilot expansion past 5% cannot proceed until end-to-end idempotency test passes.'
+    },
+    lineageNodes: [
+      {
+        id: 'node-origin',
+        type: 'origin',
+        column: 0,
+        title: 'Payment timeout incident',
+        sub: 'Payment Incident Review · 18 Oct',
+        date: '18 Oct 2026',
+        badge: 'ORIGIN',
+        badgeColor: 'bg-red-50 text-red-700 border-red-200'
+      },
+      {
+        id: 'node-proposal',
+        type: 'proposal',
+        column: 1,
+        title: 'Exponential backoff retries',
+        sub: 'Engineering Design Review · 20 Oct',
+        date: '20 Oct 2026',
+        badge: 'INITIAL PROPOSAL',
+        badgeColor: 'bg-amber-50 text-amber-700 border-amber-200'
+      },
+      {
+        id: 'node-decision',
+        type: 'decision',
+        column: 2,
+        title: 'Stable idempotency keys',
+        sub: 'Architecture Review · 24 Oct',
+        date: '24 Oct 2026',
+        badge: 'APPROVED DECISION',
+        badgeColor: 'bg-blue-50 text-blue-700 border-blue-300 ring-2 ring-blue-500/30'
+      },
+      {
+        id: 'node-revision',
+        type: 'revision',
+        column: 3,
+        title: 'Extend key-retention to 72h',
+        sub: 'Reliability Test Review · 29 Oct',
+        date: '29 Oct 2026',
+        badge: 'REVISION',
+        badgeColor: 'bg-purple-50 text-purple-700 border-purple-200'
+      },
+      {
+        id: 'node-outcome',
+        type: 'outcome',
+        column: 4,
+        title: 'Retry safety validation',
+        sub: 'QA & Merchant Integration Tests',
+        date: '14 Nov Gate',
+        badge: 'DOWNSTREAM OUTCOME',
+        badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200'
+      }
+    ],
+    lineageEdges: [
+      { from: 'node-origin', to: 'node-proposal', label: 'EVIDENCE FOR' },
+      { from: 'node-proposal', to: 'node-decision', label: 'SUPERSEDED BY' },
+      { from: 'node-decision', to: 'node-revision', label: 'REVISED TO' },
+      { from: 'node-revision', to: 'node-outcome', label: 'AFFECTS' }
+    ],
+    dependencies: [
+      {
+        type: 'Depends on',
+        target: 'Merchant Integrations: Key propagation SDK rollout',
+        team: 'Merchant Operations',
+        relationshipReason:
+          'End-to-end idempotency guarantees require merchant client headers before traffic expansion.',
+        establishedInMeeting: 'Merchant Integration Sync · 27 Oct',
+        severity: 'critical'
+      },
+      {
+        type: 'Affects',
+        target: 'Payments Platform: Distributed cache table partitioning',
+        team: 'Payments Platform',
+        relationshipReason:
+          'Extending retention to 72 hours increases Redis/Postgres storage requirements by 300%.',
+        establishedInMeeting: 'Reliability Test Review · 29 Oct',
+        severity: 'high'
+      },
+      {
+        type: 'Supersedes',
+        target: 'DEC-009: Exponential backoff retries without idempotency identity',
+        team: 'Payments Platform',
+        relationshipReason:
+          'Pure backoff retries fail to eliminate duplicate charge hazard during provider timeouts.',
+        establishedInMeeting: 'Architecture Review Board · 24 Oct'
+      },
+      {
+        type: 'Mitigates',
+        target: 'Active Blocker: Double authorization charges on 3-second provider timeout',
+        team: 'Payments Platform & Risk',
+        relationshipReason:
+          'Reusing the same key allows banking processors to deduplicate repeated authorization attempts.',
+        establishedInMeeting: 'Payment Incident Review · 18 Oct',
+        severity: 'critical'
+      },
+      {
+        type: 'Evidence for',
+        target: 'Transcript S-018: Root cause analysis of provider timeout ambiguity',
+        team: 'Payments Platform',
+        relationshipReason:
+          'Verbatim proof that processor timeouts do not guarantee transaction cancellation.',
+        establishedInMeeting: 'Payment Incident Review · 18 Oct'
+      }
+    ]
+  },
+  {
+    id: 'dec-009',
+    code: 'DEC-009',
+    title: 'Retry failed requests with exponential backoff',
+    shortTitle: 'Retry backoff policy',
+    status: 'superseded',
+    statusLabel: 'Superseded in part',
+    impactLevel: 'high',
+    space: 'Payments Platform',
+    decisionType: 'Engineering policy',
+    owner: 'Payments Engineering',
+    ownerRole: 'Daniel Foster (Payments Lead)',
+    originMeeting: 'Payment Incident Review',
+    originDate: '18 Oct 2026',
+    latestUpdate: '24 Oct 2026',
+    firstProposedDate: '18 October 2026',
+    lastRevisedDate: '24 October 2026',
+    linkedMeetingsCount: 2,
+    affectedTeamsCount: 2,
+    openDependenciesCount: 0,
+    summary:
+      'Retry with exponential backoff was retained as a transient network retry policy, but no longer treated as sufficient protection against duplicate execution.',
+    problemRationale:
+      'Network blips between gateway and provider endpoints required retry handling, but exponential backoff alone failed to prevent double-charges on banking timeouts.',
+    evidence: {
+      segmentId: 'S-021',
+      quote:
+        'Exponential backoff gives the gateway time to recover, but if the bank already received the initial byte stream, another retry can issue a second charge.',
+      speaker: 'Daniel Foster',
+      speakerRole: 'Payments Lead',
+      meetingName: 'Engineering Design Sync',
+      meetingDate: '20 Oct 2026',
+      timestamp: '11:15'
+    },
+    history: [
+      {
+        step: 1,
+        date: '18 Oct',
+        phase: 'Problem identified',
+        title: 'Network timeout handling needed',
+        description: 'Gateway needed a formalized protocol for non-responsive provider connections.',
+        statusBadge: 'Proposed',
+        statusBadgeColor: 'bg-stone-100 text-stone-700',
+        meeting: 'Payment Incident Review',
+        evidenceId: 'S-018',
+        actor: 'Daniel Foster'
+      },
+      {
+        step: 2,
+        date: '20 Oct',
+        phase: 'Initial proposal',
+        title: 'Formalized 3-interval exponential backoff',
+        description: 'Adopted 500ms, 1500ms, and 4500ms retry backoff schedule.',
+        statusBadge: 'Active temporary',
+        statusBadgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
+        meeting: 'Engineering Design Sync',
+        evidenceId: 'S-021',
+        actor: 'Engineering'
+      },
+      {
+        step: 3,
+        date: '24 Oct',
+        phase: 'Superseded',
+        title: 'Superseded by stable idempotency requirement',
+        description: 'Formally superseded as the duplicate prevention mechanism by DEC-014.',
+        statusBadge: 'Superseded in part',
+        statusBadgeColor: 'bg-amber-100 text-amber-800',
+        meeting: 'Architecture Review Board',
+        evidenceId: 'S-029',
+        actor: 'Architecture Board'
+      }
+    ],
+    affectedWorkstreams: [
+      {
+        team: 'Payments Platform',
+        category: 'routing',
+        impact: 'Backoff intervals retained for socket timeouts only.',
+        status: 'Completed'
+      }
+    ],
+    downstreamMilestone: {
+      name: 'Smart Routing v2 kickoff',
+      status: 'On hold',
+      description: 'Backoff alone is insufficient for production rollout.'
+    },
+    lineageNodes: [
+      {
+        id: 'node-origin-009',
+        type: 'origin',
+        column: 0,
+        title: 'Socket timeout analysis',
+        sub: 'Payment Incident Review · 18 Oct',
+        date: '18 Oct 2026',
+        badge: 'ORIGIN',
+        badgeColor: 'bg-red-50 text-red-700'
+      },
+      {
+        id: 'node-decision-009',
+        type: 'decision',
+        column: 1,
+        title: 'Backoff retry policy',
+        sub: 'Engineering Design Review · 20 Oct',
+        date: '20 Oct 2026',
+        badge: 'SUPERSEDED POLICY',
+        badgeColor: 'bg-amber-100 text-amber-800'
+      },
+      {
+        id: 'node-superseded-by',
+        type: 'outcome',
+        column: 2,
+        title: 'DEC-014 Idempotency keys',
+        sub: 'Architecture Review · 24 Oct',
+        date: '24 Oct 2026',
+        badge: 'REPLACED BY',
+        badgeColor: 'bg-blue-50 text-blue-700'
+      }
+    ],
+    lineageEdges: [
+      { from: 'node-origin-009', to: 'node-decision-009', label: 'EVIDENCE FOR' },
+      { from: 'node-decision-009', to: 'node-superseded-by', label: 'SUPERSEDED BY' }
+    ],
+    dependencies: [
+      {
+        type: 'Supersedes',
+        target: 'DEC-014: Idempotency keys replaced pure backoff as primary safety mechanism',
+        team: 'Payments Platform',
+        relationshipReason: 'Eliminated double-authorization risk on banking timeouts.',
+        establishedInMeeting: 'Architecture Review Board · 24 Oct'
+      }
+    ]
+  },
+  {
+    id: 'dec-018',
+    code: 'DEC-018',
+    title: 'Propagate merchant client keys to payment providers',
+    shortTitle: 'Merchant key propagation',
+    status: 'blocked',
+    statusLabel: 'Blocked',
+    impactLevel: 'high',
+    space: 'Merchant Operations',
+    decisionType: 'Integration policy',
+    owner: 'Merchant Operations',
+    ownerRole: 'Sarah Kim (Merchant Ops Lead)',
+    originMeeting: 'Merchant Integration Sync',
+    originDate: '27 Oct 2026',
+    latestUpdate: '04 Nov 2026',
+    firstProposedDate: '27 October 2026',
+    lastRevisedDate: '04 November 2026',
+    linkedMeetingsCount: 3,
+    affectedTeamsCount: 2,
+    openDependenciesCount: 1,
+    summary:
+      'Merchant integration changes and SDK updates are required before end-to-end idempotency can be validated across tier-1 pilot merchants.',
+    problemRationale:
+      'If pilot merchants do not pass original client transaction tokens, the Smart Routing platform cannot guarantee end-to-end deduplication on external retry calls.',
+    evidence: {
+      segmentId: 'S-031',
+      quote:
+        'We cannot guarantee zero duplicate charges unless merchant checkouts forward the client idempotency token through our public API gateway.',
+      speaker: 'Sarah Kim',
+      speakerRole: 'Merchant Ops Lead',
+      meetingName: 'Merchant Integration Sync',
+      meetingDate: '27 Oct 2026',
+      timestamp: '16:00'
+    },
+    history: [
+      {
+        step: 1,
+        date: '27 Oct',
+        phase: 'Initial proposal',
+        title: 'Mandatory client token header requirement',
+        description: 'Proposed requiring Idempotency-Key header on all v2 checkout POST endpoints.',
+        statusBadge: 'Proposed',
+        statusBadgeColor: 'bg-stone-100 text-stone-700',
+        meeting: 'Merchant Integration Sync',
+        evidenceId: 'S-031',
+        actor: 'Sarah Kim'
+      },
+      {
+        step: 2,
+        date: '04 Nov',
+        phase: 'Problem identified',
+        title: 'Merchant SDK rollout blocker discovered',
+        description: 'Two top pilot merchants reported inability to update SDKs before 11 November.',
+        statusBadge: 'Blocked',
+        statusBadgeColor: 'bg-red-50 text-red-700 border-red-200',
+        meeting: 'Executive Coordination Review',
+        evidenceId: 'S-044',
+        actor: 'Merchant Operations'
+      }
+    ],
+    affectedWorkstreams: [
+      {
+        team: 'Merchant Operations',
+        category: 'merchant',
+        impact: 'Merchant communications held in draft pending readiness gate.',
+        status: 'Blocked'
+      },
+      {
+        team: 'Payments Platform',
+        category: 'integration',
+        impact: 'Must provide fallback synthetic key generator for non-compliant merchant requests.',
+        status: 'In progress'
+      }
+    ],
+    downstreamMilestone: {
+      name: 'Pilot expansion past 5%',
+      status: 'At risk · validation incomplete',
+      description: 'Pilot expansion blocked until merchant token adoption passes 90% threshold.'
+    },
+    lineageNodes: [
+      {
+        id: 'node-origin-018',
+        type: 'origin',
+        column: 0,
+        title: 'Merchant API requirements',
+        sub: 'Integration Sync · 27 Oct',
+        date: '27 Oct 2026',
+        badge: 'ORIGIN',
+        badgeColor: 'bg-stone-100 text-stone-800'
+      },
+      {
+        id: 'node-decision-018',
+        type: 'decision',
+        column: 1,
+        title: 'Mandatory client keys',
+        sub: 'Integration Sync · 27 Oct',
+        date: '27 Oct 2026',
+        badge: 'DECISION',
+        badgeColor: 'bg-blue-50 text-blue-700'
+      },
+      {
+        id: 'node-blocker-018',
+        type: 'revision',
+        column: 2,
+        title: 'Tier-1 SDK upgrade blocker',
+        sub: 'Coordination Review · 04 Nov',
+        date: '04 Nov 2026',
+        badge: 'BLOCKED',
+        badgeColor: 'bg-red-50 text-red-700'
+      }
+    ],
+    lineageEdges: [
+      { from: 'node-origin-018', to: 'node-decision-018', label: 'EVIDENCE FOR' },
+      { from: 'node-decision-018', to: 'node-blocker-018', label: 'BLOCKED BY' }
+    ],
+    dependencies: [
+      {
+        type: 'Depends on',
+        target: 'DEC-014: Payments Platform core idempotency cache table',
+        team: 'Payments Platform',
+        relationshipReason: 'Merchant keys must map to internal transaction records in database.',
+        establishedInMeeting: 'Architecture Review Board · 24 Oct',
+        severity: 'critical'
+      },
+      {
+        type: 'Affects',
+        target: 'Sarah Kim commitment: Draft merchant notification revision',
+        team: 'Merchant Operations',
+        relationshipReason: 'Cannot confirm pilot expansion dates to merchants.',
+        establishedInMeeting: 'Executive Coordination Review · 04 Nov',
+        severity: 'high'
+      }
+    ]
+  },
+  {
+    id: 'dec-002',
+    code: 'DEC-002',
+    title: 'Replace planned 20% expansion with 14 November readiness review requiring four team approvals',
+    shortTitle: '14 Nov Readiness Review Gate',
+    status: 'active',
+    statusLabel: 'Active Gate',
+    impactLevel: 'critical',
+    space: 'Product & Strategy',
+    decisionType: 'Executive governance gate',
+    owner: 'Product & Strategy',
+    ownerRole: 'Maya Chen (Product Manager)',
+    originMeeting: 'Executive Coordination Review',
+    originDate: '04 Nov 2026',
+    latestUpdate: '04 Nov 2026',
+    firstProposedDate: '04 November 2026',
+    lastRevisedDate: '04 November 2026',
+    linkedMeetingsCount: 5,
+    affectedTeamsCount: 4,
+    openDependenciesCount: 4,
+    summary:
+      'The planned automated expansion from 5% to 20% is halted. Pilot expansion requires formal readiness sign-off on 14 November from Payments, SRE, Risk, and Security.',
+    problemRationale:
+      'Timeout ambiguity and shadow scoring gaps make premature expansion unsafe for real payment traffic.',
+    evidence: {
+      segmentId: 'S-044',
+      quote:
+        'We cannot expand past 5% on an arbitrary calendar milestone while timeout ambiguity remains open. Expansion requires formal sign-off from Payments, SRE, Risk, and Security on 14 November.',
+      speaker: 'Maya Chen',
+      speakerRole: 'Product Manager',
+      meetingName: 'Executive Coordination Review',
+      meetingDate: '04 Nov 2026',
+      timestamp: '10:00'
+    },
+    history: [
+      {
+        step: 1,
+        date: '02 Nov',
+        phase: 'Initial proposal',
+        title: 'Initial 20% calendar rollout planned',
+        description: 'DEC-001 initially committed to expanding pilot to 20% by 08 November.',
+        statusBadge: 'Superseded',
+        statusBadgeColor: 'bg-amber-50 text-amber-800',
+        meeting: 'Smart Routing v2 Kickoff',
+        evidenceId: 'S-002',
+        actor: 'Product Operations'
+      },
+      {
+        step: 2,
+        date: '04 Nov',
+        phase: 'Architecture approval',
+        title: 'Formally halted and replaced with four-team gate',
+        description:
+          'Superseded DEC-001; established mandatory 14 Nov gate requiring Payments, SRE, Risk, Security approval.',
+        statusBadge: 'Active Gate',
+        statusBadgeColor: 'bg-emerald-50 text-emerald-800',
+        meeting: 'Executive Coordination Review',
+        evidenceId: 'S-044',
+        actor: 'Maya Chen'
+      }
+    ],
+    affectedWorkstreams: [
+      { team: 'Payments Platform', category: 'routing', impact: 'Must verify idempotent timeout handling.', status: 'In progress' },
+      { team: 'Site Reliability Engineering', category: 'qa', impact: 'Must validate circuit breaker trip & recovery.', status: 'In progress' },
+      { team: 'Risk & Fraud', category: 'risk', impact: 'Must complete shadow scoring through 13 Nov.', status: 'In progress' },
+      { team: 'Merchant Operations', category: 'merchant', impact: 'Hold merchant notification in draft.', status: 'Blocked' }
+    ],
+    downstreamMilestone: {
+      name: 'Smart Routing v2 Pilot Expansion',
+      status: 'Pending four-team review',
+      description: 'Formal readiness vote scheduled for 14 November 2026.'
+    },
+    lineageNodes: [
+      { id: 'n-001', type: 'origin', column: 0, title: 'Kickoff 20% plan', sub: 'Kickoff · 02 Nov', date: '02 Nov', badge: 'SUPERSEDED', badgeColor: 'bg-stone-100 text-stone-700' },
+      { id: 'n-002', type: 'decision', column: 1, title: '14 Nov Readiness Gate', sub: 'Coordination Review · 04 Nov', date: '04 Nov', badge: 'ACTIVE GATE', badgeColor: 'bg-blue-50 text-blue-700 ring-2 ring-blue-500/30' },
+      { id: 'n-003', type: 'outcome', column: 2, title: 'Four-team sign-off vote', sub: 'Readiness Review · 14 Nov', date: '14 Nov', badge: 'PENDING VOTE', badgeColor: 'bg-emerald-50 text-emerald-700' }
+    ],
+    lineageEdges: [
+      { from: 'n-001', to: 'n-002', label: 'SUPERSEDES' },
+      { from: 'n-002', to: 'n-003', label: 'GOVERNS' }
+    ],
+    dependencies: [
+      {
+        type: 'Supersedes',
+        target: 'DEC-001: Automated pilot expansion to 20%',
+        team: 'Product & Strategy',
+        relationshipReason: 'Prevented premature scaling before timeout hazard resolution.',
+        establishedInMeeting: 'Executive Coordination Review · 04 Nov'
+      },
+      {
+        type: 'Depends on',
+        target: 'DEC-014: Payment idempotency protocol implementation',
+        team: 'Payments Platform',
+        relationshipReason: 'Core technical prerequisite for safety.',
+        establishedInMeeting: 'Executive Coordination Review · 04 Nov',
+        severity: 'critical'
+      }
+    ]
+  },
+  {
+    id: 'dec-021',
+    code: 'DEC-021',
+    title: 'Automated circuit-breaker tripping on provider timeout spikes',
+    shortTitle: 'Routing fallback policy',
+    status: 'active',
+    statusLabel: 'Active',
+    impactLevel: 'medium',
+    space: 'Site Reliability Engineering',
+    decisionType: 'Reliability architecture',
+    owner: 'Site Reliability Engineering',
+    ownerRole: 'Priya Nair (SRE Lead)',
+    originMeeting: 'Canary Observability Review',
+    originDate: '02 Nov 2026',
+    latestUpdate: '02 Nov 2026',
+    firstProposedDate: '02 November 2026',
+    lastRevisedDate: '02 November 2026',
+    linkedMeetingsCount: 3,
+    affectedTeamsCount: 2,
+    openDependenciesCount: 1,
+    summary:
+      'Trip the circuit breaker to secondary provider (Stripe) only after idempotency key is locked and verified, preventing race conditions during latency degradation.',
+    problemRationale:
+      'Unchecked circuit breaking without idempotency state locks produces secondary authorization bursts against alternative providers.',
+    evidence: {
+      segmentId: 'S-012',
+      quote:
+        'For this pilot, pause expansion if p95 latency exceeds 650 ms for ten minutes or error rate exceeds 0.5%. Pause does not automatically mean rollback.',
+      speaker: 'Priya Nair',
+      speakerRole: 'SRE Lead',
+      meetingName: 'Canary Observability Review',
+      meetingDate: '02 Nov 2026',
+      timestamp: '14:00'
+    },
+    history: [
+      {
+        step: 1,
+        date: '02 Nov',
+        phase: 'Architecture approval',
+        title: 'Canary error & latency trip thresholds defined',
+        description: 'Set p95 < 650ms and error rate < 0.5% as operational gates.',
+        statusBadge: 'Approved',
+        statusBadgeColor: 'bg-emerald-50 text-emerald-800',
+        meeting: 'Canary Observability Review',
+        evidenceId: 'S-012',
+        actor: 'Priya Nair'
+      }
+    ],
+    affectedWorkstreams: [
+      { team: 'Site Reliability Engineering', category: 'qa', impact: 'Simulate timeout chaos testing against mocks.', status: 'In progress' }
+    ],
+    downstreamMilestone: {
+      name: '14 Nov Readiness Review',
+      status: 'Pending four-team review',
+      description: 'SRE sign-off requires passing simulated timeout test.'
+    },
+    lineageNodes: [
+      { id: 'node-sre-01', type: 'origin', column: 0, title: 'SLO definition', sub: 'Observability Review · 02 Nov', date: '02 Nov', badge: 'METRIC', badgeColor: 'bg-stone-100 text-stone-700' },
+      { id: 'node-sre-02', type: 'decision', column: 1, title: 'Circuit breaker thresholds', sub: 'Observability Review · 02 Nov', date: '02 Nov', badge: 'ACTIVE', badgeColor: 'bg-blue-50 text-blue-700' }
+    ],
+    lineageEdges: [
+      { from: 'node-sre-01', to: 'node-sre-02', label: 'DEFINES' }
+    ],
+    dependencies: [
+      {
+        type: 'Depends on',
+        target: 'DEC-014: Idempotency locking protocol',
+        team: 'Payments Platform',
+        relationshipReason: 'Circuit breaker failover must reuse idempotency token.',
+        establishedInMeeting: 'Canary Observability Review · 02 Nov',
+        severity: 'high'
+      }
+    ]
+  }
+];
+
 export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
   graphData,
   decisions,
@@ -43,791 +797,817 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
   onOpenDecisionTrail,
   onOpenMeeting
 }) => {
-  // 3 Modes: Explore, Timeline, Impact Analysis
-  const [viewMode, setViewMode] = useState<'explore' | 'timeline' | 'impact'>('explore');
-  const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
-  const [filterType, setFilterType] = useState<string>('all');
-  const [zoom, setZoom] = useState<number>(1);
+  // 5 Views: explorer (default), detail, timeline, lineage, impact
+  const [activeSubView, setActiveSubView] = useState<'explorer' | 'detail' | 'timeline' | 'lineage' | 'impact'>('explorer');
+  const [selectedDecisionId, setSelectedDecisionId] = useState<string>('dec-014');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [zoomLevel, setZoomLevel] = useState<number>(1);
+  const [selectedLineageNode, setSelectedLineageNode] = useState<any | null>(null);
 
-  // Selected decision for Impact Analysis Simulator
-  const [selectedImpactScenarioId, setSelectedImpactScenarioId] = useState<string>('scenario-gate-01');
+  // Quick Action Modal states
+  const [actionModal, setActionModal] = useState<{
+    isOpen: boolean;
+    type: 'revision' | 'followup' | 'contradiction' | 'clarification' | null;
+    title: string;
+  }>({ isOpen: false, type: null, title: '' });
+  const [actionSuccessToast, setActionSuccessToast] = useState<string | null>(null);
 
-  // Position nodes pseudo-organically in columns so it fills the canvas nicely
-  const layoutNodes = useMemo(() => {
-    const nodes = graphData.nodes.filter(n => {
-      if (filterType === 'all') return true;
-      if (filterType === 'decisions') return n.type === 'decision';
-      if (filterType === 'blockers') return n.type === 'blocker';
-      if (filterType === 'spaces') return n.type === 'space';
-      if (filterType === 'tasks') return n.type === 'task';
+  // Active decision intelligence record
+  const currentDecision = useMemo(() => {
+    return CANONICAL_DECISION_INTELLIGENCE.find(d => d.id === selectedDecisionId) || CANONICAL_DECISION_INTELLIGENCE[0];
+  }, [selectedDecisionId]);
+
+  // Filtered decisions for the Explorer table
+  const filteredDecisions = useMemo(() => {
+    return CANONICAL_DECISION_INTELLIGENCE.filter(d => {
+      // Status filter
+      if (statusFilter === 'active' && d.status !== 'active') return false;
+      if (statusFilter === 'revised' && d.status !== 'revised') return false;
+      if (statusFilter === 'superseded' && d.status !== 'superseded') return false;
+      if (statusFilter === 'blocked' && d.status !== 'blocked') return false;
+      if (statusFilter === 'high_impact' && d.impactLevel !== 'high' && d.impactLevel !== 'critical') return false;
+
+      // Search query
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matches =
+          d.code.toLowerCase().includes(q) ||
+          d.title.toLowerCase().includes(q) ||
+          d.shortTitle.toLowerCase().includes(q) ||
+          d.owner.toLowerCase().includes(q) ||
+          d.space.toLowerCase().includes(q) ||
+          d.originMeeting.toLowerCase().includes(q);
+        if (!matches) return false;
+      }
       return true;
     });
+  }, [statusFilter, searchQuery]);
 
-    const spacesList = nodes.filter(n => n.type === 'space');
-    const meetingsList = nodes.filter(n => n.type === 'meeting');
-    const decisionsList = nodes.filter(n => n.type === 'decision');
-    const tasksList = nodes.filter(n => n.type === 'task');
-    const blockersList = nodes.filter(n => n.type === 'blocker');
+  const handleSelectDecision = (decId: string, targetView: 'detail' | 'timeline' | 'lineage' | 'impact' = 'detail') => {
+    setSelectedDecisionId(decId);
+    setActiveSubView(targetView);
+  };
 
-    const positioned: Record<string, { x: number; y: number; node: GraphNode }> = {};
-
-    spacesList.forEach((s, idx) => {
-      positioned[s.id] = { x: 130, y: 80 + idx * 100, node: s };
-    });
-
-    meetingsList.forEach((m, idx) => {
-      positioned[m.id] = { x: 410, y: 70 + idx * 80, node: m };
-    });
-
-    decisionsList.forEach((d, idx) => {
-      positioned[d.id] = { x: 730, y: 65 + idx * 75, node: d };
-    });
-
-    tasksList.forEach((t, idx) => {
-      positioned[t.id] = { x: 1040, y: 65 + idx * 65, node: t };
-    });
-
-    blockersList.forEach((b, idx) => {
-      positioned[b.id] = { x: 1040, y: 440 + idx * 75, node: b };
-    });
-
-    return positioned;
-  }, [graphData.nodes, filterType]);
-
-  // Find rich metadata for selected node
-  const activeDecision = useMemo(() => {
-    if (!selectedNode || selectedNode.type !== 'decision') return null;
-    return decisions.find(d => d.id === selectedNode.id) || null;
-  }, [selectedNode, decisions]);
-
-  const activeMeeting = useMemo(() => {
-    if (!selectedNode) return null;
-    if (selectedNode.type === 'meeting') {
-      return meetings.find(m => m.id === selectedNode.id) || null;
-    }
-    if (activeDecision) {
-      return meetings.find(m => m.id === activeDecision.meeting_id) || null;
-    }
-    return null;
-  }, [selectedNode, activeDecision, meetings]);
-
-  const nodeColor = (type: string, status?: string) => {
-    switch (type) {
-      case 'space':
-        return { bg: '#ffffff', stroke: '#1c1b1a', text: '#1c1b1a', fill: '#1c1b1a' };
-      case 'meeting':
-        return { bg: '#ffffff', stroke: '#5c6f5d', text: '#5c6f5d', fill: '#5c6f5d' };
-      case 'decision':
-        if (status === 'superseded') {
-          return { bg: '#fdfbf7', stroke: '#af751b', text: '#af751b', fill: '#af751b' };
-        }
-        return { bg: '#ffffff', stroke: '#2a72de', text: '#2a72de', fill: '#2a72de' };
-      case 'task':
-        return { bg: '#ffffff', stroke: '#4a4741', text: '#4a4741', fill: '#4a4741' };
-      case 'blocker':
-        return { bg: '#ffffff', stroke: '#e33a22', text: '#e33a22', fill: '#e33a22' };
-      default:
-        return { bg: '#ffffff', stroke: '#838280', text: '#838280', fill: '#838280' };
+  const handleOpenOriginMeeting = () => {
+    const meeting = meetings.find(m => m.title.toLowerCase().includes(currentDecision.originMeeting.toLowerCase().slice(0, 10)));
+    if (meeting) {
+      onOpenMeeting(meeting);
+    } else if (meetings[0]) {
+      onOpenMeeting(meetings[0]);
     }
   };
 
-  const edgeColor = (type: string) => {
-    switch (type) {
-      case 'SUPERSEDES':
-      case 'SUPERSEDED_BY':
-        return '#af751b';
-      case 'BLOCKS':
-      case 'TRIGGERS':
-        return '#e33a22';
-      case 'AFFECTS':
-      case 'MITIGATED_BY':
-        return '#2a72de';
-      default:
-        return '#d3cebe';
-    }
+  const handleTriggerAction = (type: 'revision' | 'followup' | 'contradiction' | 'clarification', title: string) => {
+    setActionModal({ isOpen: true, type, title });
   };
 
-  // Timeline events dataset (Chronological evolution for MeridianPay Smart Routing v2)
-  const timelineEvents = [
-    {
-      date: 'Nov 02, 2026',
-      meetingTitle: 'Smart Routing v2 kickoff',
-      spaceName: 'Product & Strategy',
-      decision: 'Begin with a 5% canary for the initial merchant pilot.',
-      status: 'active',
-      decidedBy: 'Maya Chen (Product Manager)',
-      quote: 'Let\'s begin with a 5% canary. Expansion requires reliability and risk checks to pass.',
-      rationale: 'Controlled pilot with 10 merchants to evaluate processor authorization rates without merchant code changes.',
-      evolutionText: 'Initial baseline rollout parameter.'
-    },
-    {
-      date: 'Nov 02, 2026',
-      meetingTitle: 'Smart Routing v2 kickoff',
-      spaceName: 'Product & Strategy',
-      decision: 'Expand the pilot to 20% after the initial canary gate.',
-      status: 'superseded',
-      decidedBy: 'Maya Chen (Product Manager)',
-      quote: 'Expand the pilot to 20% after the initial canary gate.',
-      rationale: 'Original aggressive rollout timeline before discovering timeout ambiguity hazards.',
-      evolutionText: 'Superseded on Nov 10 by 14 November technical readiness review.'
-    },
-    {
-      date: 'Nov 03, 2026',
-      meetingTitle: 'Routing architecture and idempotency review',
-      spaceName: 'Payments Platform',
-      decision: 'Propagate the same idempotency key across routing and processor attempts.',
-      status: 'active',
-      decidedBy: 'Elena Petrova (Backend Engineer)',
-      quote: 'Carry the same idempotency key across routing and processor attempts. Do not automatically fail over an ambiguous timeout until we have safe reconciliation.',
-      rationale: 'A processor timeout does not prove the original processor never received or authorized payment.',
-      evolutionText: 'Fundamental idempotency constraint.'
-    },
-    {
-      date: 'Nov 04, 2026',
-      meetingTitle: 'Fraud controls during processor failover',
-      spaceName: 'Risk & Fraud',
-      decision: 'Mandatory risk evaluation must not be bypassed during processor failover; fail safely if unavailable.',
-      status: 'active',
-      decidedBy: 'Fatima Ali (Risk Engineer)',
-      quote: 'Risk evaluation must be independent of processor selection. If mandatory risk evaluation is unavailable, fail safely rather than routing around it.',
-      rationale: 'Guarantees transaction fraud scoring continuity regardless of secondary processor routing.',
-      evolutionText: 'Risk continuity constraint.'
-    },
-    {
-      date: 'Nov 06, 2026',
-      meetingTitle: 'Canary observability and production readiness',
-      spaceName: 'Site Reliability Engineering',
-      decision: 'Use canary monitoring and pause expansion at the agreed pilot latency or error thresholds.',
-      status: 'active',
-      decidedBy: 'Priya Nair (SRE Lead)',
-      quote: 'For this pilot, pause expansion if p95 latency exceeds 650 ms for ten minutes or the error rate exceeds 0.5%. Pause does not automatically mean rollback.',
-      rationale: 'Establishes clear metrics boundaries for traffic expansion versus automatic pause.',
-      evolutionText: 'SRE canary gates established.'
-    },
-    {
-      date: 'Nov 09, 2026',
-      meetingTitle: 'Pilot performance review: timeout ambiguity',
-      spaceName: 'Payments Platform',
-      decision: 'Pause expansion beyond 5% and disable automatic cross-processor retries for ambiguous timeouts.',
-      status: 'active',
-      decidedBy: 'Elena Petrova (Backend Engineer)',
-      quote: 'Some requests are retried even though we cannot tell whether the original processor completed authorisation. Disable automatic cross-processor retries for ambiguous outcomes.',
-      rationale: 'Observed pilot timeouts exposed risk of duplicate authorisations against cardholders.',
-      evolutionText: 'Direct trigger for launch gate halt.'
-    },
-    {
-      date: 'Nov 10, 2026',
-      meetingTitle: 'Smart Routing launch gate decision',
-      spaceName: 'Product & Strategy',
-      decision: 'Replace the planned 20% expansion with a 14 November readiness review requiring four team approvals.',
-      status: 'active',
-      decidedBy: 'Maya Chen & Executive Committee',
-      quote: 'Replace the planned 20% expansion date with a 14 November readiness review. Payments, SRE, Risk, and Security must approve before expansion.',
-      rationale: 'Blocks traffic growth until Payments, SRE, Risk, and Security verified evidence is approved.',
-      evolutionText: 'Supersedes 2 Nov 20% rollout commitment.'
-    },
-    {
-      date: 'Nov 11, 2026',
-      meetingTitle: 'Merchant pilot communications and support readiness',
-      spaceName: 'Merchant Operations',
-      decision: 'Keep merchant launch confirmation in draft until technical readiness is approved.',
-      status: 'active',
-      decidedBy: 'Sarah Kim & Maya Chen',
-      quote: 'Keep merchant communication in draft. Do not confirm the expansion date until the technical readiness review is approved.',
-      rationale: 'Protects merchant relationships by preventing external dates before technical sign-off.',
-      evolutionText: 'Merchant external communications gate.'
-    }
-  ];
-
-  // Impact simulation datasets for MeridianPay Smart Routing v2
-  const impactScenarios: Record<string, {
-    title: string;
-    space: string;
-    description: string;
-    riskLevel: 'Critical' | 'Warning' | 'Low';
-    affectedSpaces: { name: string; impact: string }[];
-    affectedCommitments: { task: string; owner: string; currentStatus: string; consequence: string }[];
-    downstreamBlockers: string[];
-    mitigations: string[];
-  }> = {
-    'scenario-gate-01': {
-      title: 'Replace 20% Expansion with 14 Nov Multi-Team Readiness Review',
-      space: 'Product & Strategy',
-      description: 'Simulating the impact of superseding the planned 20% expansion and requiring 4 departmental sign-offs.',
-      riskLevel: 'Critical',
-      affectedSpaces: [
-        {
-          name: 'Payments Platform',
-          impact: 'Must implement safe timeout classification, idempotency key propagation, and disable automatic cross-processor retries.'
-        },
-        {
-          name: 'Site Reliability Engineering',
-          impact: 'Must validate canary latency alerts (650 ms p95, 0.5% error) and execute automated rollback drill in staging.'
-        },
-        {
-          name: 'Risk & Fraud',
-          impact: 'Must run end-to-end risk propagation tests to guarantee fraud evaluation continuity during retries.'
-        },
-        {
-          name: 'Security & Compliance',
-          impact: 'Must review error traces and application logs confirming zero raw PANs or sensitive authentication data.'
-        },
-        {
-          name: 'Merchant Operations',
-          impact: 'Must hold merchant expansion communications in draft status and prepare support failure runbooks.'
-        }
-      ],
-      affectedCommitments: [
-        {
-          task: 'Implement safe timeout classification and retry restrictions',
-          owner: 'Elena Petrova',
-          currentStatus: 'Blocked',
-          consequence: 'P0 launch prerequisite; blocks all traffic expansion.'
-        },
-        {
-          task: 'Run end-to-end risk propagation tests',
-          owner: 'Fatima Ali',
-          currentStatus: 'Todo',
-          consequence: 'Must be verified prior to 14 November review.'
-        },
-        {
-          task: 'Validate canary metrics and rollback procedure',
-          owner: 'Priya Nair',
-          currentStatus: 'Todo',
-          consequence: 'SRE sign-off prerequisite for staging rollback safety.'
-        },
-        {
-          task: 'Complete security review evidence for the routing service',
-          owner: 'Nina Patel',
-          currentStatus: 'Todo',
-          consequence: 'PCI DSS log review evidence required for compliance approval.'
-        },
-        {
-          task: 'Prepare merchant pilot communication and support runbook',
-          owner: 'Sarah Kim',
-          currentStatus: 'In progress',
-          consequence: 'Comms held in draft until technical approvals are submitted.'
-        }
-      ],
-      downstreamBlockers: [
-        'Ambiguous processor timeouts can trigger unsafe retries (Payments Platform)',
-        'Risk decision continuity is not verified end to end (Risk & Fraud)',
-        'Canary monitoring and rollback validation are incomplete (SRE)',
-        'Merchant support readiness is incomplete (Merchant Operations)'
-      ],
-      mitigations: [
-        'CONFLUENCE Proactive Step: Enforce 14 November technical readiness approval gate before routing traffic > 5%.',
-        'Stage shadow reconciliation service to confirm processor state before initiating any secondary attempt.',
-        'Hold merchant communications in draft to avoid premature customer commitments.'
-      ]
-    },
-    'scenario-timeout-01': {
-      title: 'Ambiguous Processor Timeouts Trigger Unsafe Retries',
-      space: 'Payments Platform',
-      description: 'Simulating the operational hazard where processor timeouts cause duplicate customer authorizations.',
-      riskLevel: 'Critical',
-      affectedSpaces: [
-        {
-          name: 'Payments Platform',
-          impact: 'High risk of duplicate ledger entries and chargebacks if secondary attempts proceed uncoordinated.'
-        },
-        {
-          name: 'Merchant Operations',
-          impact: 'Customer complaints and merchant billing inquiries if cardholders are double-authorized.'
-        }
-      ],
-      affectedCommitments: [
-        {
-          task: 'Implement safe timeout classification and retry restrictions',
-          owner: 'Elena Petrova',
-          currentStatus: 'Blocked',
-          consequence: 'Must distinguish timeout ambiguity from explicit network declines.'
-        }
-      ],
-      downstreamBlockers: [
-        'Ambiguous processor timeouts trigger duplicate authorization hazard.'
-      ],
-      mitigations: [
-        'Disable automatic cross-processor retries for ambiguous outcomes immediately as decided on Nov 9.',
-        'Propagate stable idempotency keys across all processor attempts.'
-      ]
-    },
-    'scenario-risk-01': {
-      title: 'Risk Decision Continuity During Failovers',
-      space: 'Risk & Fraud',
-      description: 'Simulating fraud control failure if secondary processor routing bypasses original risk score.',
-      riskLevel: 'Critical',
-      affectedSpaces: [
-        {
-          name: 'Risk & Fraud',
-          impact: 'Unchecked fraud exposure if failover routes do not inherit risk decisions.'
-        },
-        {
-          name: 'Security & Compliance',
-          impact: 'Regulatory non-compliance if high-risk transactions bypass screening.'
-        }
-      ],
-      affectedCommitments: [
-        {
-          task: 'Verify risk decision propagation across processor adapters',
-          owner: 'Fatima Ali',
-          currentStatus: 'Todo',
-          consequence: 'Requires synthetic test coverage across all failover routes.'
-        }
-      ],
-      downstreamBlockers: [
-        'Risk decision continuity is not verified end to end.'
-      ],
-      mitigations: [
-        'Enforce fail-safe rejection: if risk evaluation is unavailable, reject transaction rather than routing around.'
-      ]
-    }
+  const handleConfirmAction = () => {
+    const actionLabel = actionModal.title;
+    setActionModal({ isOpen: false, type: null, title: '' });
+    setActionSuccessToast(`${actionLabel} successfully logged and dispatched for human review.`);
+    setTimeout(() => setActionSuccessToast(null), 4000);
   };
-
-  const currentImpact = impactScenarios[selectedImpactScenarioId] || impactScenarios['scenario-gate-01'];
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto py-6">
-      {/* 1. Header with 3 Modes Navigation */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#e1dcd3] pb-4">
+    <div className="max-w-7xl mx-auto py-6 space-y-6">
+      {/* 1. Header & High-Level Organizational Metrics */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#e1dcd3] pb-5">
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#2a72de] bg-blue-50 px-2 py-0.5 rounded">
-              MeridianPay Memory Graph
+              DECISION INTELLIGENCE &amp; TRACEABILITY
             </span>
             <span className="text-xs text-[#838280]">
-              {graphData.nodes.length} Nodes &bull; {graphData.edges.length} Edges
+              MeridianPay / Organisation-wide decision history
             </span>
           </div>
-          <h2 className="font-serif text-2xl md:text-3xl font-normal text-[#1c1b1a] mt-1">
-            Decision Network &amp; Lineage
-          </h2>
-          <p className="text-xs text-[#7b776f] mt-0.5 font-light">
-            Navigate cross-team decisions, inspect historical evolution, and simulate downstream impacts for Smart Routing v2.
+          <h1 className="font-serif text-3xl font-normal text-[#1c1b1a] mt-1">
+            Decision Intelligence
+          </h1>
+          <p className="text-xs text-[#7b776f] font-light mt-0.5 max-w-2xl">
+            Trace decisions from original incident, follow architectural evolution through approvals and revisions, and inspect cross-team downstream impact.
           </p>
         </div>
 
-        {/* 3 Modes Segmented Control */}
-        <div className="flex items-center bg-[#f0ece4] p-1 rounded-xl text-xs font-medium border border-[#e1dcd3] shadow-inner">
-          <button
-            onClick={() => setViewMode('explore')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
-              viewMode === 'explore'
-                ? 'bg-white text-[#1c1b1a] font-semibold shadow-xs'
-                : 'text-[#4a4741] hover:text-[#1c1b1a]'
-            }`}
-          >
-            <Layers className="w-3.5 h-3.5 text-[#2a72de]" />
-            <span>1. Explore</span>
-          </button>
-          <button
-            onClick={() => setViewMode('timeline')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
-              viewMode === 'timeline'
-                ? 'bg-white text-[#1c1b1a] font-semibold shadow-xs'
-                : 'text-[#4a4741] hover:text-[#1c1b1a]'
-            }`}
-          >
-            <Clock className="w-3.5 h-3.5 text-[#af751b]" />
-            <span>2. Timeline</span>
-          </button>
-          <button
-            onClick={() => setViewMode('impact')}
-            className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg transition-all ${
-              viewMode === 'impact'
-                ? 'bg-white text-[#1c1b1a] font-semibold shadow-xs'
-                : 'text-[#4a4741] hover:text-[#1c1b1a]'
-            }`}
-          >
-            <Target className="w-3.5 h-3.5 text-[#e33a22]" />
-            <span>3. Impact Analysis</span>
-          </button>
+        {/* 3 Executive Metric Badges */}
+        <div className="flex items-center gap-3">
+          <div className="bg-white border border-[#e1dcd3] px-3.5 py-2 rounded-xl text-center shadow-xs">
+            <span className="text-lg font-serif font-normal text-[#1c1b1a] block leading-none">24</span>
+            <span className="text-[10px] uppercase font-semibold text-[#838280]">Active decisions</span>
+          </div>
+          <div className="bg-white border border-[#e1dcd3] px-3.5 py-2 rounded-xl text-center shadow-xs">
+            <span className="text-lg font-serif font-normal text-[#af751b] block leading-none">6</span>
+            <span className="text-[10px] uppercase font-semibold text-[#af751b]">Changed decisions</span>
+          </div>
+          <div className="bg-white border border-[#e1dcd3] px-3.5 py-2 rounded-xl text-center shadow-xs">
+            <span className="text-lg font-serif font-normal text-[#e33a22] block leading-none">3</span>
+            <span className="text-[10px] uppercase font-semibold text-[#e33a22]">Impact alerts</span>
+          </div>
         </div>
       </div>
 
-      {/* ---------------------------------------------------- */}
-      {/* MODE 1: EXPLORE GRAPH CANVAS                         */}
-      {/* ---------------------------------------------------- */}
-      {viewMode === 'explore' && (
-        <div className="space-y-4">
-          {/* Filter Pills & Zoom Controls */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-1.5 bg-white border border-[#e1dcd3] rounded-lg p-1 shadow-xs overflow-x-auto">
-              <span className="text-[11px] font-semibold text-[#838280] px-2">Filter:</span>
-              {['all', 'decisions', 'blockers', 'spaces', 'tasks'].map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilterType(f)}
-                  className={`px-3 py-1 rounded-md capitalize transition-all ${
-                    filterType === f
-                      ? 'bg-[#1c1b1a] text-white font-medium'
-                      : 'text-[#4a4741] hover:text-[#1c1b1a]'
-                  }`}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
+      {/* 2. Sub-Navigation Tabs */}
+      <div className="flex items-center justify-between border-b border-[#e1dcd3] pb-2 text-xs">
+        <div className="flex items-center gap-1.5 overflow-x-auto">
+          {[
+            { id: 'explorer', label: 'Decision Explorer', icon: Compass },
+            { id: 'detail', label: 'Decision Detail', icon: FileText, badge: currentDecision.code },
+            { id: 'timeline', label: 'Decision Timeline', icon: History },
+            { id: 'lineage', label: 'Lineage Graph', icon: GitBranch },
+            { id: 'impact', label: 'Impact & Dependencies', icon: Target },
+          ].map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeSubView === tab.id;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveSubView(tab.id as any)}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-lg font-medium transition-all ${
+                  isActive
+                    ? 'bg-[#1c1b1a] text-white font-semibold shadow-xs'
+                    : 'text-[#4a4741] hover:bg-stone-200/50'
+                }`}
+              >
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-[#2a72de]' : 'text-[#838280]'}`} />
+                <span>{tab.label}</span>
+                {tab.badge && (
+                  <span className={`text-[10px] px-1.5 py-0.2 rounded font-mono ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-stone-100 text-[#838280]'
+                  }`}>
+                    {tab.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
-            <div className="flex items-center gap-2 self-start sm:self-auto">
-              <div className="flex items-center bg-white border border-[#e1dcd3] rounded-lg p-1 shadow-xs">
-                <button
-                  onClick={() => setZoom(z => Math.max(0.6, z - 0.1))}
-                  className="p-1.5 rounded hover:bg-stone-100 text-[#4a4741]"
-                  title="Zoom Out"
-                >
-                  <ZoomOut className="w-3.5 h-3.5" />
-                </button>
-                <span className="text-[11px] font-mono px-2 text-[#838280]">
-                  {Math.round(zoom * 100)}%
-                </span>
-                <button
-                  onClick={() => setZoom(z => Math.min(1.4, z + 0.1))}
-                  className="p-1.5 rounded hover:bg-stone-100 text-[#4a4741]"
-                  title="Zoom In"
-                >
-                  <ZoomIn className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => setZoom(1)}
-                  className="p-1.5 rounded hover:bg-stone-100 text-[#838280]"
-                  title="Reset Zoom"
-                >
-                  <RefreshCw className="w-3 h-3" />
-                </button>
+        {/* Decision Context Switcher when in detail/timeline/lineage/impact */}
+        {activeSubView !== 'explorer' && (
+          <div className="hidden sm:flex items-center gap-2 text-xs">
+            <span className="text-[#838280]">Inspecting:</span>
+            <select
+              value={selectedDecisionId}
+              onChange={(e) => setSelectedDecisionId(e.target.value)}
+              className="text-xs font-semibold bg-white border border-[#e1dcd3] rounded-lg px-2.5 py-1 text-[#1c1b1a] focus:outline-none focus:ring-1 focus:ring-[#2a72de]"
+            >
+              {CANONICAL_DECISION_INTELLIGENCE.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.code} · {d.shortTitle} ({d.statusLabel})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+      </div>
+
+      {/* Success Notification Banner */}
+      {actionSuccessToast && (
+        <div className="p-3.5 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs rounded-lg flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+            <span>{actionSuccessToast}</span>
+          </div>
+          <button onClick={() => setActionSuccessToast(null)} className="text-emerald-600 hover:text-emerald-900">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* VIEW A: DECISION EXPLORER (DEFAULT VIEW) */}
+      {activeSubView === 'explorer' && (
+        <div className="space-y-6">
+          {/* Search & Filter Bar */}
+          <div className="card-oura p-4 bg-white border border-[#e1dcd3] space-y-3 shadow-xs">
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <div className="relative flex-1 w-full">
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search decisions, incidents, meetings, owners, or topics..."
+                  className="w-full text-xs p-2.5 pl-9 pr-3 rounded-lg border border-[#e1dcd3] bg-[#fbfaf7] text-[#1c1b1a] focus:outline-none focus:ring-1 focus:ring-[#2a72de]"
+                />
+                <Search className="w-3.5 h-3.5 text-[#838280] absolute left-3 top-3" />
+              </div>
+
+              {/* Filter Pills */}
+              <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto">
+                {[
+                  { id: 'all', label: 'All decisions' },
+                  { id: 'active', label: 'Active' },
+                  { id: 'revised', label: 'Revised' },
+                  { id: 'superseded', label: 'Superseded' },
+                  { id: 'blocked', label: 'Blocked' },
+                  { id: 'high_impact', label: 'High impact' },
+                ].map((f) => (
+                  <button
+                    key={f.id}
+                    onClick={() => setStatusFilter(f.id)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+                      statusFilter === f.id
+                        ? 'bg-[#1c1b1a] text-white font-semibold'
+                        : 'bg-[#fbfaf7] text-[#4a4741] border border-[#e1dcd3] hover:bg-stone-100'
+                    }`}
+                  >
+                    {f.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Interactive SVG Canvas & Inspector */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            {/* Canvas (8 cols) */}
-            <div className="lg:col-span-8 card-oura bg-[#fbfaf7] border border-[#e1dcd3] relative h-[650px] overflow-hidden rounded-xl shadow-inner">
-              {/* Legend pill */}
-              <div className="absolute top-3 left-3 z-10 flex items-center gap-3 bg-white/95 backdrop-blur-sm border border-[#e1dcd3] px-3.5 py-1.5 rounded-lg text-[11px] shadow-xs">
-                <span className="flex items-center gap-1.5 text-[#af751b] font-medium">
-                  <span className="w-3 h-0.5 bg-[#af751b]" /> SUPERSEDES
-                </span>
-                <span className="flex items-center gap-1.5 text-[#e33a22] font-medium">
-                  <span className="w-3 h-0.5 bg-[#e33a22]" /> BLOCKS / TRIGGERS
-                </span>
-                <span className="flex items-center gap-1.5 text-[#2a72de] font-medium">
-                  <span className="w-3 h-0.5 bg-[#2a72de]" /> AFFECTS / MITIGATED
+          {/* Decisions Requiring Attention Cards */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Flame className="w-4 h-4 text-[#e33a22]" />
+                <h3 className="font-serif text-lg font-normal text-[#1c1b1a]">
+                  Decisions requiring attention
+                </h3>
+              </div>
+              <span className="text-xs text-[#838280]">Key Smart Routing v2 inflection points</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Card 1: DEC-014 */}
+              <div className="card-oura p-5 bg-white border border-[#e1dcd3] hover:border-[#2a72de] transition-all flex flex-col justify-between shadow-xs">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] font-bold text-[#1c1b1a]">DEC-014 · Payment idempotency</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-[#af751b] border border-amber-200">
+                      Revised
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#4a4741] leading-relaxed">
+                    Extend idempotency key retention after QA identified delayed retries outside the original window.
+                  </p>
+                  <div className="text-[11px] text-[#838280] pt-1">
+                    Origin: <strong>Routing Reliability Review · 24 Oct</strong>
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-[#f0ece4] mt-3 flex items-center justify-between text-xs">
+                  <span className="text-[#838280] text-[11px]">4 linked meetings &bull; 3 affected teams</span>
+                  <button
+                    onClick={() => handleSelectDecision('dec-014', 'detail')}
+                    className="flex items-center gap-1 text-[#2a72de] font-semibold hover:underline"
+                  >
+                    <span>Trace decision</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 2: DEC-009 */}
+              <div className="card-oura p-5 bg-white border border-[#e1dcd3] hover:border-[#2a72de] transition-all flex flex-col justify-between shadow-xs">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] font-bold text-[#1c1b1a]">DEC-009 · Retry strategy</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-stone-100 text-[#4a4741] border border-stone-200">
+                      Superseded
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#4a4741] leading-relaxed">
+                    Retry with exponential backoff was retained as a retry policy, but no longer treated as sufficient protection against duplicate execution.
+                  </p>
+                  <div className="text-[11px] text-[#838280] pt-1">
+                    Origin: <strong>Payment Incident Review · 18 Oct</strong>
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-[#f0ece4] mt-3 flex items-center justify-between text-xs">
+                  <span className="text-[#838280] text-[11px]">2 linked meetings &bull; 2 affected teams</span>
+                  <button
+                    onClick={() => handleSelectDecision('dec-009', 'detail')}
+                    className="flex items-center gap-1 text-[#2a72de] font-semibold hover:underline"
+                  >
+                    <span>Trace decision</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Card 3: DEC-018 */}
+              <div className="card-oura p-5 bg-white border border-[#e1dcd3] hover:border-[#2a72de] transition-all flex flex-col justify-between shadow-xs">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[11px] font-bold text-[#1c1b1a]">DEC-018 · Merchant key propagation</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-50 text-[#e33a22] border border-red-200">
+                      Blocked
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#4a4741] leading-relaxed">
+                    Merchant integration changes are needed before end-to-end idempotency can be validated in production.
+                  </p>
+                  <div className="text-[11px] text-[#838280] pt-1">
+                    Origin: <strong>Merchant Integration Sync · 27 Oct</strong>
+                  </div>
+                </div>
+                <div className="pt-4 border-t border-[#f0ece4] mt-3 flex items-center justify-between text-xs">
+                  <span className="text-[#838280] text-[11px]">2 affected workstreams &bull; 1 blocker</span>
+                  <button
+                    onClick={() => handleSelectDecision('dec-018', 'detail')}
+                    className="flex items-center gap-1 text-[#2a72de] font-semibold hover:underline"
+                  >
+                    <span>Trace decision</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Canonical Decision Master Table */}
+          <div className="card-oura bg-white border border-[#e1dcd3] shadow-xs overflow-hidden">
+            <div className="p-4 border-b border-[#e1dcd3] flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Compass className="w-4 h-4 text-[#2a72de]" />
+                <h3 className="font-serif text-lg font-normal text-[#1c1b1a]">
+                  Canonical Decision Directory
+                </h3>
+              </div>
+              <span className="text-xs text-[#838280]">
+                Showing {filteredDecisions.length} decisions
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="bg-[#fbfaf7] border-b border-[#e1dcd3] text-[11px] font-semibold text-[#838280] uppercase tracking-wider">
+                    <th className="py-3 px-4">Decision ID &amp; Title</th>
+                    <th className="py-3 px-3">Status</th>
+                    <th className="py-3 px-3">Origin Meeting &amp; Date</th>
+                    <th className="py-3 px-3">Responsible Owner</th>
+                    <th className="py-3 px-3 text-center">Linked Meetings</th>
+                    <th className="py-3 px-3 text-center">Impact</th>
+                    <th className="py-3 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#f0ece4]">
+                  {filteredDecisions.map((dec) => {
+                    const statusStyles: Record<string, string> = {
+                      active: 'bg-blue-50 text-[#2a72de] border-blue-200',
+                      revised: 'bg-amber-50 text-[#af751b] border-amber-200',
+                      superseded: 'bg-stone-100 text-[#4a4741] border-stone-200',
+                      blocked: 'bg-red-50 text-[#e33a22] border-red-200',
+                      under_review: 'bg-purple-50 text-purple-700 border-purple-200'
+                    };
+
+                    const impactStyles: Record<string, string> = {
+                      critical: 'text-[#e33a22] font-bold',
+                      high: 'text-[#af751b] font-semibold',
+                      medium: 'text-[#4a4741]',
+                      low: 'text-[#838280]'
+                    };
+
+                    return (
+                      <tr
+                        key={dec.id}
+                        onClick={() => handleSelectDecision(dec.id, 'detail')}
+                        className="hover:bg-[#fbfaf7] cursor-pointer transition-colors"
+                      >
+                        <td className="py-3 px-4">
+                          <div className="font-mono font-bold text-[#1c1b1a] text-[11px]">
+                            {dec.code}
+                          </div>
+                          <div className="font-semibold text-[#1c1b1a] mt-0.5">
+                            {dec.shortTitle}
+                          </div>
+                          <div className="text-[11px] text-[#838280] truncate max-w-md font-light">
+                            {dec.title}
+                          </div>
+                        </td>
+                        <td className="py-3 px-3">
+                          <span className={`inline-block px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${statusStyles[dec.status] || 'bg-stone-50'}`}>
+                            {dec.statusLabel}
+                          </span>
+                        </td>
+                        <td className="py-3 px-3">
+                          <div className="font-medium text-[#1c1b1a]">{dec.originMeeting}</div>
+                          <div className="text-[11px] text-[#838280]">{dec.originDate}</div>
+                        </td>
+                        <td className="py-3 px-3">
+                          <div className="text-[#1c1b1a] font-medium">{dec.owner}</div>
+                          <div className="text-[11px] text-[#838280]">{dec.space}</div>
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-stone-100 text-[#4a4741] text-[11px] font-semibold">
+                            {dec.linkedMeetingsCount} meetings
+                          </span>
+                        </td>
+                        <td className="py-3 px-3 text-center">
+                          <span className={`text-[11px] uppercase ${impactStyles[dec.impactLevel]}`}>
+                            {dec.impactLevel}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleSelectDecision(dec.id, 'detail');
+                            }}
+                            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-stone-100 hover:bg-[#1c1b1a] hover:text-white transition-all text-[11px] font-semibold"
+                          >
+                            <span>Inspect</span>
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* VIEW B: DECISION DETAIL (THE DEEP-DIVE WORKSPACE) */}
+      {activeSubView === 'detail' && (
+        <div className="space-y-6">
+          {/* Back button & Action Header */}
+          <div className="flex items-center justify-between">
+            <button
+              onClick={() => setActiveSubView('explorer')}
+              className="flex items-center gap-1.5 text-xs text-[#838280] hover:text-[#1c1b1a] font-medium"
+            >
+              <Compass className="w-3.5 h-3.5" />
+              <span>&larr; Back to Decision Explorer</span>
+            </button>
+
+            {/* Sub-View Jump Pills */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setActiveSubView('timeline')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#e1dcd3] bg-white text-xs font-semibold hover:border-[#1c1b1a] transition-all shadow-xs"
+              >
+                <History className="w-3.5 h-3.5 text-[#2a72de]" />
+                <span>View Timeline</span>
+              </button>
+              <button
+                onClick={() => setActiveSubView('lineage')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#e1dcd3] bg-white text-xs font-semibold hover:border-[#1c1b1a] transition-all shadow-xs"
+              >
+                <GitBranch className="w-3.5 h-3.5 text-[#2a72de]" />
+                <span>View Lineage Graph</span>
+              </button>
+              <button
+                onClick={() => setActiveSubView('impact')}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#e1dcd3] bg-white text-xs font-semibold hover:border-[#1c1b1a] transition-all shadow-xs"
+              >
+                <Target className="w-3.5 h-3.5 text-[#e33a22]" />
+                <span>Impact Analysis</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Master Detail Card */}
+          <div className="card-oura p-7 bg-white border border-[#e1dcd3] space-y-6 shadow-xs">
+            {/* Title & Metadata Top Banner */}
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 border-b border-[#f0ece4] pb-5">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2.5">
+                  <span className="font-mono text-xs font-bold text-[#1c1b1a] bg-stone-100 px-2 py-0.5 rounded">
+                    {currentDecision.code} · MERIDIANPAY
+                  </span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-amber-50 text-[#af751b] border border-amber-200">
+                    {currentDecision.statusLabel}
+                  </span>
+                  <span className="text-xs text-[#838280]">
+                    {currentDecision.decisionType}
+                  </span>
+                </div>
+                <h2 className="font-serif text-3xl font-normal text-[#1c1b1a]">
+                  {currentDecision.title}
+                </h2>
+                <p className="text-xs text-[#7b776f] font-light">
+                  {currentDecision.space} &bull; Owner: <strong>{currentDecision.owner}</strong> ({currentDecision.ownerRole})
+                </p>
+              </div>
+
+              {/* Quick Date & Scope Metrics */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs bg-[#fbfaf7] p-3 rounded-xl border border-[#e1dcd3]">
+                <div>
+                  <span className="text-[#838280] text-[10px] uppercase font-semibold block">First proposed</span>
+                  <span className="font-semibold text-[#1c1b1a]">{currentDecision.firstProposedDate}</span>
+                </div>
+                <div>
+                  <span className="text-[#838280] text-[10px] uppercase font-semibold block">Last revised</span>
+                  <span className="font-semibold text-[#af751b]">{currentDecision.lastRevisedDate}</span>
+                </div>
+                <div>
+                  <span className="text-[#838280] text-[10px] uppercase font-semibold block">Originating meeting</span>
+                  <span className="font-semibold text-[#1c1b1a] truncate block max-w-[130px]">{currentDecision.originMeeting}</span>
+                </div>
+                <div>
+                  <span className="text-[#838280] text-[10px] uppercase font-semibold block">Linked meetings</span>
+                  <span className="font-semibold text-[#2a72de]">{currentDecision.linkedMeetingsCount} meetings</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Decision Summary */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#838280]">
+                Decision summary
+              </h4>
+              <p className="text-sm text-[#1c1b1a] leading-relaxed font-normal bg-[#fdfbf7] p-4 rounded-xl border border-[#e1dcd3]">
+                {currentDecision.summary}
+              </p>
+            </div>
+
+            {/* Why was this decision made & Supporting Evidence */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#838280]">
+                Why was this decision made?
+              </h4>
+              <p className="text-xs text-[#4a4741] leading-relaxed">
+                {currentDecision.problemRationale}
+              </p>
+
+              {/* Exact Evidence Citation Box */}
+              <div className="p-4 rounded-xl bg-blue-50/50 border border-blue-100 space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-1.5 font-semibold text-[#2a72de]">
+                    <Quote className="w-3.5 h-3.5" />
+                    <span>Supporting evidence · Transcript segment {currentDecision.evidence.segmentId}</span>
+                  </div>
+                  <button
+                    onClick={handleOpenOriginMeeting}
+                    className="text-[11px] font-semibold text-[#2a72de] hover:underline flex items-center gap-1"
+                  >
+                    <span>Open source meeting</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
+
+                <blockquote className="text-xs text-[#1c1b1a] italic leading-relaxed pl-3 border-l-2 border-[#2a72de]">
+                  &ldquo;{currentDecision.evidence.quote}&rdquo;
+                </blockquote>
+
+                <div className="flex items-center gap-3 text-[11px] text-[#838280] pt-1">
+                  <span><strong>{currentDecision.evidence.speaker}</strong> ({currentDecision.evidence.speakerRole})</span>
+                  <span>&bull;</span>
+                  <span>{currentDecision.evidence.meetingName}</span>
+                  <span>&bull;</span>
+                  <span>{currentDecision.evidence.meetingDate} · {currentDecision.evidence.timestamp}</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Decision History / Evolutionary Journey */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-center justify-between">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#838280]">
+                  Decision history &amp; evolutionary journey
+                </h4>
+                <span className="text-[11px] text-[#838280]">
+                  {currentDecision.history.length} auditable milestones
                 </span>
               </div>
 
-              <svg
-                className="w-full h-full"
-                viewBox="0 0 1250 680"
-                style={{ transform: `scale(${zoom})`, transformOrigin: 'top left' }}
-              >
-                <defs>
-                  <marker id="arrow-gold" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#af751b" />
-                  </marker>
-                  <marker id="arrow-red" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#e33a22" />
-                  </marker>
-                  <marker id="arrow-blue" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#2a72de" />
-                  </marker>
-                  <marker id="arrow-gray" viewBox="0 0 10 10" refX="28" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#838280" />
-                  </marker>
-                </defs>
-
-                {/* Render Edges */}
-                {graphData.edges.map((edge) => {
-                  const src = layoutNodes[edge.source];
-                  const tgt = layoutNodes[edge.target];
-                  if (!src || !tgt) return null;
-
-                  const isSpecial = ['SUPERSEDES', 'SUPERSEDED_BY', 'BLOCKS', 'TRIGGERS', 'AFFECTS', 'MITIGATED_BY'].includes(edge.type);
-                  const color = edgeColor(edge.type);
-                  const marker =
-                    ['SUPERSEDES', 'SUPERSEDED_BY'].includes(edge.type)
-                      ? 'url(#arrow-gold)'
-                      : ['BLOCKS', 'TRIGGERS'].includes(edge.type)
-                      ? 'url(#arrow-red)'
-                      : ['AFFECTS', 'MITIGATED_BY'].includes(edge.type)
-                      ? 'url(#arrow-blue)'
-                      : 'url(#arrow-gray)';
-
-                  const midX = (src.x + tgt.x) / 2;
-                  const midY = (src.y + tgt.y) / 2;
-
-                  return (
-                    <g key={edge.id}>
-                      <line
-                        x1={src.x}
-                        y1={src.y}
-                        x2={tgt.x}
-                        y2={tgt.y}
-                        stroke={color}
-                        strokeWidth={isSpecial ? 2.5 : 1.2}
-                        strokeDasharray={['SUPERSEDES', 'SUPERSEDED_BY'].includes(edge.type) ? '5 3' : undefined}
-                        markerEnd={marker}
-                        className="transition-all"
-                      />
-                      {isSpecial && (
-                        <text
-                          x={midX}
-                          y={midY - 6}
-                          fill={color}
-                          fontSize="9"
-                          fontWeight="700"
-                          textAnchor="middle"
-                          className="select-none bg-white font-sans"
-                        >
-                          {edge.label || edge.type}
-                        </text>
-                      )}
-                    </g>
-                  );
-                })}
-
-                {/* Render Nodes */}
-                {Object.values(layoutNodes).map(({ x, y, node }) => {
-                  const colors = nodeColor(node.type, node.status);
-                  const isSelected = selectedNode?.id === node.id;
-
-                  return (
-                    <g
-                      key={node.id}
-                      transform={`translate(${x}, ${y})`}
-                      onClick={() => setSelectedNode(node)}
-                      className="cursor-pointer group"
-                    >
-                      <circle
-                        r={isSelected ? 26 : 22}
-                        fill={colors.bg}
-                        stroke={colors.stroke}
-                        strokeWidth={isSelected ? 3 : 1.8}
-                        className="transition-all filter drop-shadow-xs group-hover:scale-105"
-                      />
-                      <text
-                        textAnchor="middle"
-                        dy="4"
-                        fontSize="9"
-                        fontWeight="700"
-                        fill={colors.fill}
-                        className="select-none pointer-events-none uppercase tracking-wider"
-                      >
-                        {node.type.slice(0, 3)}
-                      </text>
-
-                      {/* Label */}
-                      <text
-                        textAnchor="middle"
-                        dy="36"
-                        fontSize="10"
-                        fontWeight="500"
-                        fill="#1c1b1a"
-                        className="select-none pointer-events-none"
-                      >
-                        {node.label.length > 26 ? node.label.slice(0, 26) + '...' : node.label}
-                      </text>
-                      {node.subtext && (
-                        <text
-                          textAnchor="middle"
-                          dy="48"
-                          fontSize="8"
-                          fill="#838280"
-                          className="select-none pointer-events-none"
-                        >
-                          {node.subtext}
-                        </text>
-                      )}
-                    </g>
-                  );
-                })}
-              </svg>
+              <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-[#e1dcd3]">
+                {currentDecision.history.map((h) => (
+                  <div key={h.step} className="relative space-y-1 text-xs">
+                    <span className="absolute -left-6 top-1.5 w-3 h-3 rounded-full bg-white border-2 border-[#2a72de]" />
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-[#1c1b1a]">{h.date} &bull; {h.phase}</span>
+                      <span className={`text-[10px] font-bold uppercase px-2 py-0.2 rounded border ${h.statusBadgeColor}`}>
+                        {h.statusBadge}
+                      </span>
+                      <span className="text-[11px] text-[#838280]">({h.meeting})</span>
+                    </div>
+                    <div className="font-medium text-[#1c1b1a]">{h.title}</div>
+                    <p className="text-[#7b776f] font-light leading-relaxed">{h.description}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Contextual Inspector Pane (4 cols) */}
-            <div className="lg:col-span-4 card-oura p-6 bg-white border border-[#e1dcd3] flex flex-col justify-between h-[650px] shadow-xs">
-              {selectedNode ? (
-                <div className="space-y-4 overflow-y-auto pr-1">
-                  <div className="flex items-center justify-between border-b border-[#e1dcd3] pb-3">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#2a72de] bg-blue-50 px-2 py-0.5 rounded">
-                      {selectedNode.type} Node
-                    </span>
-                    <span className="text-xs text-[#838280] font-medium capitalize">
-                      {selectedNode.status || 'Active'}
+            {/* What does this decision affect? */}
+            <div className="space-y-3 pt-2">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#838280]">
+                What does this decision affect?
+              </h4>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {currentDecision.affectedWorkstreams.map((ws, idx) => (
+                  <div key={idx} className="p-3.5 bg-[#fbfaf7] rounded-xl border border-[#e1dcd3] space-y-1 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="font-semibold text-[#1c1b1a]">📁 {ws.team}</span>
+                      <span className={`text-[10px] font-bold px-2 py-0.2 rounded ${
+                        ws.status === 'Blocked' ? 'bg-red-100 text-[#e33a22]' : 'bg-stone-100 text-[#4a4741]'
+                      }`}>
+                        {ws.status}
+                      </span>
+                    </div>
+                    <p className="text-[#7b776f] font-light leading-relaxed">{ws.impact}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Downstream Milestone Banner */}
+              <div className="p-4 rounded-xl border border-amber-200 bg-amber-50/60 flex items-start justify-between gap-3 text-xs">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-[#1c1b1a]">{currentDecision.downstreamMilestone.name}</span>
+                    <span className="text-[10px] font-bold uppercase bg-amber-100 text-[#af751b] px-2 py-0.2 rounded">
+                      {currentDecision.downstreamMilestone.status}
                     </span>
                   </div>
-
-                  <div>
-                    <h3 className="font-serif text-xl font-normal text-[#1c1b1a] leading-snug">
-                      {selectedNode.label}
-                    </h3>
-                    {selectedNode.subtext && (
-                      <p className="text-xs text-[#838280] mt-1">{selectedNode.subtext}</p>
-                    )}
-                  </div>
-
-                  {/* Source Meeting */}
-                  {activeMeeting && (
-                    <div
-                      onClick={() => onOpenMeeting(activeMeeting)}
-                      className="p-3 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] hover:border-[#838280] cursor-pointer transition-all space-y-1 text-xs"
-                    >
-                      <div className="flex items-center justify-between text-[#838280] text-[10px] uppercase font-bold">
-                        <span>Source Meeting</span>
-                        <span>{new Date(activeMeeting.meeting_date).toLocaleDateString()}</span>
-                      </div>
-                      <div className="font-semibold text-[#1c1b1a]">{activeMeeting.title}</div>
-                      <div className="text-[11px] text-[#2a72de] font-medium pt-0.5 flex items-center gap-1">
-                        <span>Open Turn-by-Turn Transcript</span>
-                        <ArrowRight className="w-3 h-3" />
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Verified Evidence Quote */}
-                  {activeDecision && activeDecision.evidence_items && activeDecision.evidence_items.length > 0 && (
-                    <div className="p-3.5 bg-amber-50/50 rounded-lg border border-amber-200/80 space-y-1.5 text-xs text-[#1c1b1a]">
-                      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-[#af751b]">
-                        <Quote className="w-3 h-3" />
-                        <span>Verified Transcript Evidence</span>
-                      </div>
-                      <p className="italic text-[#4a4741]">&ldquo;{activeDecision.evidence_items[0].quote}&rdquo;</p>
-                      <div className="text-[10px] text-[#838280] pt-0.5">
-                        Attributed to: <strong>{activeDecision.evidence_items[0].speaker_name || activeDecision.decided_by}</strong>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Connected Relationships */}
-                  <div className="space-y-2 pt-1">
-                    <span className="text-xs font-semibold text-[#1c1b1a] block">
-                      Relationships &amp; Dependencies:
-                    </span>
-                    <div className="space-y-2">
-                      {graphData.edges
-                        .filter(e => e.source === selectedNode.id || e.target === selectedNode.id)
-                        .map((e) => (
-                          <div
-                            key={e.id}
-                            className="p-2.5 bg-[#fbfaf7] rounded-md border border-[#e1dcd3] text-xs flex items-center justify-between"
-                          >
-                            <span className="font-bold text-[#af751b]">{e.type}</span>
-                            <span className="text-[11px] text-[#838280]">{e.label || 'Connection'}</span>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-
-                  {/* Supersession History if Decision */}
-                  {activeDecision && (
-                    <button
-                      onClick={() => onOpenDecisionTrail(activeDecision)}
-                      className="w-full flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold bg-[#1c1b1a] text-white hover:bg-[#39221e] transition-all"
-                    >
-                      <GitBranch className="w-3.5 h-3.5 text-[#ddaa61]" />
-                      <span>Inspect Full Decision Lineage</span>
-                    </button>
-                  )}
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center h-full text-center p-6 text-[#838280] space-y-2">
-                  <Info className="w-8 h-8 opacity-40 text-[#838280]" />
-                  <h4 className="font-serif text-lg text-[#1c1b1a]">Node Inspector</h4>
-                  <p className="text-xs max-w-xs text-[#7b776f]">
-                    Select any decision, meeting, blocker or space node on the canvas to inspect evidence, relationships, and supersession lineage.
+                  <p className="text-[#4a4741]">
+                    {currentDecision.downstreamMilestone.description}
                   </p>
                 </div>
-              )}
+                <button
+                  onClick={() => setActiveSubView('impact')}
+                  className="px-3 py-1.5 rounded-lg bg-white border border-amber-300 text-amber-900 font-semibold hover:bg-amber-100 transition-all shrink-0 shadow-xs"
+                >
+                  Simulate Impact
+                </button>
+              </div>
+            </div>
 
-              <div className="pt-3 border-t border-[#e1dcd3] text-[11px] text-[#838280]">
-                Database verified &bull; Nodes reflect canonical MeridianPay PostgreSQL records.
+            {/* Action Tools / Follow-up Workflows */}
+            <div className="pt-4 border-t border-[#f0ece4] flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div className="text-[11px] text-[#838280]">
+                {currentDecision.linkedMeetingsCount} evidence sources &bull; {currentDecision.affectedTeamsCount} linked teams &bull; {currentDecision.openDependenciesCount} open dependency
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => handleTriggerAction('revision', 'Propose Decision Revision')}
+                  className="px-3 py-1.5 rounded-lg bg-[#1c1b1a] text-white font-semibold hover:bg-[#39221e] transition-all shadow-xs"
+                >
+                  Propose Decision Revision
+                </button>
+                <button
+                  onClick={() => handleTriggerAction('followup', 'Assign Follow-up Commitment')}
+                  className="px-3 py-1.5 rounded-lg bg-white border border-[#e1dcd3] text-[#1c1b1a] font-semibold hover:bg-stone-50 transition-all shadow-xs"
+                >
+                  Assign Follow-up
+                </button>
+                <button
+                  onClick={() => handleTriggerAction('contradiction', 'Flag Inconsistency / Contradiction')}
+                  className="px-3 py-1.5 rounded-lg bg-white border border-[#e1dcd3] text-[#e33a22] font-semibold hover:bg-red-50 transition-all shadow-xs"
+                >
+                  Flag Contradiction
+                </button>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* ---------------------------------------------------- */}
-      {/* MODE 2: DECISION TIMELINE                            */}
-      {/* ---------------------------------------------------- */}
-      {viewMode === 'timeline' && (
+      {/* VIEW C: DECISION TIMELINE */}
+      {activeSubView === 'timeline' && (
         <div className="space-y-6">
-          <div className="card-oura p-6 bg-white border border-[#e1dcd3] space-y-2 shadow-xs">
-            <h3 className="font-serif text-xl font-normal text-[#1c1b1a]">
-              Smart Routing v2 Decision Evolution Timeline
-            </h3>
-            <p className="text-xs text-[#7b776f] max-w-2xl font-light">
-              Track how routing, idempotency, and launch decisions evolved across meetings from 2 to 11 November 2026. The initial 20% expansion commitment is permanently retained with full supersession rationale.
-            </p>
+          <div className="flex items-center justify-between border-b border-[#e1dcd3] pb-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold text-[#1c1b1a] bg-stone-100 px-2 py-0.5 rounded">
+                  {currentDecision.code}
+                </span>
+                <h3 className="font-serif text-2xl font-normal text-[#1c1b1a]">
+                  Decision Timeline &amp; Evolution
+                </h3>
+              </div>
+              <p className="text-xs text-[#7b776f] font-light mt-0.5">
+                What happened, in what order, and what changed? Chronological sequence of meaningful events for {currentDecision.shortTitle}.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setActiveSubView('detail')}
+              className="text-xs text-[#2a72de] font-semibold hover:underline"
+            >
+              Back to Decision Detail &rarr;
+            </button>
           </div>
 
-          <div className="relative pl-6 sm:pl-8 space-y-6 before:content-[''] before:absolute before:left-3 sm:before:left-4 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#e1dcd3]">
-            {timelineEvents.map((evt, idx) => {
-              const isSuperseded = evt.status === 'superseded';
+          {/* Timeline Cards */}
+          <div className="relative pl-8 space-y-6 before:absolute before:left-3 before:top-3 before:bottom-3 before:w-0.5 before:bg-[#e1dcd3]">
+            {currentDecision.history.map((ev) => (
+              <div key={ev.step} className="card-oura p-5 bg-white border border-[#e1dcd3] space-y-2 relative shadow-xs">
+                <span className="absolute -left-8 top-5 w-4 h-4 rounded-full bg-white border-4 border-[#2a72de]" />
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-[#2a72de]">{ev.step}.</span>
+                    <span className="font-serif text-base font-normal text-[#1c1b1a]">{ev.phase}</span>
+                    <span className={`text-[10px] font-bold uppercase px-2 py-0.2 rounded border ${ev.statusBadgeColor}`}>
+                      {ev.statusBadge}
+                    </span>
+                  </div>
+                  <span className="text-xs text-[#838280] font-medium">{ev.date} 2026</span>
+                </div>
+
+                <h4 className="text-xs font-semibold text-[#1c1b1a]">
+                  {ev.title}
+                </h4>
+
+                <p className="text-xs text-[#4a4741] leading-relaxed">
+                  {ev.description}
+                </p>
+
+                <div className="pt-2 border-t border-[#f0ece4] flex items-center justify-between text-[11px] text-[#838280]">
+                  <span>Originating forum: <strong>{ev.meeting}</strong> &bull; Evidence: <strong>Segment {ev.evidenceId}</strong></span>
+                  <button
+                    onClick={handleOpenOriginMeeting}
+                    className="text-[#2a72de] font-semibold hover:underline flex items-center gap-1"
+                  >
+                    <span>Inspect transcript turn</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* VIEW D: IMPACT & DEPENDENCY ANALYSIS */}
+      {activeSubView === 'impact' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#e1dcd3] pb-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold text-[#1c1b1a] bg-stone-100 px-2 py-0.5 rounded">
+                  {currentDecision.code}
+                </span>
+                <h3 className="font-serif text-2xl font-normal text-[#1c1b1a]">
+                  Impact &amp; Dependency Analysis
+                </h3>
+              </div>
+              <p className="text-xs text-[#7b776f] font-light mt-0.5">
+                If {currentDecision.shortTitle} changes, what else is affected? Focused dependency map distinguishing prerequisites, effects, supersessions, and mitigations.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setActiveSubView('detail')}
+              className="text-xs text-[#2a72de] font-semibold hover:underline self-start sm:self-auto"
+            >
+              Back to Decision Detail &rarr;
+            </button>
+          </div>
+
+          {/* Selected Decision Target Box */}
+          <div className="card-oura p-5 bg-white border border-[#e1dcd3] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#2a72de] bg-blue-50 px-2 py-0.5 rounded">
+                SELECTED DECISION ROOT
+              </span>
+              <h4 className="font-serif text-xl font-normal text-[#1c1b1a] mt-1">
+                {currentDecision.title}
+              </h4>
+              <p className="text-xs text-[#838280]">
+                {currentDecision.code} &bull; Status: <strong>{currentDecision.statusLabel}</strong> &bull; Space: {currentDecision.space}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0">
+              <span className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-amber-50 text-[#af751b] border border-amber-200">
+                {currentDecision.downstreamMilestone.status}
+              </span>
+            </div>
+          </div>
+
+          {/* Categorized Impact Relationships */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {currentDecision.dependencies.map((dep, idx) => {
+              const typeBadges: Record<string, { bg: string; text: string }> = {
+                'Depends on': { bg: 'bg-red-50 border-red-200', text: 'text-[#e33a22]' },
+                'Affects': { bg: 'bg-blue-50 border-blue-200', text: 'text-[#2a72de]' },
+                'Supersedes': { bg: 'bg-amber-50 border-amber-200', text: 'text-[#af751b]' },
+                'Contradicts': { bg: 'bg-purple-50 border-purple-200', text: 'text-purple-700' },
+                'Evidence for': { bg: 'bg-stone-50 border-stone-200', text: 'text-[#4a4741]' },
+                'Mitigates': { bg: 'bg-emerald-50 border-emerald-200', text: 'text-emerald-700' },
+              };
+
+              const badge = typeBadges[dep.type] || { bg: 'bg-stone-50 border-stone-200', text: 'text-[#4a4741]' };
+
               return (
-                <div key={idx} className="relative space-y-2">
-                  {/* Timeline Dot */}
-                  <div className={`absolute -left-6 sm:-left-8 top-1.5 w-3.5 h-3.5 rounded-full border-2 bg-white ${
-                    isSuperseded ? 'border-[#af751b]' : 'border-[#2a72de]'
-                  }`} />
+                <div key={idx} className="card-oura p-4 bg-white border border-[#e1dcd3] space-y-2 shadow-xs hover:border-[#2a72de] transition-all">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border ${badge.bg} ${badge.text}`}>
+                      {dep.type}
+                    </span>
+                    <span className="text-[11px] text-[#838280]">Team: <strong>{dep.team}</strong></span>
+                  </div>
 
-                  <div className="card-oura p-5 bg-white border border-[#e1dcd3] space-y-3 shadow-xs">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono text-[11px] font-bold text-[#838280]">
-                          {evt.date}
-                        </span>
-                        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-[#2a72de]">
-                          {evt.spaceName}
-                        </span>
-                        <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${
-                          isSuperseded ? 'bg-amber-100 text-[#af751b]' : 'bg-emerald-50 text-emerald-700'
-                        }`}>
-                          {evt.status}
-                        </span>
-                      </div>
-                      <span className="text-[11px] text-[#838280]">
-                        Meeting: <strong>{evt.meetingTitle}</strong>
-                      </span>
-                    </div>
+                  <h5 className="text-xs font-semibold text-[#1c1b1a]">
+                    {dep.target}
+                  </h5>
 
-                    <div>
-                      <h4 className={`font-serif text-lg font-medium ${isSuperseded ? 'line-through text-[#838280]' : 'text-[#1c1b1a]'}`}>
-                        {evt.decision}
-                      </h4>
-                      <p className="text-xs text-[#4a4741] mt-1 leading-relaxed">
-                        <strong>Rationale:</strong> {evt.rationale}
-                      </p>
-                    </div>
+                  <p className="text-xs text-[#7b776f] font-light leading-relaxed">
+                    {dep.relationshipReason}
+                  </p>
 
-                    {/* Verbatim quote */}
-                    <div className="p-3 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] text-xs italic text-[#4a4741] flex items-start gap-2">
-                      <Quote className="w-3.5 h-3.5 text-[#af751b] shrink-0 mt-0.5" />
-                      <div>
-                        <span>&ldquo;{evt.quote}&rdquo;</span>
-                        <span className="block not-italic text-[10px] text-[#838280] mt-0.5">
-                          — {evt.decidedBy}
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Evolution connection badge */}
-                    <div className="pt-2 border-t border-[#f0ece4] flex items-center justify-between text-xs text-[#838280]">
-                      <span className="flex items-center gap-1.5 font-medium text-[#af751b]">
-                        <GitBranch className="w-3.5 h-3.5" />
-                        {evt.evolutionText}
-                      </span>
-                      <button
-                        onClick={() => {
-                          const m = meetings.find(item => item.title.includes(evt.meetingTitle.slice(0, 15)));
-                          if (m) onOpenMeeting(m);
-                        }}
-                        className="text-xs text-[#2a72de] font-semibold hover:underline flex items-center gap-1"
-                      >
-                        <span>Source Meeting</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
-                    </div>
+                  <div className="pt-2 border-t border-[#f0ece4] flex items-center justify-between text-[11px] text-[#838280]">
+                    <span>Established in: <strong>{dep.establishedInMeeting}</strong></span>
+                    <span className="text-[#2a72de] font-semibold cursor-pointer hover:underline">Inspect link</span>
                   </div>
                 </div>
               );
@@ -836,130 +1616,232 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
         </div>
       )}
 
-      {/* ---------------------------------------------------- */}
-      {/* MODE 3: IMPACT ANALYSIS SIMULATOR                    */}
-      {/* ---------------------------------------------------- */}
-      {viewMode === 'impact' && (
-        <div className="space-y-6">
-          {/* Simulator Controls Card */}
-          <div className="card-oura p-6 bg-white border border-[#e1dcd3] space-y-4 shadow-xs">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
-              <div>
-                <span className="text-[10px] font-bold uppercase tracking-wider text-[#e33a22] bg-red-50 px-2 py-0.5 rounded">
-                  Downstream Impact Simulator
+      {/* VIEW E: FOCUSED LINEAGE GRAPH */}
+      {activeSubView === 'lineage' && (
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#e1dcd3] pb-3">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xs font-bold text-[#1c1b1a] bg-stone-100 px-2 py-0.5 rounded">
+                  {currentDecision.code}
                 </span>
-                <h3 className="font-serif text-2xl font-normal text-[#1c1b1a] mt-1">
-                  What gets affected when a decision or date changes?
+                <h3 className="font-serif text-2xl font-normal text-[#1c1b1a]">
+                  Focused Decision Lineage
                 </h3>
-                <p className="text-xs text-[#7b776f] mt-0.5 font-light">
-                  Select a Smart Routing milestone or failure mode below to simulate cascading consequences across Payments, SRE, Risk, and Security.
-                </p>
+              </div>
+              <p className="text-xs text-[#7b776f] font-light mt-0.5">
+                Directed graph: Origin on left &rarr; Initial Proposal &rarr; Approved Decision in center &rarr; Revisions &rarr; Downstream Outcomes on right.
+              </p>
+            </div>
+
+            {/* Zoom & Fit Controls */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center bg-white border border-[#e1dcd3] rounded-lg p-1 text-xs shadow-xs">
+                <button
+                  onClick={() => setZoomLevel(prev => Math.max(0.7, prev - 0.1))}
+                  className="p-1 hover:bg-stone-100 rounded text-[#4a4741]"
+                  title="Zoom Out"
+                >
+                  <ZoomOut className="w-3.5 h-3.5" />
+                </button>
+                <span className="px-2 font-mono text-[11px] text-[#838280]">{Math.round(zoomLevel * 100)}%</span>
+                <button
+                  onClick={() => setZoomLevel(prev => Math.min(1.4, prev + 0.1))}
+                  className="p-1 hover:bg-stone-100 rounded text-[#4a4741]"
+                  title="Zoom In"
+                >
+                  <ZoomIn className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => setZoomLevel(1)}
+                  className="p-1 hover:bg-stone-100 rounded text-[#4a4741] border-l border-[#e1dcd3] ml-1 pl-1.5"
+                  title="Reset Zoom"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              {/* Decision Selector Dropdown */}
-              <div className="min-w-[280px]">
-                <label className="text-[11px] font-semibold text-[#838280] block mb-1">
-                  Select Target Decision to Simulate:
-                </label>
-                <select
-                  value={selectedImpactScenarioId}
-                  onChange={(e) => setSelectedImpactScenarioId(e.target.value)}
-                  className="w-full text-xs p-2.5 rounded-lg border border-[#e1dcd3] bg-[#fbfaf7] text-[#1c1b1a] font-medium focus:outline-none focus:ring-1 focus:ring-[#2a72de]"
+              <button
+                onClick={() => setActiveSubView('detail')}
+                className="text-xs text-[#2a72de] font-semibold hover:underline"
+              >
+                Back to Detail &rarr;
+              </button>
+            </div>
+          </div>
+
+          {/* Visual Directed Graph Canvas Container */}
+          <div className="card-oura bg-white border border-[#e1dcd3] p-6 shadow-xs relative overflow-x-auto min-h-[460px]">
+            {/* Color Legend */}
+            <div className="flex flex-wrap items-center gap-4 text-xs text-[#838280] mb-6 pb-3 border-b border-[#f0ece4]">
+              <span className="font-semibold text-[#1c1b1a]">Graph Legend:</span>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
+                <span>Incident / Origin</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-amber-500" />
+                <span>Initial Proposal</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#2a72de] ring-2 ring-blue-300" />
+                <span>Selected Decision</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-purple-500" />
+                <span>Revision</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                <span>Verified Downstream Outcome</span>
+              </div>
+            </div>
+
+            {/* Directed Columns Grid */}
+            <div
+              className="flex items-center justify-between gap-6 min-w-[900px] transition-transform duration-200"
+              style={{ transform: `scale(${zoomLevel})`, transformOrigin: 'top left' }}
+            >
+              {currentDecision.lineageNodes.map((n, idx) => {
+                const isSelected = selectedLineageNode?.id === n.id || (n.type === 'decision' && !selectedLineageNode);
+                return (
+                  <React.Fragment key={n.id}>
+                    {/* Node Card */}
+                    <div
+                      onClick={() => setSelectedLineageNode(n)}
+                      className={`w-48 p-4 rounded-xl border bg-white shadow-xs cursor-pointer transition-all ${
+                        isSelected
+                          ? 'border-[#2a72de] ring-2 ring-blue-500/20 shadow-sm translate-y-[-2px]'
+                          : 'border-[#e1dcd3] hover:border-[#838280]'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded border ${n.badgeColor}`}>
+                          {n.badge}
+                        </span>
+                        <span className="text-[10px] text-[#838280]">{n.date}</span>
+                      </div>
+                      <h5 className="font-serif text-sm font-normal text-[#1c1b1a] mt-1">
+                        {n.title}
+                      </h5>
+                      <p className="text-[11px] text-[#838280] mt-1 line-clamp-2">
+                        {n.sub}
+                      </p>
+                    </div>
+
+                    {/* Edge Connector */}
+                    {idx < currentDecision.lineageNodes.length - 1 && (
+                      <div className="flex flex-col items-center justify-center shrink-0 w-16">
+                        <span className="text-[9px] font-mono font-bold text-[#838280] uppercase tracking-tighter mb-1 text-center">
+                          {currentDecision.lineageEdges[idx]?.label || 'LINKS TO'}
+                        </span>
+                        <div className="flex items-center w-full">
+                          <div className="h-0.5 bg-[#e1dcd3] flex-1" />
+                          <ArrowRight className="w-3.5 h-3.5 text-[#2a72de] shrink-0" />
+                        </div>
+                      </div>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+
+            {/* Persistent Right-Side Node Inspector */}
+            {selectedLineageNode && (
+              <div className="mt-8 p-4 bg-[#fbfaf7] rounded-xl border border-[#e1dcd3] flex items-center justify-between text-xs">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-[#1c1b1a]">{selectedLineageNode.title}</span>
+                    <span className="text-[10px] font-bold uppercase px-2 py-0.2 rounded bg-blue-50 text-[#2a72de]">
+                      {selectedLineageNode.badge}
+                    </span>
+                  </div>
+                  <p className="text-[#838280]">{selectedLineageNode.sub} &bull; Recorded date: {selectedLineageNode.date}</p>
+                </div>
+                <button
+                  onClick={() => setSelectedLineageNode(null)}
+                  className="text-xs text-[#838280] hover:text-[#1c1b1a]"
                 >
-                  <option value="scenario-gate-01">Launch Gate: Replace 20% Expansion with 14 Nov Review</option>
-                  <option value="scenario-timeout-01">Failure Hazard: Ambiguous Processor Timeout Retries</option>
-                  <option value="scenario-risk-01">Risk Continuity: Mandatory Risk Evaluation During Failovers</option>
+                  Clear Selection
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* QUICK ACTION MODAL (Revision, Follow-up, Contradiction) */}
+      {actionModal.isOpen && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="card-oura bg-white border border-[#e1dcd3] p-6 max-w-lg w-full space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-[#e1dcd3] pb-3">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#2a72de]" />
+                <h3 className="font-serif text-lg font-normal text-[#1c1b1a]">
+                  {actionModal.title}
+                </h3>
+              </div>
+              <button
+                onClick={() => setActionModal({ isOpen: false, type: null, title: '' })}
+                className="text-[#838280] hover:text-[#1c1b1a]"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <p className="text-[#7b776f]">
+                Target decision: <strong>{currentDecision.code} · {currentDecision.shortTitle}</strong>
+              </p>
+
+              <div>
+                <label className="font-semibold text-[#1c1b1a] block mb-1">
+                  Proposed Description or Rationale:
+                </label>
+                <textarea
+                  rows={3}
+                  defaultValue={
+                    actionModal.type === 'revision'
+                      ? 'Propose extending idempotency key retention window to 72 hours based on delayed processor webhook findings.'
+                      : actionModal.type === 'followup'
+                      ? 'Assign Daniel Foster to verify Stripe SDK idempotency header propagation by 12 November.'
+                      : 'Flag contradiction between exponential backoff retries and non-idempotent timeout failover routes.'
+                  }
+                  className="w-full p-2.5 text-xs rounded-lg border border-[#e1dcd3] bg-[#fbfaf7] text-[#1c1b1a] focus:outline-none focus:ring-1 focus:ring-[#2a72de]"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-[#1c1b1a] block mb-1">
+                  Assignee / Reviewer:
+                </label>
+                <select className="w-full p-2 text-xs rounded-lg border border-[#e1dcd3] bg-[#fbfaf7] text-[#1c1b1a]">
+                  <option>Maya Chen (Product Manager)</option>
+                  <option>Daniel Foster (Payments Lead)</option>
+                  <option>Elena Petrova (Staff Backend Architect)</option>
+                  <option>Priya Nair (SRE Lead)</option>
+                  <option>Sarah Kim (Merchant Ops Lead)</option>
                 </select>
               </div>
-            </div>
 
-            {/* Simulation Context Alert */}
-            <div className="p-4 rounded-xl border border-red-200 bg-red-50/60 flex items-start gap-3">
-              <Flame className="w-5 h-5 text-[#e33a22] shrink-0 mt-0.5" />
-              <div className="space-y-1 text-xs">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-[#1c1b1a]">{currentImpact.title}</span>
-                  <span className="text-[10px] font-bold uppercase bg-red-100 text-[#e33a22] px-2 py-0.2 rounded">
-                    {currentImpact.riskLevel} Risk Severity
-                  </span>
-                </div>
-                <p className="text-[#4a4741] leading-relaxed">
-                  {currentImpact.description}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Impact Grid: Affected Spaces & Affected Commitments */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-            {/* Left: Affected Spaces (6 cols) */}
-            <div className="lg:col-span-6 card-oura p-6 bg-white border border-[#e1dcd3] space-y-4 shadow-xs">
-              <div className="flex items-center gap-2 border-b border-[#f0ece4] pb-3">
-                <Layers className="w-4 h-4 text-[#2a72de]" />
-                <h4 className="font-serif text-lg font-normal text-[#1c1b1a]">
-                  Affected Departments &amp; Spaces
-                </h4>
-              </div>
-
-              <div className="space-y-3">
-                {currentImpact.affectedSpaces.map((sp, idx) => (
-                  <div key={idx} className="p-3.5 bg-[#fbfaf7] rounded-lg border border-[#e1dcd3] space-y-1 text-xs">
-                    <span className="font-semibold text-[#1c1b1a] block">
-                      📁 {sp.name}
-                    </span>
-                    <p className="text-[#4a4741] leading-relaxed">
-                      {sp.impact}
-                    </p>
-                  </div>
-                ))}
+              <div className="p-3 bg-blue-50 text-blue-900 rounded-lg text-[11px] leading-relaxed">
+                <strong>Human-in-the-Loop Governance</strong>: This action will be staged as a formal proposal requiring authorized reviewer confirmation before updating canonical database records.
               </div>
             </div>
 
-            {/* Right: Affected Commitments / Tasks (6 cols) */}
-            <div className="lg:col-span-6 card-oura p-6 bg-white border border-[#e1dcd3] space-y-4 shadow-xs">
-              <div className="flex items-center gap-2 border-b border-[#f0ece4] pb-3">
-                <Clock className="w-4 h-4 text-[#af751b]" />
-                <h4 className="font-serif text-lg font-normal text-[#1c1b1a]">
-                  Impacted Commitments &amp; Tasks
-                </h4>
-              </div>
-
-              <div className="divide-y divide-[#f0ece4]">
-                {currentImpact.affectedCommitments.map((c, idx) => (
-                  <div key={idx} className="py-3 space-y-1 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-[#1c1b1a]">{c.task}</span>
-                      <span className={`text-[10px] font-bold px-1.5 py-0.2 rounded uppercase ${
-                        c.currentStatus === 'Blocked' ? 'bg-red-100 text-[#e33a22]' : 'bg-stone-100 text-[#4a4741]'
-                      }`}>
-                        {c.currentStatus}
-                      </span>
-                    </div>
-                    <div className="text-[11px] text-[#838280]">
-                      Owner: <strong>{c.owner}</strong> &bull; Consequence: <span className="text-[#e33a22] font-medium">{c.consequence}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Recommended Proactive Mitigations */}
-          <div className="card-oura p-6 bg-white border border-[#e1dcd3] space-y-3 shadow-xs">
-            <div className="flex items-center gap-2 border-b border-[#f0ece4] pb-3">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <h4 className="font-serif text-lg font-normal text-[#1c1b1a]">
-                CONFLUENCE Proactive Mitigation Recommendations
-              </h4>
-            </div>
-
-            <div className="space-y-2 text-xs">
-              {currentImpact.mitigations.map((m, idx) => (
-                <div key={idx} className="p-3 bg-[#fdfbf7] rounded-lg border border-[#e1dcd3] flex items-start gap-2.5">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                  <span className="text-[#1c1b1a] leading-relaxed">{m}</span>
-                </div>
-              ))}
+            <div className="pt-3 border-t border-[#e1dcd3] flex items-center justify-end gap-2 text-xs">
+              <button
+                onClick={() => setActionModal({ isOpen: false, type: null, title: '' })}
+                className="px-3.5 py-1.5 rounded-lg border border-[#e1dcd3] text-[#4a4741] hover:bg-stone-100 font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmAction}
+                className="px-4 py-1.5 rounded-lg bg-[#1c1b1a] text-white font-semibold hover:bg-[#39221e] shadow-xs"
+              >
+                Submit Proposal
+              </button>
             </div>
           </div>
         </div>

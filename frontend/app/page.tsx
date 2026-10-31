@@ -133,9 +133,9 @@ export default function WorkspacePage() {
         };
       case 'knowledge':
         return {
-          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Knowledge Graph' }],
-          title: 'Decision Network',
-          subtitle: 'Interactive map of decisions, commitments, blockers, and cross-team dependencies.'
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Decision Intelligence' }],
+          title: 'Decision Intelligence & Traceability',
+          subtitle: 'Trace decisions, understand their evolution, and investigate their impact across teams.'
         };
       case 'my-work':
         return {

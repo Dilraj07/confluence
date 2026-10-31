@@ -38,6 +38,7 @@ export interface DecisionVersion {
 
 export interface Decision {
   id: string;
+  code?: string;
   organization_id: string;
   space_id: string;
   space_name?: string;
@@ -46,7 +47,7 @@ export interface Decision {
   statement: string;
   rationale?: string;
   decision_type: string;
-  status: 'proposed' | 'active' | 'superseded' | 'disputed' | 'completed' | 'cancelled' | 'rejected';
+  status: 'proposed' | 'active' | 'superseded' | 'disputed' | 'completed' | 'cancelled' | 'rejected' | 'revised' | 'blocked' | 'under_review' | string;
   impact_level: 'low' | 'medium' | 'high' | 'critical';
   confidence: number;
   decided_by?: string;
