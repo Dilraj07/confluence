@@ -3,19 +3,26 @@
 import React, { useState, useEffect } from 'react';
 import { Space, Meeting, Decision, Task, Blocker, MetricsSummary, GraphData } from '@/types';
 import { api } from '@/lib/api';
-import { Navbar } from '@/components/Navbar';
-import { CommandCentre } from '@/components/CommandCentre';
-import { SpaceView } from '@/components/SpaceView';
-import { DecisionGraph } from '@/components/DecisionGraph';
-import { TaskTracker } from '@/components/TaskTracker';
+
+import { Sidebar } from '@/components/layout/Sidebar';
+import { Header } from '@/components/layout/Header';
+
+import { HomeView } from '@/components/views/HomeView';
+import { SpacesView } from '@/components/views/SpacesView';
+import { MeetingsView } from '@/components/views/MeetingsView';
+import { KnowledgeView } from '@/components/views/KnowledgeView';
+import { MyWorkView } from '@/components/views/MyWorkView';
+import { AskConfluenceView } from '@/components/views/AskConfluenceView';
+import { SettingsView } from '@/components/views/SettingsView';
+
 import { IngestMeetingModal } from '@/components/IngestMeetingModal';
 import { CandidateReviewModal } from '@/components/CandidateReviewModal';
 import { AskConfluenceModal } from '@/components/AskConfluenceModal';
 import { MeetingDetailModal } from '@/components/MeetingDetailModal';
 import { DecisionTrailModal } from '@/components/DecisionTrailModal';
 
-export default function Home() {
-  const [currentTab, setCurrentTab] = useState<string>('command');
+export default function WorkspacePage() {
+  const [currentView, setCurrentView] = useState<string>('home');
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [selectedSpaceId, setSelectedSpaceId] = useState<string | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -29,11 +36,13 @@ export default function Home() {
 
   // Modals state
   const [isIngestOpen, setIsIngestOpen] = useState<boolean>(false);
-  const [isAskOpen, setIsAskOpen] = useState<boolean>(false);
+  const [isAskModalOpen, setIsAskModalOpen] = useState<boolean>(false);
   const [askInitialQuery, setAskInitialQuery] = useState<string>('');
   const [reviewMeetingId, setReviewMeetingId] = useState<string | null>(null);
   const [activeMeetingDetail, setActiveMeetingDetail] = useState<Meeting | null>(null);
   const [activeDecisionTrail, setActiveDecisionTrail] = useState<Decision | null>(null);
+
+  const selectedSpace = spaces.find(s => s.id === selectedSpaceId) || null;
 
   const loadData = async () => {
     try {
@@ -84,97 +93,193 @@ export default function Home() {
     }
   };
 
-  const handleOpenAskWithQuery = (prompt: string) => {
-    setAskInitialQuery(prompt);
-    setIsAskOpen(true);
+  const handleOpenAskWithPrompt = (prompt?: string) => {
+    if (prompt) {
+      setAskInitialQuery(prompt);
+      setCurrentView('ask');
+    } else {
+      setIsAskModalOpen(true);
+    }
   };
 
+  // Compute breadcrumbs and title based on current view
+  const getViewMeta = () => {
+    switch (currentView) {
+      case 'home':
+        return {
+          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Workspace Home' }],
+          title: 'Workspace Overview',
+          subtitle: 'Connected organizational context, decisions, commitments, and blockers.'
+        };
+      case 'spaces':
+        return {
+          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Spaces' }, { label: selectedSpace?.name || 'All Spaces' }],
+          title: selectedSpace ? `${selectedSpace.name} Space` : 'Collaborative Spaces',
+          subtitle: selectedSpace?.description || 'Scoped organizational memory for teams and projects.'
+        };
+      case 'meetings':
+        return {
+          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Meetings' }],
+          title: 'Meetings & Transcripts',
+          subtitle: 'Turn-by-turn transcript logs with stable evidence segment citations.'
+        };
+      case 'knowledge':
+        return {
+          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Knowledge Graph' }],
+          title: 'Decision Network',
+          subtitle: 'Interactive map of decisions, commitments, blockers, and cross-team dependencies.'
+        };
+      case 'my-work':
+        return {
+          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'My Work' }],
+          title: 'Execution & Commitments',
+          subtitle: 'Track commitments, assigned tasks, and delivery milestones directly tied to meetings.'
+        };
+      case 'ask':
+        return {
+          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Ask CONFLUENCE' }],
+          title: 'Ask CONFLUENCE',
+          subtitle: 'Natural language and Wispr Flow voice search across organizational memory.'
+        };
+      case 'settings':
+        return {
+          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Settings' }],
+          title: 'Settings & Administration',
+          subtitle: 'Workspace profile, space sensitivity permissions, and scenario reset.'
+        };
+      default:
+        return {
+          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'CONFLUENCE' }],
+          title: 'Workspace',
+          subtitle: ''
+        };
+    }
+  };
+
+  const viewMeta = getViewMeta();
+
   return (
-    <div className="min-h-screen bg-[#f7f1e8] text-[#1c1b1a] flex flex-col font-sans">
-      <Navbar
-        currentTab={currentTab}
-        onSelectTab={setCurrentTab}
+    <div className="flex h-screen bg-[#f7f1e8] text-[#1c1b1a] overflow-hidden font-sans">
+      {/* 1. Persistent Left Navigation Sidebar */}
+      <Sidebar
+        currentView={currentView}
+        onSelectView={(v) => setCurrentView(v)}
         spaces={spaces}
         selectedSpaceId={selectedSpaceId}
-        onSelectSpace={setSelectedSpaceId}
+        onSelectSpace={(sId) => setSelectedSpaceId(sId)}
         onOpenIngest={() => setIsIngestOpen(true)}
-        onOpenAsk={() => {
-          setAskInitialQuery('');
-          setIsAskOpen(true);
-        }}
-        onResetSeed={handleResetSeed}
-        isSeeding={isSeeding}
+        onOpenAsk={() => setIsAskModalOpen(true)}
       />
 
-      <main className="flex-1 px-4 md:px-6">
-        {loading && !metrics ? (
-          <div className="max-w-xl mx-auto my-24 card-oura p-10 text-center bg-white">
-            <span className="inline-block w-6 h-6 border-2 border-[#2a72de] border-t-transparent rounded-full animate-spin mb-4" />
-            <h2 className="font-serif text-2xl text-[#1c1b1a]">Connecting to Organisational Memory</h2>
-            <p className="text-xs text-[#838280] mt-1.5 font-light">
-              Loading spaces, decision networks, and verified citations...
-            </p>
-          </div>
-        ) : (
-          <>
-            {currentTab === 'command' && (
-              <CommandCentre
-                metrics={metrics}
-                decisions={decisions}
-                tasks={tasks}
-                blockers={blockers}
-                spaces={spaces}
-                selectedSpaceId={selectedSpaceId}
-                onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
-                onOpenAskLaunchRisk={() =>
-                  handleOpenAskWithQuery('What is putting the Platform Launch at risk?')
-                }
-                onReviewPending={() => {
-                  const meetingWithPending = meetings[0]?.id;
-                  if (meetingWithPending) setReviewMeetingId(meetingWithPending);
-                }}
-              />
-            )}
+      {/* 2. Main Content Column */}
+      <div className="flex-1 flex flex-col h-screen overflow-hidden">
+        {/* Contextual Top Header */}
+        <Header
+          breadcrumbs={viewMeta.breadcrumbs}
+          title={viewMeta.title}
+          subtitle={viewMeta.subtitle}
+          selectedSpace={selectedSpace}
+          onOpenIngest={() => setIsIngestOpen(true)}
+          onOpenAsk={() => setIsAskModalOpen(true)}
+        />
 
-            {currentTab === 'spaces' && (
-              <SpaceView
-                spaces={spaces}
-                selectedSpaceId={selectedSpaceId}
-                onSelectSpace={(id) => setSelectedSpaceId(id)}
-                meetings={meetings}
-                decisions={decisions}
-                tasks={tasks}
-                blockers={blockers}
-                onOpenMeeting={(m) => setActiveMeetingDetail(m)}
-                onOpenCandidates={(mId) => setReviewMeetingId(mId)}
-                onOpenIngest={() => setIsIngestOpen(true)}
-              />
-            )}
+        {/* Scrollable View Area */}
+        <main className="flex-1 overflow-y-auto px-6 py-2">
+          {loading && !metrics ? (
+            <div className="max-w-md mx-auto my-32 card-oura p-8 text-center bg-white border border-[#e1dcd3]">
+              <span className="inline-block w-6 h-6 border-2 border-[#2a72de] border-t-transparent rounded-full animate-spin mb-3" />
+              <h3 className="font-serif text-xl text-[#1c1b1a]">Connecting to Workspace Memory</h3>
+              <p className="text-xs text-[#838280] mt-1 font-light">Loading canonical records and decision networks...</p>
+            </div>
+          ) : (
+            <>
+              {currentView === 'home' && (
+                <HomeView
+                  decisions={decisions}
+                  meetings={meetings}
+                  tasks={tasks}
+                  blockers={blockers}
+                  spaces={spaces}
+                  selectedSpace={selectedSpace}
+                  onOpenAskWithPrompt={handleOpenAskWithPrompt}
+                  onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
+                  onOpenMeeting={(m) => setActiveMeetingDetail(m)}
+                  onReviewPending={() => {
+                    const firstMeeting = meetings[0]?.id;
+                    if (firstMeeting) setReviewMeetingId(firstMeeting);
+                  }}
+                  onNavigateToView={(v) => setCurrentView(v)}
+                />
+              )}
 
-            {currentTab === 'graph' && (
-              <DecisionGraph
-                graphData={graphData}
-                onSelectNode={(node) => {
-                  if (node.type === 'decision') {
-                    const dec = decisions.find(d => d.id === node.id);
-                    if (dec) setActiveDecisionTrail(dec);
-                  }
-                }}
-              />
-            )}
+              {currentView === 'spaces' && (
+                <SpacesView
+                  spaces={spaces}
+                  selectedSpaceId={selectedSpaceId}
+                  onSelectSpace={(sId) => setSelectedSpaceId(sId)}
+                  meetings={meetings}
+                  decisions={decisions}
+                  tasks={tasks}
+                  blockers={blockers}
+                  onOpenMeeting={(m) => setActiveMeetingDetail(m)}
+                  onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
+                  onOpenCandidates={(mId) => setReviewMeetingId(mId)}
+                  onOpenIngest={() => setIsIngestOpen(true)}
+                />
+              )}
 
-            {currentTab === 'tasks' && (
-              <TaskTracker
-                tasks={tasks}
-                spaces={spaces}
-                selectedSpaceId={selectedSpaceId}
-              />
-            )}
-          </>
-        )}
-      </main>
+              {currentView === 'meetings' && (
+                <MeetingsView
+                  meetings={meetings}
+                  spaces={spaces}
+                  selectedSpaceId={selectedSpaceId}
+                  onOpenMeeting={(m) => setActiveMeetingDetail(m)}
+                  onOpenCandidates={(mId) => setReviewMeetingId(mId)}
+                  onOpenIngest={() => setIsIngestOpen(true)}
+                />
+              )}
 
-      {/* Modals */}
+              {currentView === 'knowledge' && (
+                <KnowledgeView
+                  graphData={graphData}
+                  decisions={decisions}
+                  meetings={meetings}
+                  spaces={spaces}
+                  onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
+                  onOpenMeeting={(m) => setActiveMeetingDetail(m)}
+                />
+              )}
+
+              {currentView === 'my-work' && (
+                <MyWorkView
+                  tasks={tasks}
+                  spaces={spaces}
+                  selectedSpaceId={selectedSpaceId}
+                  onOpenIngest={() => setIsIngestOpen(true)}
+                />
+              )}
+
+              {currentView === 'ask' && (
+                <AskConfluenceView
+                  spaces={spaces}
+                  selectedSpaceId={selectedSpaceId}
+                  initialQuery={askInitialQuery}
+                />
+              )}
+
+              {currentView === 'settings' && (
+                <SettingsView
+                  spaces={spaces}
+                  onResetSeed={handleResetSeed}
+                  isSeeding={isSeeding}
+                />
+              )}
+            </>
+          )}
+        </main>
+      </div>
+
+      {/* 3. Global Action & Review Modals */}
       <IngestMeetingModal
         isOpen={isIngestOpen}
         onClose={() => setIsIngestOpen(false)}
@@ -196,8 +301,8 @@ export default function Home() {
       )}
 
       <AskConfluenceModal
-        isOpen={isAskOpen}
-        onClose={() => setIsAskOpen(false)}
+        isOpen={isAskModalOpen}
+        onClose={() => setIsAskModalOpen(false)}
         spaces={spaces}
         selectedSpaceId={selectedSpaceId}
         initialQuery={askInitialQuery}
@@ -218,4 +323,3 @@ export default function Home() {
     </div>
   );
 }
-
