@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Space, AskQueryResponse } from '@/types';
+import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 import {
   X,
   Sparkles,
@@ -356,8 +357,8 @@ export const AskConfluenceModal: React.FC<AskConfluenceModalProps> = ({
                   </span>
                 </div>
 
-                <div className="text-xs leading-relaxed text-[#1c1b1a] whitespace-pre-line font-normal">
-                  {response.answer}
+                <div className="text-xs leading-relaxed text-[#1c1b1a]">
+                  <MarkdownRenderer content={response.answer} />
                 </div>
 
                 {response.impact_summary && (

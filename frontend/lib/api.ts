@@ -122,6 +122,44 @@ export const api = {
       body: JSON.stringify({ action_type: actionType, payload }),
     }),
 
+  // Agentic AI & Memory APIs
+  agentChat: (message: string, sessionId: string = 'default_session', spaceId?: string, scope: 'local' | 'shared' | 'organization' = 'organization') =>
+    fetchJson<{
+      session_id: string;
+      answer: string;
+      confidence: number;
+      reasoning_steps: any[];
+      sources: any[];
+      working_memory_state: any;
+      staged_action?: any;
+    }>(`${API_BASE}/query/agent-chat`, {
+      method: 'POST',
+      body: JSON.stringify({ session_id: sessionId, message, space_id: spaceId, scope }),
+    }),
+
+  semanticSearch: (query: string, entityTypes?: string[], spaceId?: string, topK: number = 5) =>
+    fetchJson<{ query: string; count: number; matches: any[] }>(`${API_BASE}/query/semantic-search`, {
+      method: 'POST',
+      body: JSON.stringify({ query, entity_types: entityTypes, space_id: spaceId, top_k: topK }),
+    }),
+
+  getSimilarity: (text1: string, text2: string) =>
+    fetchJson<{ text1: string; text2: string; similarity: number; interpretation: string }>(`${API_BASE}/query/similarity`, {
+      method: 'POST',
+      body: JSON.stringify({ text1, text2 }),
+    }),
+
+  inspectMemory: (query: string, spaceId?: string) => {
+    const params = new URLSearchParams({ query });
+    if (spaceId) params.append('space_id', spaceId);
+    return fetchJson<{
+      query: string;
+      episodic_memory: any[];
+      semantic_memory: any[];
+      potential_contradictions_or_supersessions: any[];
+    }>(`${API_BASE}/query/memory/inspect?${params.toString()}`);
+  },
+
   // Seed
   seedDemo: () =>
     fetchJson<{ status: string; message: string }>(`${API_BASE}/seed`, {

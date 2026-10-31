@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { Space } from '@/types';
-import { Logo } from '@/components/brand/Logo';
 import {
   Home,
   Layers,
@@ -17,7 +16,8 @@ import {
   Folder,
   Circle,
   ExternalLink,
-  Plus
+  Plus,
+  LogOut
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -42,7 +42,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const navItems = [
     { id: 'overview', label: 'Overview', icon: Compass },
     { id: 'spaces', label: 'Spaces', icon: Layers },
-    { id: 'meetings', label: 'Meetings', icon: Calendar },
+    { id: 'meetings', label: 'Meetings & Calendar', icon: Calendar },
     { id: 'decisions', label: 'Decision Explorer', icon: GitBranch },
     { id: 'my-work', label: 'My Work', icon: CheckSquare },
     { id: 'ask', label: 'Ask CONFLUENCE', icon: Sparkles, accent: true },
@@ -50,21 +50,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside className="w-64 bg-[#fbfaf7] border-r border-[#e1dcd3] flex flex-col justify-between h-screen sticky top-0 select-none">
-      {/* Top: Brand Header & Workspace Switcher */}
+      {/* Top: Organisation Switcher & Brand */}
       <div className="flex flex-col">
-        {/* Brand Banner */}
-        <div className="px-4 py-3.5 border-b border-[#e1dcd3] bg-white/70 flex items-center justify-between">
-          <Logo variant="full" size="sm" showTagline={true} />
-          <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#2a72de] bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
-            v2.4
-          </span>
-        </div>
-
         {/* Workspace Switcher */}
-        <div className="p-3 border-b border-[#e1dcd3]">
-          <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-[#e1dcd3] shadow-xs hover:border-[#838280] transition-all cursor-pointer">
+        <div className="p-3.5 border-b border-[#e1dcd3]">
+          <div
+            onClick={() => onSelectView('landing')}
+            className="flex items-center justify-between p-2 rounded-lg bg-white border border-[#e1dcd3] shadow-xs hover:border-[#838280] transition-all cursor-pointer"
+            title="Go to Welcome Portal"
+          >
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-6 h-6 rounded bg-[#1c1b1a] text-[#f7f1e8] flex items-center justify-center font-serif text-xs font-semibold shrink-0">
+              <div className="w-7 h-7 rounded-md bg-[#1c1b1a] text-[#f7f1e8] flex items-center justify-center font-serif text-sm font-semibold shrink-0">
                 M
               </div>
               <div className="min-w-0">
@@ -91,21 +87,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.id}
                 onClick={() => onSelectView(item.id)}
-                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-                  isActive
-                    ? 'bg-white text-[#1c1b1a] shadow-xs font-semibold border border-[#e1dcd3]'
-                    : 'text-[#4a4741] hover:text-[#1c1b1a] hover:bg-black/5'
-                }`}
+                className={`w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-all ${isActive
+                  ? 'bg-white text-[#1c1b1a] shadow-xs font-semibold border border-[#e1dcd3]'
+                  : 'text-[#4a4741] hover:text-[#1c1b1a] hover:bg-black/5'
+                  }`}
               >
                 <div className="flex items-center gap-2.5">
                   <Icon
-                    className={`w-4 h-4 ${
-                      item.accent
-                        ? 'text-[#2a72de]'
-                        : isActive
+                    className={`w-4 h-4 ${item.accent
+                      ? 'text-[#2a72de]'
+                      : isActive
                         ? 'text-[#1c1b1a]'
                         : 'text-[#838280]'
-                    }`}
+                      }`}
                   />
                   <span>{item.label}</span>
                 </div>
@@ -136,16 +130,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
           <div className="space-y-0.5 max-h-48 overflow-y-auto pr-0.5">
             <button
               onClick={() => onSelectSpace(null)}
-              className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition-all ${
-                selectedSpaceId === null
-                  ? 'bg-white font-semibold text-[#1c1b1a] border border-[#e1dcd3]'
-                  : 'text-[#4a4741] hover:bg-black/5'
-              }`}
+              className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs transition-all ${selectedSpaceId === null
+                ? 'bg-white font-semibold text-[#1c1b1a] border border-[#e1dcd3]'
+                : 'text-[#4a4741] hover:bg-black/5'
+                }`}
             >
               <Circle
-                className={`w-2 h-2 ${
-                  selectedSpaceId === null ? 'fill-[#2a72de] text-[#2a72de]' : 'text-[#838280]'
-                }`}
+                className={`w-2 h-2 ${selectedSpaceId === null ? 'fill-[#2a72de] text-[#2a72de]' : 'text-[#838280]'
+                  }`}
               />
               <span className="truncate">All Organisation</span>
             </button>
@@ -161,11 +153,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       onSelectView('spaces');
                     }
                   }}
-                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition-all ${
-                    isSelected
-                      ? 'bg-white font-semibold text-[#1c1b1a] border border-[#e1dcd3]'
-                      : 'text-[#4a4741] hover:bg-black/5'
-                  }`}
+                  className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs transition-all ${isSelected
+                    ? 'bg-white font-semibold text-[#1c1b1a] border border-[#e1dcd3]'
+                    : 'text-[#4a4741] hover:bg-black/5'
+                    }`}
                 >
                   <div className="flex items-center gap-2 truncate">
                     <Folder className="w-3.5 h-3.5 text-[#838280] shrink-0" />
@@ -185,17 +176,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-3 border-t border-[#e1dcd3] space-y-1">
         <button
           onClick={() => onSelectView('settings')}
-          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
-            currentView === 'settings'
-              ? 'bg-white text-[#1c1b1a] shadow-xs font-semibold border border-[#e1dcd3]'
-              : 'text-[#4a4741] hover:text-[#1c1b1a] hover:bg-black/5'
-          }`}
+          className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all ${currentView === 'settings'
+            ? 'bg-white text-[#1c1b1a] shadow-xs font-semibold border border-[#e1dcd3]'
+            : 'text-[#4a4741] hover:text-[#1c1b1a] hover:bg-black/5'
+            }`}
         >
           <Settings className="w-4 h-4 text-[#838280]" />
+          <span>Workspace Settings</span>
           <span>Settings</span>
         </button>
 
-        {/* User Card */}
+        {/* User Card & Sign Out */}
         <div className="pt-2 mt-1 border-t border-[#e1dcd3]/60 flex items-center justify-between px-2">
           <div className="flex items-center gap-2 min-w-0">
             <div className="w-6 h-6 rounded-full bg-[#1c1b1a] text-white flex items-center justify-center text-[10px] font-semibold shrink-0">
@@ -206,10 +197,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 Maya Chen
               </div>
               <div className="text-[10px] text-[#838280] truncate leading-tight">
-                Product Manager
+                Lead PM
               </div>
             </div>
           </div>
+
+          <button
+            onClick={() => onSelectView('landing')}
+            className="p-1.5 text-stone-400 hover:text-stone-700 hover:bg-stone-200/60 rounded-md transition-colors"
+            title="Sign out / Return to Landing Page"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
     </aside>

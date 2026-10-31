@@ -8,6 +8,7 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { Header } from '@/components/layout/Header';
 
 import { OverviewView } from '@/components/views/OverviewView';
+import { GeneralLandingPage } from '@/components/views/GeneralLandingPage';
 import { SpacesView } from '@/components/views/SpacesView';
 import { MeetingsView } from '@/components/views/MeetingsView';
 import { KnowledgeView } from '@/components/views/KnowledgeView';
@@ -24,7 +25,7 @@ import { MeetingDetailModal } from '@/components/MeetingDetailModal';
 import { DecisionTrailModal } from '@/components/DecisionTrailModal';
 
 export default function WorkspacePage() {
-  const [currentView, setCurrentView] = useState<string>('overview');
+  const [currentView, setCurrentView] = useState<string>('landing');
   const [spaces, setSpaces] = useState<Space[]>([]);
   const [selectedSpaceId, setSelectedSpaceId] = useState<string | null>(null);
   const [meetings, setMeetings] = useState<Meeting[]>([]);
@@ -124,6 +125,12 @@ export default function WorkspacePage() {
   // Compute breadcrumbs and title based on current view
   const getViewMeta = () => {
     switch (currentView) {
+      case 'landing':
+        return {
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Welcome Portal' }],
+          title: 'Welcome Portal',
+          subtitle: 'Choose your destination screen or inspect today\'s active governance review.'
+        };
       case 'overview':
       case 'home':
         return {
@@ -139,9 +146,9 @@ export default function WorkspacePage() {
         };
       case 'meetings':
         return {
-          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Meetings' }],
-          title: 'Meetings',
-          subtitle: 'Searchable meeting repository with verbatim turn-by-turn evidence citations.'
+          breadcrumbs: [{ label: 'MeridianPay' }, { label: 'Meetings & Calendar' }],
+          title: 'Meetings & Calendar',
+          subtitle: 'Searchable meeting repository and interactive launch calendar with evidence citations.'
         };
       case 'meeting-detail':
         return {
@@ -191,6 +198,20 @@ export default function WorkspacePage() {
 
   const viewMeta = getViewMeta();
 
+  // 1. Full-screen Public / Marketing Landing Page with Login & Explore
+  if (currentView === 'landing') {
+    return (
+      <GeneralLandingPage
+        onExplore={() => setCurrentView('overview')}
+        onLoginAsPersona={(persona) => {
+          setCurrentView('overview');
+        }}
+        onNavigateToView={(view) => setCurrentView(view)}
+      />
+    );
+  }
+
+  // 2. Authenticated Workspace Dashboard Frame
   return (
     <div className="flex h-screen bg-[#f7f1e8] text-[#1c1b1a] overflow-hidden font-sans">
       {/* 1. Persistent Left Navigation Sidebar */}
@@ -214,6 +235,7 @@ export default function WorkspacePage() {
           selectedSpace={selectedSpace}
           onOpenIngest={() => setIsIngestOpen(true)}
           onOpenAsk={() => setCurrentView('ask')}
+          onNavigateLanding={() => setCurrentView('landing')}
         />
 
         {/* Scrollable View Area */}

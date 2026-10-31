@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Space, AskQueryResponse } from '@/types';
 import { api } from '@/lib/api';
-import { Logo } from '@/components/brand/Logo';
+import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 import {
   Sparkles,
   Send,
@@ -102,6 +102,8 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
 
     const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     if (!SpeechRecognition) {
+      // In Wispr Flow, users dictate externally into any focused input field.
+      // So simply focusing the textarea and alerting is the standard workflow.
       alert('Wispr Flow dictates directly into the focused input field. Your cursor is active: speak using Wispr Flow shortcut or type.');
       return;
     }
@@ -198,6 +200,8 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
   const modeBPrompts = [
     'Show me all overdue tasks assigned to me.',
     'Find all blockers affecting the 14 November readiness review.',
+    'Create a follow-up task for Daniel Foster to complete the 3-second timeout reconciliation.',
+    'Review all pending commitments for the Payments Platform team.',
     'Create a follow-up task for Daniel Foster to verify idempotent failover retry logic.',
     'Create a follow-up task for Elena Petrova to document idempotency header propagation.'
   ];
@@ -206,6 +210,7 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
     'The 20% pilot expansion was superseded, not approved.',
     'Risk team sign-off requires shadow mode data through 13 November.',
     'Merchant communications must remain on hold until the 14 November gate.',
+    'The 3-second processor timeout creates duplicate transaction risk.',
     'The API deadline was tentative, not final.'
   ];
 
@@ -216,6 +221,7 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
       return [
         'What changed from the original rollout plan?',
         'What must happen before we can expand to 20%?',
+        'Show the supersession history of the pilot expansion decision.',
         'Who is working on idempotency keys?'
       ];
     }
@@ -223,6 +229,7 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
       return [
         'Which teams still have launch blockers, and who owns each action?',
         'Can Merchant Operations confirm the pilot expansion date?',
+        'What did Priya Nair commit to regarding the SRE circuit-breaker testing?',
         'What did Priya Nair say about canary latency thresholds?'
       ];
     }
@@ -251,8 +258,8 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
       {/* 1. Header */}
       <div className="space-y-1.5">
         <div className="flex items-center gap-2">
-          <Logo variant="icon" size="xs" />
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#2a72de] bg-blue-50 px-2 py-0.5 rounded">
+            Organizational AI Intelligence
             Agentic AI Organizational Memory
           </span>
           <span className="text-xs text-[#838280]">
@@ -263,6 +270,7 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
           Ask CONFLUENCE
         </h2>
         <p className="text-xs text-[#7b776f] font-light max-w-xl">
+          Query cross-team decisions, trace dependencies, and dictate commands with Wispr Flow. Every statement cites verified transcript segments.
           Multi-hop reasoning across meetings, decisions, commitments, and blockers. Speak naturally via Wispr Flow or type below.
         </p>
       </div>
@@ -277,33 +285,30 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
               <button
                 type="button"
                 onClick={() => setScope('local')}
-                className={`px-3 py-1 rounded transition-all ${
-                  scope === 'local'
-                    ? 'bg-white text-[#1c1b1a] font-semibold shadow-xs'
-                    : 'text-[#4a4741] hover:text-[#1c1b1a]'
-                }`}
+                className={`px-3 py-1 rounded transition-all ${scope === 'local'
+                  ? 'bg-white text-[#1c1b1a] font-semibold shadow-xs'
+                  : 'text-[#4a4741] hover:text-[#1c1b1a]'
+                  }`}
               >
                 {activeSpace ? `${activeSpace.name} (Local)` : 'Local Space'}
               </button>
               <button
                 type="button"
                 onClick={() => setScope('shared')}
-                className={`px-3 py-1 rounded transition-all ${
-                  scope === 'shared'
-                    ? 'bg-white text-[#1c1b1a] font-semibold shadow-xs'
-                    : 'text-[#4a4741] hover:text-[#1c1b1a]'
-                }`}
+                className={`px-3 py-1 rounded transition-all ${scope === 'shared'
+                  ? 'bg-white text-[#1c1b1a] font-semibold shadow-xs'
+                  : 'text-[#4a4741] hover:text-[#1c1b1a]'
+                  }`}
               >
                 Shared
               </button>
               <button
                 type="button"
                 onClick={() => setScope('organization')}
-                className={`px-3 py-1 rounded transition-all ${
-                  scope === 'organization'
-                    ? 'bg-white text-[#1c1b1a] font-semibold shadow-xs'
-                    : 'text-[#4a4741] hover:text-[#1c1b1a]'
-                }`}
+                className={`px-3 py-1 rounded transition-all ${scope === 'organization'
+                  ? 'bg-white text-[#1c1b1a] font-semibold shadow-xs'
+                  : 'text-[#4a4741] hover:text-[#1c1b1a]'
+                  }`}
               >
                 Full Organisation
               </button>
@@ -314,13 +319,13 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
           <button
             type="button"
             onClick={toggleListening}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all shadow-xs ${
-              isListening
-                ? 'bg-red-500 text-white animate-pulse'
-                : 'bg-[#fbfaf7] text-[#1c1b1a] border border-[#e1dcd3] hover:bg-stone-100'
-            }`}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all shadow-xs ${isListening
+              ? 'bg-red-500 text-white animate-pulse'
+              : 'bg-[#fbfaf7] text-[#1c1b1a] border border-[#e1dcd3] hover:bg-stone-100'
+              }`}
           >
             <Mic className="w-3.5 h-3.5 text-[#2a72de]" />
+            <span>{isListening ? 'Listening...' : 'Dictate with Wispr Flow'}</span>
             <span>{isListening ? 'Listening with Wispr Flow...' : 'Dictate with Wispr Flow'}</span>
           </button>
         </div>
@@ -355,25 +360,22 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
         <div className="flex items-center gap-2 border-b border-[#e1dcd3] pb-2 text-xs">
           <button
             onClick={() => setActiveVoiceMode('search')}
-            className={`px-3 py-1 rounded-md font-medium transition-all ${
-              activeVoiceMode === 'search' ? 'bg-[#1c1b1a] text-white font-semibold' : 'text-[#838280] hover:text-[#1c1b1a]'
-            }`}
+            className={`px-3 py-1 rounded-md font-medium transition-all ${activeVoiceMode === 'search' ? 'bg-[#1c1b1a] text-white font-semibold' : 'text-[#838280] hover:text-[#1c1b1a]'
+              }`}
           >
             A. Organisational Search
           </button>
           <button
             onClick={() => setActiveVoiceMode('tasks')}
-            className={`px-3 py-1 rounded-md font-medium transition-all ${
-              activeVoiceMode === 'tasks' ? 'bg-[#1c1b1a] text-white font-semibold' : 'text-[#838280] hover:text-[#1c1b1a]'
-            }`}
+            className={`px-3 py-1 rounded-md font-medium transition-all ${activeVoiceMode === 'tasks' ? 'bg-[#1c1b1a] text-white font-semibold' : 'text-[#838280] hover:text-[#1c1b1a]'
+              }`}
           >
             B. Task Management
           </button>
           <button
             onClick={() => setActiveVoiceMode('corrections')}
-            className={`px-3 py-1 rounded-md font-medium transition-all ${
-              activeVoiceMode === 'corrections' ? 'bg-[#1c1b1a] text-white font-semibold' : 'text-[#838280] hover:text-[#1c1b1a]'
-            }`}
+            className={`px-3 py-1 rounded-md font-medium transition-all ${activeVoiceMode === 'corrections' ? 'bg-[#1c1b1a] text-white font-semibold' : 'text-[#838280] hover:text-[#1c1b1a]'
+              }`}
           >
             C. Correcting Intelligence
           </button>
@@ -384,8 +386,8 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
           {(activeVoiceMode === 'search'
             ? modeAPrompts
             : activeVoiceMode === 'tasks'
-            ? modeBPrompts
-            : modeCPrompts
+              ? modeBPrompts
+              : modeCPrompts
           ).map((q, idx) => (
             <button
               key={idx}
@@ -406,6 +408,8 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
       {loading && (
         <div className="card-oura p-10 text-center text-xs text-[#838280] bg-white border border-[#e1dcd3] space-y-2">
           <span className="inline-block w-5 h-5 border-2 border-[#2a72de] border-t-transparent rounded-full animate-spin mb-1" />
+          <p className="font-semibold text-[#1c1b1a]">Searching organizational memory...</p>
+          <p className="text-[11px] text-[#7b776f]">Cross-referencing decision supersessions and transcript evidence segments.</p>
           <p className="font-semibold text-[#1c1b1a]">Agentic reasoning across organizational memory...</p>
           <p className="text-[11px] text-[#7b776f]">Routing context, traversing supersession lineage, and retrieving transcript citations.</p>
         </div>
@@ -443,8 +447,8 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
               <span className="text-[10px] uppercase font-bold tracking-wider text-[#838280]">
                 Synthesized Answer &bull; Grounded in Canonical Records
               </span>
-              <div className="text-xs md:text-sm leading-relaxed text-[#1c1b1a] whitespace-pre-line font-normal space-y-2">
-                {response.answer}
+              <div className="text-xs md:text-sm leading-relaxed text-[#1c1b1a]">
+                <MarkdownRenderer content={response.answer} />
               </div>
             </div>
 
@@ -455,18 +459,33 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
                   <GitBranch className="w-3.5 h-3.5 text-[#2a72de]" />
                   Linked Canonical Decisions:
                 </span>
-                {response.related_decision_ids.map((dId, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => onOpenDecision && onOpenDecision(dId)}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#f7f1e8] hover:bg-[#ece5d8] border border-[#e1dcd3] font-mono text-[11px] text-[#2a72de] font-semibold transition-colors shadow-xs"
-                    title="Click to view complete 9-question decision trace"
-                  >
-                    <span>Decision {dId.slice(0, 8)}</span>
-                    <ExternalLink className="w-2.5 h-2.5" />
-                  </button>
-                ))}
+                {response.related_decision_ids.map((dId, idx) => {
+                  const lower = dId.toLowerCase();
+                  let label = `DEC-00${idx + 1}`;
+                  if (lower.includes('dec-014') || lower.includes('57635a88') || lower.includes('95f6e618') || lower.includes('13f9afbe') || lower.includes('7b7efdd3') || lower.includes('idempotenc')) {
+                    label = 'DEC-014 · Idempotency Keys';
+                  } else if (lower.includes('dec-002') || lower.includes('924abc59') || lower.includes('a9d24a57') || lower.includes('9ca57a3b') || lower.includes('14 nov') || lower.includes('gate') || lower.includes('e4c9dfff') || lower.includes('review')) {
+                    label = 'DEC-002 · 14 Nov Gate';
+                  } else if (lower.includes('dec-018') || lower.includes('1fc05fe9') || lower.includes('fraud') || lower.includes('risk')) {
+                    label = 'DEC-018 · Risk Evaluation';
+                  } else if (lower.includes('dec-021') || lower.includes('75e6bcb1') || lower.includes('canary') || lower.includes('sre') || lower.includes('latency')) {
+                    label = 'DEC-021 · SRE Guardrails';
+                  } else if (dId.startsWith('DEC-')) {
+                    label = dId;
+                  }
+                  return (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => onOpenDecision && onOpenDecision(dId)}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-[#f7f1e8] hover:bg-[#ece5d8] border border-[#e1dcd3] font-mono text-[11px] text-[#2a72de] font-semibold transition-colors shadow-xs"
+                      title="Click to view complete decision trace and lineage"
+                    >
+                      <span>{label}</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </button>
+                  );
+                })}
               </div>
             )}
 
@@ -569,6 +588,7 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
             </div>
           </div>
 
+          {/* 5. Collapsible Evidence Citations & Deep Linking */}
           {/* 5. Autonomous Agent Reasoning Trail */}
           {response.reasoning_steps && response.reasoning_steps.length > 0 && (
             <div className="card-oura bg-white border border-[#e1dcd3] overflow-hidden shadow-xs">

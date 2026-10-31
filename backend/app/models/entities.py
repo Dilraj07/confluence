@@ -348,4 +348,19 @@ class ApprovalRequest(Base):
     created_at = Column(DateTime, default=utc_now, nullable=False)
     reviewed_at = Column(DateTime, nullable=True)
 
+class EmbeddingRecord(Base):
+    __tablename__ = "embedding_records"
+
+    id = Column(String(36), primary_key=True, default=generate_uuid)
+    entity_type = Column(String(50), nullable=False)  # transcript_segment, decision, task, blocker
+    entity_id = Column(String(36), nullable=False, index=True)
+    space_id = Column(String(36), nullable=True)
+    text_content = Column(Text, nullable=False)
+    embedding_json = Column(Text, nullable=False)  # JSON-serialized vector of floats
+    dimensions = Column(Integer, nullable=False, default=384)
+    model_name = Column(String(100), nullable=False, default="bge-small-en-v1.5")
+    created_at = Column(DateTime, default=utc_now, nullable=False)
+    updated_at = Column(DateTime, default=utc_now, onupdate=utc_now, nullable=False)
+
+
 

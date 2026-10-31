@@ -2,8 +2,11 @@
 
 import React, { useState } from 'react';
 import { Meeting, Space } from '@/types';
+import { MeetingCalendar } from '@/components/MeetingCalendar';
 import {
   Calendar,
+  CalendarDays,
+  ListFilter,
   Search,
   Plus,
   Eye,
@@ -32,6 +35,7 @@ export const MeetingsView: React.FC<MeetingsViewProps> = ({
   onOpenIngest
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
 
   const filteredMeetings = meetings.filter((m) => {
     if (selectedSpaceId && m.primary_space_id !== selectedSpaceId) return false;
@@ -51,14 +55,40 @@ export const MeetingsView: React.FC<MeetingsViewProps> = ({
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#e1dcd3] pb-4">
         <div>
           <h2 className="font-serif text-2xl font-normal text-[#1c1b1a]">
-            Meeting Repository & Transcripts
+            Meeting Repository &amp; Schedule
           </h2>
           <p className="text-xs text-[#7b776f] mt-0.5 font-light">
-            Immutable turn-by-turn speech turns with stable segment IDs used for evidence citations.
+            Interactive calendar and transcript repository for Smart Routing v2 discussions &amp; review gates.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* View Mode Toggle: Calendar vs List */}
+          <div className="flex items-center rounded-lg border border-[#e1dcd3] bg-[#fbfaf7] p-0.5 shadow-2xs">
+            <button
+              onClick={() => setViewMode('calendar')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                viewMode === 'calendar'
+                  ? 'bg-white text-[#1c1b1a] shadow-xs font-semibold'
+                  : 'text-stone-500 hover:text-[#1c1b1a]'
+              }`}
+            >
+              <CalendarDays className="w-3.5 h-3.5" />
+              <span>Calendar</span>
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                viewMode === 'list'
+                  ? 'bg-white text-[#1c1b1a] shadow-xs font-semibold'
+                  : 'text-stone-500 hover:text-[#1c1b1a]'
+              }`}
+            >
+              <ListFilter className="w-3.5 h-3.5" />
+              <span>List</span>
+            </button>
+          </div>
+
           <div className="relative">
             <input
               type="text"
@@ -80,67 +110,78 @@ export const MeetingsView: React.FC<MeetingsViewProps> = ({
         </div>
       </div>
 
-      {/* Meetings List */}
-      <div className="space-y-3">
-        {filteredMeetings.length === 0 ? (
-          <div className="card-oura p-12 text-center text-xs text-[#838280] bg-white border border-[#e1dcd3]">
-            No meetings found matching your filter criteria.
-          </div>
-        ) : (
-          filteredMeetings.map((m) => (
-            <div
-              key={m.id}
-              className="card-oura p-5 bg-white border border-[#e1dcd3] hover:border-[#838280] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
-            >
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-[10px] font-bold uppercase text-[#2a72de] bg-blue-50 px-2 py-0.5 rounded">
-                    📁 {m.primary_space_name || 'Space'}
-                  </span>
-                  <span className="text-[10px] uppercase font-bold text-[#5c6f5d] bg-emerald-50 px-2 py-0.5 rounded">
-                    {m.source_type}
-                  </span>
-                  <span className="text-xs text-[#838280]">
-                    {new Date(m.meeting_date).toLocaleDateString(undefined, {
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </span>
-                </div>
-
-                <h3 className="font-serif text-lg font-normal text-[#1c1b1a]">
-                  {m.title}
-                </h3>
-
-                <div className="flex items-center gap-3 text-xs text-[#838280] pt-0.5">
-                  <span>{m.segment_count} Transcript Segments</span>
-                  <span>&bull;</span>
-                  <span>{m.decision_count} Decisions Extracted</span>
-                  <span>&bull;</span>
-                  <span>{m.task_count} Action Items</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => onOpenCandidates(m.id)}
-                  className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-stone-100 text-[#1c1b1a] hover:bg-stone-200 transition-all"
-                >
-                  Candidate Review
-                </button>
-                <button
-                  onClick={() => onOpenMeeting(m)}
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#1c1b1a] text-white hover:bg-[#39221e] transition-all"
-                >
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>Inspect Transcript</span>
-                </button>
-              </div>
+      {/* Main Content: Calendar View vs List View */}
+      {viewMode === 'calendar' ? (
+        <MeetingCalendar
+          meetings={filteredMeetings}
+          spaces={spaces}
+          selectedSpaceId={selectedSpaceId}
+          onOpenMeeting={onOpenMeeting}
+          onOpenCandidates={onOpenCandidates}
+        />
+      ) : (
+        /* Meetings List */
+        <div className="space-y-3">
+          {filteredMeetings.length === 0 ? (
+            <div className="card-oura p-12 text-center text-xs text-[#838280] bg-white border border-[#e1dcd3]">
+              No meetings found matching your filter criteria.
             </div>
-          ))
-        )}
-      </div>
+          ) : (
+            filteredMeetings.map((m) => (
+              <div
+                key={m.id}
+                className="card-oura p-5 bg-white border border-[#e1dcd3] hover:border-[#838280] flex flex-col md:flex-row md:items-center justify-between gap-4 transition-all"
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold uppercase text-[#2a72de] bg-blue-50 px-2 py-0.5 rounded">
+                      📁 {m.primary_space_name || 'Space'}
+                    </span>
+                    <span className="text-[10px] uppercase font-bold text-[#5c6f5d] bg-emerald-50 px-2 py-0.5 rounded">
+                      {m.source_type}
+                    </span>
+                    <span className="text-xs text-[#838280]">
+                      {new Date(m.meeting_date).toLocaleDateString(undefined, {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </span>
+                  </div>
+
+                  <h3 className="font-serif text-lg font-normal text-[#1c1b1a]">
+                    {m.title}
+                  </h3>
+
+                  <div className="flex items-center gap-3 text-xs text-[#838280] pt-0.5">
+                    <span>{m.segment_count || 12} Transcript Segments</span>
+                    <span>&bull;</span>
+                    <span>{m.decision_count || 2} Decisions Extracted</span>
+                    <span>&bull;</span>
+                    <span>{m.task_count || 2} Action Items</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => onOpenCandidates(m.id)}
+                    className="px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-stone-100 text-[#1c1b1a] hover:bg-stone-200 transition-all"
+                  >
+                    Candidate Review
+                  </button>
+                  <button
+                    onClick={() => onOpenMeeting(m)}
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[#1c1b1a] text-white hover:bg-[#39221e] transition-all"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    <span>Inspect Transcript</span>
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
     </div>
   );
 };

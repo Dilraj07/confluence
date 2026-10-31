@@ -19,6 +19,7 @@ interface HeaderProps {
   selectedSpace: Space | null;
   onOpenIngest: () => void;
   onOpenAsk: () => void;
+  onNavigateLanding?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -27,17 +28,35 @@ export const Header: React.FC<HeaderProps> = ({
   subtitle,
   selectedSpace,
   onOpenIngest,
-  onOpenAsk
+  onOpenAsk,
+  onNavigateLanding
 }) => {
   return (
     <header className="bg-white/80 backdrop-blur-md border-b border-[#e1dcd3] px-6 py-4 sticky top-0 z-30 flex flex-col md:flex-row md:items-center justify-between gap-4">
       {/* Breadcrumbs & Title */}
       <div>
         <nav className="flex items-center gap-1.5 text-[11px] text-[#838280] mb-0.5">
-          <Logo variant="icon" size="xs" className="opacity-80 shrink-0" />
+          <div
+            onClick={onNavigateLanding}
+            className="cursor-pointer hover:opacity-100 transition-opacity flex items-center gap-1"
+            title="Return to Welcome Portal"
+          >
+            <Logo variant="icon" size="xs" className="opacity-80 shrink-0" />
+          </div>
           {breadcrumbs.map((crumb, idx) => (
             <React.Fragment key={idx}>
-              <span className={idx === breadcrumbs.length - 1 ? 'text-[#1c1b1a] font-medium' : 'hover:text-[#1c1b1a]'}>
+              <span
+                onClick={() => {
+                  if (idx === 0 && onNavigateLanding) onNavigateLanding();
+                }}
+                className={`${
+                  idx === 0
+                    ? 'cursor-pointer hover:text-[#2a72de]'
+                    : idx === breadcrumbs.length - 1
+                    ? 'text-[#1c1b1a] font-medium'
+                    : 'hover:text-[#1c1b1a]'
+                }`}
+              >
                 {crumb.label}
               </span>
               {idx < breadcrumbs.length - 1 && (

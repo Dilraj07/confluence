@@ -276,7 +276,116 @@ export const OverviewView: React.FC<OverviewViewProps> = ({
         </div>
       </section>
 
-      {/* 5. Recent Activity Audit Feed */}
+      {/* 5. Upcoming Review Meetings & Launch Calendar */}
+      <section className="space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-[#2a72de]" />
+            <h2 className="font-serif text-xl font-normal text-[#1c1b1a]">
+              Upcoming Review Meetings &amp; Launch Calendar
+            </h2>
+          </div>
+          <button
+            onClick={() => onNavigateToView('meetings')}
+            className="text-xs text-[#2a72de] hover:underline font-medium flex items-center gap-1"
+          >
+            <span>Open Full Calendar</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Key Nov 14 Gate Meeting */}
+          <div
+            onClick={() => {
+              const m14 = meetings.find(m => m.meeting_date && m.meeting_date.includes('2026-11-14')) || meetings[meetings.length - 1];
+              if (m14) onOpenMeeting(m14);
+              else onNavigateToView('meetings');
+            }}
+            className="card-oura p-4 bg-gradient-to-br from-red-50/50 to-white border border-red-200 hover:border-red-400 cursor-pointer transition-all space-y-2.5 shadow-xs"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-red-100 text-[#e33a22]">
+                14 Nov Gate
+              </span>
+              <span className="text-xs font-mono text-stone-500">10:00 AM</span>
+            </div>
+            <div>
+              <h4 className="font-serif text-sm font-semibold text-[#1c1b1a] line-clamp-2">
+                Technical Readiness Review Gate
+              </h4>
+              <p className="text-[11px] text-stone-600 mt-1 line-clamp-2">
+                Mandatory 4-team sign-off before 20% expansion. Payments, SRE, Risk, and Security review.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-red-100 flex items-center justify-between text-[11px] text-red-700 font-medium">
+              <span>DEC-002 Requirement</span>
+              <span className="flex items-center gap-1">Inspect &rarr;</span>
+            </div>
+          </div>
+
+          {/* Today: 31 Oct Idempotency Session */}
+          <div
+            onClick={() => {
+              const m31 = meetings.find(m => m.meeting_date && m.meeting_date.includes('2026-10-31'));
+              if (m31) onOpenMeeting(m31);
+              else onNavigateToView('meetings');
+            }}
+            className="card-oura p-4 bg-white border border-emerald-200 hover:border-emerald-400 cursor-pointer transition-all space-y-2.5 shadow-xs"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Today &bull; 31 Oct
+              </span>
+              <span className="text-xs font-mono text-stone-500">03:50 PM</span>
+            </div>
+            <div>
+              <h4 className="font-serif text-sm font-medium text-[#1c1b1a] line-clamp-2">
+                Idempotency &amp; Reconciliation Review
+              </h4>
+              <p className="text-[11px] text-[#7b776f] mt-1 line-clamp-2">
+                Payments engineering session on idempotency retention and safe processor retries.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-[#f0ece4] flex items-center justify-between text-[11px] text-stone-500">
+              <span>Payments Platform</span>
+              <span className="text-emerald-700 flex items-center gap-1 font-medium">Inspect &rarr;</span>
+            </div>
+          </div>
+
+          {/* 29 Oct Launch Gate Decision */}
+          <div
+            onClick={() => {
+              const m29 = meetings.find(m => m.meeting_date && m.meeting_date.includes('2026-10-29'));
+              if (m29) onOpenMeeting(m29);
+              else onNavigateToView('meetings');
+            }}
+            className="card-oura p-4 bg-white border border-[#e1dcd3] hover:border-[#2a72de] cursor-pointer transition-all space-y-2.5 shadow-xs"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-blue-50 text-[#2a72de] border border-blue-200">
+                29 Oct 2026
+              </span>
+              <span className="text-xs font-mono text-stone-500">09:30 AM</span>
+            </div>
+            <div>
+              <h4 className="font-serif text-sm font-medium text-[#1c1b1a] line-clamp-2">
+                Smart Routing Launch Gate Decision
+              </h4>
+              <p className="text-[11px] text-[#7b776f] mt-1 line-clamp-2">
+                Rollout paused at 5% due to timeout ambiguity risk. Established 14 Nov gate.
+              </p>
+            </div>
+            <div className="pt-2 border-t border-[#f0ece4] flex items-center justify-between text-[11px] text-stone-500">
+              <span>Product &amp; Strategy</span>
+              <span className="text-[#2a72de] flex items-center gap-1 font-medium">Inspect &rarr;</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. Recent Activity Audit Feed */}
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

@@ -173,15 +173,18 @@ def run_seed():
         # ----------------------------------------------------
         # 6. Meetings
         # ----------------------------------------------------
+        # Past meetings are in October leading to today (31 Oct 2026), with the upcoming gate in November (14 Nov 2026)
         meetings_data = [
-            ("2033cb92-95e6-5580-a51a-b199bbb8b69f", "aec6e03e-fddc-5b51-bbbd-ec71e566b329", "Smart Routing v2 kickoff", "2026-11-02T09:00:00+05:30", "3fc01550-c7e4-55ad-bbf4-3c6599fb57ce"),
-            ("ea655bba-f14e-521d-8ec8-458fa2398acb", "c51d1349-7c9e-5b7c-ae96-6469d80b9790", "Routing architecture and idempotency review", "2026-11-03T10:00:00+05:30", "3d5d0b48-d0eb-5544-a845-b7687a88e24a"),
-            ("2e061b40-a4e5-5f67-9b70-01ed58328916", "6e5acdd2-d7c0-58f4-abc3-bfdb9620379c", "Fraud controls during processor failover", "2026-11-04T11:00:00+05:30", "f1ed3ec8-1ec5-5bc8-a615-823becb0e3d8"),
-            ("35623284-e53b-538f-a88f-719ceb2ad5b2", "8f06b32b-668a-51ca-a0b7-0853b197e9ae", "Payment data security and logging review", "2026-11-05T14:00:00+05:30", "dbc70974-93b3-5b69-9d3b-7b3fe752165c"),
-            ("880f34a1-35bd-5796-8ab1-ad4d662edcec", "79354d43-971e-542f-ad55-b1fce3290ec6", "Canary observability and production readiness", "2026-11-06T10:30:00+05:30", "756c8a27-bcff-5894-b1e9-d1b899ffa95a"),
-            ("a125dfc8-e498-5898-8dfa-e4acf91fb697", "c51d1349-7c9e-5b7c-ae96-6469d80b9790", "Pilot performance review: timeout ambiguity", "2026-11-09T15:00:00+05:30", "3d5d0b48-d0eb-5544-a845-b7687a88e24a"),
-            ("69e18c75-f04d-528e-8087-1aa642142c06", "aec6e03e-fddc-5b51-bbbd-ec71e566b329", "Smart Routing launch gate decision", "2026-11-10T09:30:00+05:30", "3fc01550-c7e4-55ad-bbf4-3c6599fb57ce"),
-            ("75294199-1a00-5b40-928f-75d96eaa8dda", "f1339331-f5cc-5fad-aa79-d35acef48713", "Merchant pilot communications and support readiness", "2026-11-11T13:00:00+05:30", "673e2dfb-cfbe-52f6-9a20-075b8fd542e0"),
+            ("2033cb92-95e6-5580-a51a-b199bbb8b69f", "aec6e03e-fddc-5b51-bbbd-ec71e566b329", "Smart Routing v2 kickoff", "2026-10-19T09:00:00+05:30", "3fc01550-c7e4-55ad-bbf4-3c6599fb57ce"),
+            ("ea655bba-f14e-521d-8ec8-458fa2398acb", "c51d1349-7c9e-5b7c-ae96-6469d80b9790", "Routing architecture and idempotency review", "2026-10-21T10:00:00+05:30", "3d5d0b48-d0eb-5544-a845-b7687a88e24a"),
+            ("2e061b40-a4e5-5f67-9b70-01ed58328916", "6e5acdd2-d7c0-58f4-abc3-bfdb9620379c", "Fraud controls during processor failover", "2026-10-22T11:00:00+05:30", "f1ed3ec8-1ec5-5bc8-a615-823becb0e3d8"),
+            ("35623284-e53b-538f-a88f-719ceb2ad5b2", "8f06b32b-668a-51ca-a0b7-0853b197e9ae", "Payment data security and logging review", "2026-10-23T14:00:00+05:30", "dbc70974-93b3-5b69-9d3b-7b3fe752165c"),
+            ("880f34a1-35bd-5796-8ab1-ad4d662edcec", "79354d43-971e-542f-ad55-b1fce3290ec6", "Canary observability and production readiness", "2026-10-26T10:30:00+05:30", "756c8a27-bcff-5894-b1e9-d1b899ffa95a"),
+            ("a125dfc8-e498-5898-8dfa-e4acf91fb697", "c51d1349-7c9e-5b7c-ae96-6469d80b9790", "Pilot performance review: timeout ambiguity", "2026-10-28T15:00:00+05:30", "3d5d0b48-d0eb-5544-a845-b7687a88e24a"),
+            ("69e18c75-f04d-528e-8087-1aa642142c06", "aec6e03e-fddc-5b51-bbbd-ec71e566b329", "Smart Routing launch gate decision", "2026-10-29T09:30:00+05:30", "3fc01550-c7e4-55ad-bbf4-3c6599fb57ce"),
+            ("75294199-1a00-5b40-928f-75d96eaa8dda", "f1339331-f5cc-5fad-aa79-d35acef48713", "Merchant pilot communications and support readiness", "2026-10-30T13:00:00+05:30", "673e2dfb-cfbe-52f6-9a20-075b8fd542e0"),
+            ("d4640004-5671-4416-a8f4-31d39553a8e8", "c51d1349-7c9e-5b7c-ae96-6469d80b9790", "Idempotency and Reconciliation Architecture Extension", "2026-10-31T15:50:00+05:30", "57f3cd3a-204c-5d7e-96b4-5d382d76300f"),
+            ("f417b114-1414-5200-a001-14nov2026gate", "aec6e03e-fddc-5b51-bbbd-ec71e566b329", "Smart Routing v2: 14 November Technical Readiness Review Gate", "2026-11-14T10:00:00+05:30", "3fc01550-c7e4-55ad-bbf4-3c6599fb57ce"),
         ]
         meeting_name_map = {}
         for m_id, s_id, title, m_date, created_by in meetings_data:
@@ -193,7 +196,7 @@ def run_seed():
                 project_id=proj_id,
                 title=title,
                 meeting_date=datetime.fromisoformat(m_date),
-                source_type="paste",
+                source_type="paste" if "14nov" not in m_id else "scheduled",
                 processing_status="completed",
                 created_by_user_id=created_by,
                 created_at=datetime.fromisoformat(m_date)
@@ -225,7 +228,13 @@ def run_seed():
             ('69e18c75-f04d-528e-8087-1aa642142c06','8f06b32b-668a-51ca-a0b7-0853b197e9ae','linked'),
             ('75294199-1a00-5b40-928f-75d96eaa8dda','f1339331-f5cc-5fad-aa79-d35acef48713','primary'),
             ('75294199-1a00-5b40-928f-75d96eaa8dda','aec6e03e-fddc-5b51-bbbd-ec71e566b329','linked'),
-            ('75294199-1a00-5b40-928f-75d96eaa8dda','79354d43-971e-542f-ad55-b1fce3290ec6','linked')
+            ('75294199-1a00-5b40-928f-75d96eaa8dda','79354d43-971e-542f-ad55-b1fce3290ec6','linked'),
+            ('d4640004-5671-4416-a8f4-31d39553a8e8','c51d1349-7c9e-5b7c-ae96-6469d80b9790','primary'),
+            ('f417b114-1414-5200-a001-14nov2026gate','aec6e03e-fddc-5b51-bbbd-ec71e566b329','primary'),
+            ('f417b114-1414-5200-a001-14nov2026gate','c51d1349-7c9e-5b7c-ae96-6469d80b9790','linked'),
+            ('f417b114-1414-5200-a001-14nov2026gate','79354d43-971e-542f-ad55-b1fce3290ec6','linked'),
+            ('f417b114-1414-5200-a001-14nov2026gate','6e5acdd2-d7c0-58f4-abc3-bfdb9620379c','linked'),
+            ('f417b114-1414-5200-a001-14nov2026gate','8f06b32b-668a-51ca-a0b7-0853b197e9ae','linked')
         ]
         for m_id, s_id, rel in meeting_spaces_data:
             db.add(MeetingSpace(
@@ -381,7 +390,7 @@ def run_seed():
             status="superseded",
             change_reason="Superseded by 14 November readiness review requiring Payments, SRE, Risk, and Security approvals.",
             created_by="Maya Chen",
-            created_at=datetime.fromisoformat("2026-11-02T09:00:00+05:30")
+            created_at=datetime.fromisoformat("2026-10-19T09:00:00+05:30")
         ))
         db.add(DecisionVersion(
             decision_id='57635a88-8391-573a-b635-5a851de81b75',
@@ -390,7 +399,7 @@ def run_seed():
             status="active",
             change_reason="Adopted in Smart Routing launch gate decision meeting.",
             created_by="Maya Chen",
-            created_at=datetime.fromisoformat("2026-11-10T09:30:00+05:30")
+            created_at=datetime.fromisoformat("2026-10-29T09:30:00+05:30")
         ))
         db.flush()
 
@@ -407,10 +416,20 @@ def run_seed():
             '9197ccf0-6432-5f6a-b614-8d181a304886': 'c51d1349-7c9e-5b7c-ae96-6469d80b9790',
             '32ec4b3b-79fe-524a-b8fc-c6bc0840eef3': 'aec6e03e-fddc-5b51-bbbd-ec71e566b329',
             '79b16636-777a-59d4-9a4c-0fa869348fa2': 'f1339331-f5cc-5fad-aa79-d35acef48713',
-            '68ceb2d0-9215-5a41-bc9f-954c68f8857b': '8f06b32b-668a-51ca-a0b7-0853b197e9ae'
+            '68ceb2d0-9215-5a41-bc9f-954c68f8857b': '8f06b32b-668a-51ca-a0b7-0853b197e9ae',
+            'task-maya-001': 'aec6e03e-fddc-5b51-bbbd-ec71e566b329',
+            'task-maya-002': 'f1339331-f5cc-5fad-aa79-d35acef48713',
+            'task-maya-003': 'c51d1349-7c9e-5b7c-ae96-6469d80b9790',
+            'task-maya-004': 'c51d1349-7c9e-5b7c-ae96-6469d80b9790',
+            'task-maya-005': 'aec6e03e-fddc-5b51-bbbd-ec71e566b329',
         }
 
         tasks_data = [
+            ('task-maya-001','fadde36c-96f9-5509-aa29-1a038a4b2b7c',"Coordinate 4-Team Launch Gate Readiness Review (DEC-002)","Collect and synthesize formal sign-offs from Payments (idempotency), SRE (canary observability), Risk (failover continuity), and Security (log review) before expanding beyond 5%.",'in_progress','critical','3fc01550-c7e4-55ad-bbf4-3c6599fb57ce','2026-11-14T10:00:00+05:30','69e18c75-f04d-528e-8087-1aa642142c06','a6f6412a-013f-5589-9cbf-e5c94d4884ae'),
+            ('task-maya-002','fadde36c-96f9-5509-aa29-1a038a4b2b7c',"Finalize merchant pilot communication & support runbook for canary hold","Align with Sarah Kim on draft merchant explanations and pilot support runbook. Keep expansion date in draft until technical readiness review is approved.",'in_progress','high','3fc01550-c7e4-55ad-bbf4-3c6599fb57ce','2026-11-11T17:00:00+05:30','75294199-1a00-5b40-928f-75d96eaa8dda','faf03243-d9f8-541e-9f90-6f3eb33e61d2'),
+            ('task-maya-003','fadde36c-96f9-5509-aa29-1a038a4b2b7c',"Audit 5% canary authorization uplift across 10 pilot merchants","Review initial authorization rate uplift (+1.8%) across the 10 pilot merchants and confirm baseline timeout frequency before the launch gate.",'in_progress','high','3fc01550-c7e4-55ad-bbf4-3c6599fb57ce','2026-11-09T17:00:00+05:30','2033cb92-95e6-5580-a51a-b199bbb8b69f','2c3825f0-290f-55f3-9e1f-12e8a7a2a13e'),
+            ('task-maya-004','fadde36c-96f9-5509-aa29-1a038a4b2b7c',"Review idempotency key 72h retention and safe retry policy (DEC-014)","Review Elena Petrova and Daniel Foster's proposal to extend idempotency key retention to 72 hours (DEC-014) and verify business impact of delayed webhooks.",'todo','critical','3fc01550-c7e4-55ad-bbf4-3c6599fb57ce','2026-11-06T17:00:00+05:30','ea655bba-f14e-521d-8ec8-458fa2398acb','b4c842f9-a72a-58f9-8aab-71916c6bed36'),
+            ('task-maya-005','fadde36c-96f9-5509-aa29-1a038a4b2b7c',"Enforce 5% canary pilot hold pending SRE rollback validation","Ensure traffic remains frozen at exactly 5% canary while SRE and Payments investigate processor timeout behavior.",'done','critical','3fc01550-c7e4-55ad-bbf4-3c6599fb57ce','2026-10-31T17:00:00+05:30','2033cb92-95e6-5580-a51a-b199bbb8b69f','664e7b8e-c346-5342-96d8-a12df6055286'),
             ('6eb3c600-aeab-5463-b98a-82d91473342b','fadde36c-96f9-5509-aa29-1a038a4b2b7c',"Implement idempotency propagation across processor adapters","Carry stable idempotency keys through routing and processor adapters.",'in_progress','critical','57f3cd3a-204c-5d7e-96b4-5d382d76300f','2026-11-12T17:00:00+05:30','ea655bba-f14e-521d-8ec8-458fa2398acb','b4c842f9-a72a-58f9-8aab-71916c6bed36'),
             ('c8fec457-706c-5536-8bac-87b82ffdde81','fadde36c-96f9-5509-aa29-1a038a4b2b7c',"Document timeout classification and safe retry policy","Distinguish connection failure, explicit decline, ambiguous timeout, and reconciliation-required states.",'todo','high','3d5d0b48-d0eb-5544-a845-b7687a88e24a','2026-11-06T17:00:00+05:30','ea655bba-f14e-521d-8ec8-458fa2398acb','b4c842f9-a72a-58f9-8aab-71916c6bed36'),
             ('de800614-b03c-5a13-b81c-9d490b314fd8','fadde36c-96f9-5509-aa29-1a038a4b2b7c',"Verify risk decision propagation across processor adapters","Test risk continuity for safe retries and fail-safe behaviour when risk evaluation is unavailable.",'todo','critical','1389f28b-f89d-55ff-865d-dc595fc1a589','2026-11-12T17:00:00+05:30','2e061b40-a4e5-5f67-9b70-01ed58328916','246e8b18-85c4-582d-a08c-16a72456e55c'),
@@ -578,7 +597,7 @@ def run_seed():
             target_id='57635a88-8391-573a-b635-5a851de81b75',
             proposed_action="Approve expansion beyond the 5% canary only after Payments, SRE, Risk, and Security readiness evidence is reviewed.",
             status="pending",
-            created_at=datetime.fromisoformat("2026-11-10T11:00:00+05:30")
+            created_at=datetime.fromisoformat("2026-10-29T11:00:00+05:30")
         ))
 
         # ----------------------------------------------------
@@ -593,7 +612,7 @@ def run_seed():
                 entity_type='decision',
                 entity_id='e4c9dfff-50b6-5410-8e80-26b8e0462383',
                 details_json='{"reason": "Superseded 20% rollout commitment with 14 November readiness review."}',
-                created_at=datetime.fromisoformat("2026-11-10T09:30:00+05:30")
+                created_at=datetime.fromisoformat("2026-10-29T09:30:00+05:30")
             ),
             AuditEvent(
                 organization_id=org_id,
@@ -603,12 +622,20 @@ def run_seed():
                 entity_type='blocker',
                 entity_id='d77ecd74-4324-591e-ab80-d96bc1581f10',
                 details_json='{"severity": "critical", "reason": "Ambiguous processor timeouts trigger duplicate authorization hazard."}',
-                created_at=datetime.fromisoformat("2026-11-09T15:00:00+05:30")
+                created_at=datetime.fromisoformat("2026-10-28T15:00:00+05:30")
             )
         ])
 
         db.commit()
         print("MeridianPay dataset successfully seeded into CONFLUENCE database!")
+
+        # ----------------------------------------------------
+        # 17. Synchronize Semantic Embeddings
+        # ----------------------------------------------------
+        print("Indexing dense semantic embeddings for memory network...")
+        from backend.app.services.embedding_service import EmbeddingService
+        synced = EmbeddingService.sync_all_embeddings(db)
+        print(f"Dense vector embeddings generated: {synced}")
 
     except Exception as e:
         db.rollback()

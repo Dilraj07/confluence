@@ -188,6 +188,13 @@ class ExtractionService:
         db.add(audit)
         db.commit()
 
+        # 4. Synchronize semantic embeddings
+        try:
+            from backend.app.services.embedding_service import EmbeddingService
+            EmbeddingService.sync_all_embeddings(db)
+        except Exception as e:
+            print(f"[ExtractionService] Embedding sync warning: {e}")
+
         return {
             "status": "approved",
             "candidate_id": candidate_id,

@@ -186,3 +186,50 @@ class ActionExecutionResponse(BaseModel):
     message: str
     entity_id: Optional[str] = None
     entity_type: Optional[str] = None
+
+# Semantic & Memory API Schemas
+class SemanticSearchRequest(BaseModel):
+    query: str
+    entity_types: Optional[List[str]] = None  # transcript_segment, decision, task, blocker
+    space_id: Optional[str] = None
+    top_k: int = 5
+    min_score: float = 0.20
+
+class SemanticMatch(BaseModel):
+    id: str
+    entity_type: str
+    entity_id: str
+    space_id: Optional[str] = None
+    text: str
+    similarity: float
+
+class SemanticSearchResponse(BaseModel):
+    query: str
+    count: int
+    matches: List[SemanticMatch]
+
+class SimilarityRequest(BaseModel):
+    text1: str
+    text2: str
+
+class SimilarityResponse(BaseModel):
+    text1: str
+    text2: str
+    similarity: float
+    interpretation: str  # high_similarity, related, unrelated, conflicting
+
+class AgentChatRequest(BaseModel):
+    session_id: str = "default_session"
+    message: str
+    space_id: Optional[str] = None
+    scope: str = "organization"
+
+class AgentChatResponse(BaseModel):
+    session_id: str
+    answer: str
+    confidence: float
+    reasoning_steps: List[Dict[str, Any]]
+    sources: List[QueryEvidence]
+    working_memory_state: Dict[str, Any]
+    staged_action: Optional[Dict[str, Any]] = None
+

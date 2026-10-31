@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Space, Meeting, Task, Blocker, Decision } from '@/types';
 import { api } from '@/lib/api';
+import { MarkdownRenderer } from '@/components/ui/MarkdownRenderer';
 import {
   Send,
   Mic,
@@ -53,20 +54,33 @@ export const OverviewChatbot: React.FC<OverviewChatbotProps> = ({
   const [isListening, setIsListening] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const chatMessagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const followUpInputRef = useRef<HTMLInputElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatMessagesContainerRef.current) {
+      chatMessagesContainerRef.current.scrollTo({
+        top: chatMessagesContainerRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
+    }
   };
 
   useEffect(() => {
     if (isChatOpen && messages.length > 0) {
-      scrollToBottom();
+      const timer = setTimeout(scrollToBottom, 40);
+      return () => clearTimeout(timer);
     }
-  }, [messages, isChatOpen]);
+  }, [messages, isChatOpen, loading]);
+
+  useEffect(() => {
+    if (isChatOpen) {
+      followUpInputRef.current?.focus();
+    }
+  }, [isChatOpen, loading]);
 
   // Clean, high quality offline fallback responses
   const getCleanFallbackAnswer = (q: string): { text: string; decisions?: Array<{ id: string; code: string; title: string }> } => {
@@ -179,14 +193,32 @@ export const OverviewChatbot: React.FC<OverviewChatbotProps> = ({
       
       const matchedDecisions: Array<{ id: string; code: string; title: string }> = [];
       if (res.related_decision_ids && res.related_decision_ids.length > 0) {
-        res.related_decision_ids.forEach(dId => {
-          const id = dId.toLowerCase();
-          const code = id.toUpperCase();
-          matchedDecisions.push({
-            id,
-            code,
-            title: code === 'DEC-014' ? 'Idempotency Keys' : (code === 'DEC-002' ? '14 Nov Gate' : 'Decision')
-          });
+        res.related_decision_ids.forEach((dId, idx) => {
+          const lower = dId.toLowerCase();
+          let code = `DEC-00${idx + 1}`;
+          let title = 'Canonical Decision';
+
+          if (lower.includes('dec-014') || lower.includes('57635a88') || lower.includes('95f6e618') || lower.includes('13f9afbe') || lower.includes('7b7efdd3') || lower.includes('idempotenc') || lower.includes('propagate')) {
+            code = 'DEC-014';
+            title = 'DEC-014 · Idempotency Keys';
+          } else if (lower.includes('dec-002') || lower.includes('924abc59') || lower.includes('a9d24a57') || lower.includes('9ca57a3b') || lower.includes('14 nov') || lower.includes('gate') || lower.includes('e4c9dfff') || lower.includes('review')) {
+            code = 'DEC-002';
+            title = 'DEC-002 · 14 Nov Gate';
+          } else if (lower.includes('dec-018') || lower.includes('1fc05fe9') || lower.includes('fraud') || lower.includes('risk')) {
+            code = 'DEC-018';
+            title = 'DEC-018 · Risk Continuity';
+          } else if (lower.includes('dec-021') || lower.includes('75e6bcb1') || lower.includes('canary') || lower.includes('sre') || lower.includes('latency')) {
+            code = 'DEC-021';
+            title = 'DEC-021 · SRE Guardrails';
+          } else if (dId.startsWith('DEC-')) {
+            code = dId;
+            title = dId;
+          }
+
+          // Avoid duplicate codes in chips
+          if (!matchedDecisions.some(m => m.code === code)) {
+            matchedDecisions.push({ id: dId, code, title });
+          }
         });
       }
 
@@ -262,58 +294,60 @@ export const OverviewChatbot: React.FC<OverviewChatbotProps> = ({
 
   return (
     <div ref={chatContainerRef} className="space-y-4">
-      {/* 1. Large Hero Search / Chat Input Bar (Matching Reference Design) */}
-      <div className="relative">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSend();
-          }}
-          className="relative flex items-center shadow-sm rounded-full bg-white border border-[#d8d3c7] hover:border-[#838280] focus-within:border-[#2a72de] focus-within:ring-2 focus-within:ring-[#2a72de]/20 transition-all"
-        >
-          {/* Plus icon on left */}
-          <div className="pl-4 pr-1 text-stone-400 flex items-center justify-center">
-            <div className="w-6 h-6 rounded-full bg-stone-100 flex items-center justify-center">
-              <Plus className="w-3.5 h-3.5 text-stone-600" />
+      {/* 1. Large Hero Search / Chat Input Bar (Shown when chat is NOT active) */}
+      {!isChatOpen && (
+        <div className="relative">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSend();
+            }}
+            className="relative flex items-center shadow-sm rounded-full bg-white border border-[#d8d3c7] hover:border-[#838280] focus-within:border-[#2a72de] focus-within:ring-2 focus-within:ring-[#2a72de]/20 transition-all"
+          >
+            {/* Plus icon on left */}
+            <div className="pl-4 pr-1 text-stone-400 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-stone-100 flex items-center justify-center">
+                <Plus className="w-3.5 h-3.5 text-stone-600" />
+              </div>
             </div>
-          </div>
 
-          {/* Main input */}
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask anything: your work, today's updates, or queries regarding decisions..."
-            className="w-full py-3.5 px-3 text-sm text-[#1c1b1a] placeholder:text-stone-400 bg-transparent focus:outline-none"
-          />
+            {/* Main input */}
+            <input
+              ref={inputRef}
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask anything: your work, today's updates, or queries regarding decisions..."
+              className="w-full py-3.5 px-3 text-sm text-[#1c1b1a] placeholder:text-stone-400 bg-transparent focus:outline-none"
+            />
 
-          {/* Action buttons on right */}
-          <div className="pr-3 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={toggleListening}
-              className={`p-2 rounded-full transition-all ${
-                isListening
-                  ? 'bg-red-500 text-white animate-pulse'
-                  : 'text-stone-400 hover:text-stone-700 hover:bg-stone-100'
-              }`}
-              title="Dictate with Wispr Flow"
-            >
-              <Mic className="w-4 h-4" />
-            </button>
+            {/* Action buttons on right */}
+            <div className="pr-3 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={toggleListening}
+                className={`p-2 rounded-full transition-all ${
+                  isListening
+                    ? 'bg-red-500 text-white animate-pulse'
+                    : 'text-stone-400 hover:text-stone-700 hover:bg-stone-100'
+                }`}
+                title="Dictate with Wispr Flow"
+              >
+                <Mic className="w-4 h-4" />
+              </button>
 
-            <button
-              type="submit"
-              disabled={loading || !input.trim()}
-              className="p-2 rounded-full bg-[#1c1b1a] text-white hover:bg-black disabled:opacity-30 transition-all"
-              title="Send message"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </div>
-        </form>
-      </div>
+              <button
+                type="submit"
+                disabled={loading || !input.trim()}
+                className="p-2 rounded-full bg-[#1c1b1a] text-white hover:bg-black disabled:opacity-30 transition-all"
+                title="Send message"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
 
       {/* 2. Hero Action Focus Cards (Shown when chat has not been initiated) */}
       {!isChatOpen && messages.length === 0 && (
@@ -416,10 +450,6 @@ export const OverviewChatbot: React.FC<OverviewChatbotProps> = ({
               <div>
                 <div className="flex items-center gap-2">
                   <span className="font-serif font-medium text-sm text-[#1c1b1a]">Workspace Copilot</span>
-                  <span className="flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.2 rounded-full border border-emerald-200">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span>Live Chat</span>
-                  </span>
                 </div>
               </div>
             </div>
@@ -444,7 +474,7 @@ export const OverviewChatbot: React.FC<OverviewChatbotProps> = ({
           </div>
 
           {/* Chat Messages Conversation Stream */}
-          <div className="p-4 sm:p-5 space-y-4 max-h-[420px] overflow-y-auto bg-[#fdfbf7]/50">
+          <div ref={chatMessagesContainerRef} className="p-4 sm:p-5 space-y-4 max-h-[440px] overflow-y-auto bg-[#fdfbf7]/50 scroll-smooth">
             {messages.map((m) => (
               <div
                 key={m.id}
@@ -465,7 +495,11 @@ export const OverviewChatbot: React.FC<OverviewChatbotProps> = ({
                       : 'bg-white text-[#1c1b1a] border border-[#e1dcd3] rounded-tl-xs'
                   }`}
                 >
-                  <div className="whitespace-pre-line">{m.text}</div>
+                  {m.sender === 'user' ? (
+                    <div className="whitespace-pre-line">{m.text}</div>
+                  ) : (
+                    <MarkdownRenderer content={m.text} />
+                  )}
 
                   {/* Inline Decision Chips */}
                   {m.decisions && m.decisions.length > 0 && (
@@ -510,7 +544,6 @@ export const OverviewChatbot: React.FC<OverviewChatbotProps> = ({
               </div>
             )}
 
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Quick Suggestions Inside Chat */}
@@ -546,6 +579,7 @@ export const OverviewChatbot: React.FC<OverviewChatbotProps> = ({
               className="relative flex items-center"
             >
               <input
+                ref={followUpInputRef}
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -600,7 +634,6 @@ export const OverviewChatbot: React.FC<OverviewChatbotProps> = ({
           >
             <MessageSquare className="w-4 h-4 text-stone-300 group-hover:scale-110 transition-transform" />
             <span className="text-xs font-medium">Ask Copilot</span>
-            <span className="w-2 h-2 rounded-full bg-emerald-500 ml-0.5" />
           </button>
         </div>
       )}
