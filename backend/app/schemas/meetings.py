@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field, ConfigDict
-from typing import Optional, List
+from typing import Optional, List, Any
 from datetime import datetime
 
 class SegmentBase(BaseModel):
@@ -31,6 +31,14 @@ class MeetingSpaceOut(BaseModel):
     space_name: str
     relationship_type: str
 
+class ConnectedMeetingOut(BaseModel):
+    meeting_id: str
+    title: str
+    space_name: str
+    meeting_date: datetime
+    connection_type: str  # "supersedes", "superseded_by", "blocked_by", "blocks", "affects", "affected_by", "linked_space"
+    reason: str
+
 class MeetingOut(BaseModel):
     id: str
     organization_id: str
@@ -53,3 +61,7 @@ class MeetingOut(BaseModel):
 class MeetingDetailOut(MeetingOut):
     segments: List[SegmentOut] = []
     raw_transcript_text: Optional[str] = None
+    decisions: List[Any] = []
+    tasks: List[Any] = []
+    blockers: List[Any] = []
+    connected_meetings: List[ConnectedMeetingOut] = []

@@ -435,3 +435,4 @@ export const KnowledgeView: React.FC<KnowledgeViewProps> = ({
     </div>
   );
 };
+

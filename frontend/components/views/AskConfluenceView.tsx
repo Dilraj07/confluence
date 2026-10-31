@@ -392,3 +392,4 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
     </div>
   );
 };
+

@@ -107,6 +107,15 @@ export interface TranscriptSegment {
   created_at: string;
 }
 
+export interface ConnectedMeeting {
+  meeting_id: string;
+  title: string;
+  space_name: string;
+  meeting_date: string;
+  connection_type: string;
+  reason: string;
+}
+
 export interface Meeting {
   id: string;
   organization_id: string;
@@ -124,6 +133,10 @@ export interface Meeting {
   blocker_count: number;
   raw_transcript_text?: string;
   segments?: TranscriptSegment[];
+  decisions?: Decision[];
+  tasks?: Task[];
+  blockers?: Blocker[];
+  connected_meetings?: ConnectedMeeting[];
   spaces: { space_id: string; space_name: string; relationship_type: string }[];
 }
 

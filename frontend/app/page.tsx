@@ -14,6 +14,7 @@ import { KnowledgeView } from '@/components/views/KnowledgeView';
 import { MyWorkView } from '@/components/views/MyWorkView';
 import { AskConfluenceView } from '@/components/views/AskConfluenceView';
 import { SettingsView } from '@/components/views/SettingsView';
+import { MeetingDetailView } from '@/components/views/MeetingDetailView';
 
 import { IngestMeetingModal } from '@/components/IngestMeetingModal';
 import { CandidateReviewModal } from '@/components/CandidateReviewModal';
@@ -39,6 +40,7 @@ export default function WorkspacePage() {
   const [isAskModalOpen, setIsAskModalOpen] = useState<boolean>(false);
   const [askInitialQuery, setAskInitialQuery] = useState<string>('');
   const [reviewMeetingId, setReviewMeetingId] = useState<string | null>(null);
+  const [activeMeetingId, setActiveMeetingId] = useState<string | null>(null);
   const [activeMeetingDetail, setActiveMeetingDetail] = useState<Meeting | null>(null);
   const [activeDecisionTrail, setActiveDecisionTrail] = useState<Decision | null>(null);
 
@@ -123,6 +125,12 @@ export default function WorkspacePage() {
           title: 'Meetings & Transcripts',
           subtitle: 'Turn-by-turn transcript logs with stable evidence segment citations.'
         };
+      case 'meeting-detail':
+        return {
+          breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Meetings' }, { label: 'Meeting Intelligence' }],
+          title: 'Meeting Intelligence & Lineage',
+          subtitle: 'Turn-by-turn discussions, conclusions, commitments, and cross-meeting connections.'
+        };
       case 'knowledge':
         return {
           breadcrumbs: [{ label: 'Acme Cloud' }, { label: 'Knowledge Graph' }],
@@ -203,7 +211,10 @@ export default function WorkspacePage() {
                   selectedSpace={selectedSpace}
                   onOpenAskWithPrompt={handleOpenAskWithPrompt}
                   onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
-                  onOpenMeeting={(m) => setActiveMeetingDetail(m)}
+                  onOpenMeeting={(m) => {
+                    setActiveMeetingId(m.id);
+                    setCurrentView('meeting-detail');
+                  }}
                   onReviewPending={() => {
                     const firstMeeting = meetings[0]?.id;
                     if (firstMeeting) setReviewMeetingId(firstMeeting);
@@ -221,7 +232,10 @@ export default function WorkspacePage() {
                   decisions={decisions}
                   tasks={tasks}
                   blockers={blockers}
-                  onOpenMeeting={(m) => setActiveMeetingDetail(m)}
+                  onOpenMeeting={(m) => {
+                    setActiveMeetingId(m.id);
+                    setCurrentView('meeting-detail');
+                  }}
                   onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
                   onOpenCandidates={(mId) => setReviewMeetingId(mId)}
                   onOpenIngest={() => setIsIngestOpen(true)}
@@ -233,9 +247,26 @@ export default function WorkspacePage() {
                   meetings={meetings}
                   spaces={spaces}
                   selectedSpaceId={selectedSpaceId}
-                  onOpenMeeting={(m) => setActiveMeetingDetail(m)}
+                  onOpenMeeting={(m) => {
+                    setActiveMeetingId(m.id);
+                    setCurrentView('meeting-detail');
+                  }}
                   onOpenCandidates={(mId) => setReviewMeetingId(mId)}
                   onOpenIngest={() => setIsIngestOpen(true)}
+                />
+              )}
+
+              {currentView === 'meeting-detail' && activeMeetingId && (
+                <MeetingDetailView
+                  meetingId={activeMeetingId}
+                  onBack={() => setCurrentView('meetings')}
+                  onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
+                  onOpenCandidates={(mId) => setReviewMeetingId(mId)}
+                  onOpenConnectedMeeting={(connId) => setActiveMeetingId(connId)}
+                  onAskAboutMeeting={(prompt) => {
+                    setAskInitialQuery(prompt);
+                    setCurrentView('ask');
+                  }}
                 />
               )}
 
@@ -246,7 +277,10 @@ export default function WorkspacePage() {
                   meetings={meetings}
                   spaces={spaces}
                   onOpenDecisionTrail={(d) => setActiveDecisionTrail(d)}
-                  onOpenMeeting={(m) => setActiveMeetingDetail(m)}
+                  onOpenMeeting={(m) => {
+                    setActiveMeetingId(m.id);
+                    setCurrentView('meeting-detail');
+                  }}
                 />
               )}
 
