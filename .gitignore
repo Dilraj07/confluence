@@ -37,6 +37,8 @@ wheels/
 # Database & Storage
 *.sqlite3
 *.db
+*.db-shm
+*.db-wal
 uploads/
 
 # Environment Variables
@@ -52,3 +54,4 @@ uploads/
 *.swo
 .DS_Store
 Thumbs.db
+
