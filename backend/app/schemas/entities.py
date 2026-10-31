@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List, Any, Dict
 from datetime import datetime
 
@@ -12,8 +12,7 @@ class EvidenceOut(BaseModel):
     end_offset: Optional[int] = None
     confidence_score: float = 1.0
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class DecisionVersionOut(BaseModel):
     id: str
@@ -24,8 +23,7 @@ class DecisionVersionOut(BaseModel):
     created_by: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class DecisionOut(BaseModel):
     id: str
@@ -49,8 +47,7 @@ class DecisionOut(BaseModel):
     superseded_by_id: Optional[str] = None
     supersedes_id: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class DecisionCreate(BaseModel):
     space_id: str
@@ -81,8 +78,7 @@ class TaskOut(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class TaskCreate(BaseModel):
     space_id: str
@@ -111,8 +107,7 @@ class BlockerOut(BaseModel):
     created_at: datetime
     resolved_at: Optional[datetime] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ExtractionCandidateOut(BaseModel):
     id: str
@@ -124,8 +119,7 @@ class ExtractionCandidateOut(BaseModel):
     reviewer_notes: Optional[str] = None
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class CandidateReviewAction(BaseModel):
     action: str  # approve, reject, edit

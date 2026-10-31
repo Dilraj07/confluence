@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #f7f1e8;
+  --foreground: #1c1b1a;
+}
+
+body {
+  background-color: #f7f1e8;
+  color: #1c1b1a;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Oura Warm-Paper Card Styles */
+.card-oura {
+  background-color: #ffffff;
+  border: 1px solid #e1dcd3;
+  border-radius: 16px;
+  box-shadow: 0 1px 3px rgba(28, 27, 26, 0.04);
+}
+
+.card-oura-elevated {
+  background-color: #f7f1e8;
+  border: 1px solid #e1dcd3;
+  border-radius: 16px;
+}
+
+/* Oura Pill Tabs */
+.pill-button {
+  border-radius: 9999px;
+  transition: all 0.15s ease-in-out;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cccac7;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #838280;
+}

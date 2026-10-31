@@ -1,0 +1,21 @@
+import type { Metadata } from 'next';
+import './globals.css';
+
+export const metadata: Metadata = {
+  title: 'CONFLUENCE — Contextual Organisational Memory',
+  description: 'An intelligent organisational memory network that turns meetings into connected decisions, commitments, and cross-team execution.',
+};
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" className="h-full">
+      <body className="h-full bg-oura-canvas text-oura-ink selection:bg-oura-primary selection:text-white">
+        {children}
+      </body>
+    </html>
+  );
+}

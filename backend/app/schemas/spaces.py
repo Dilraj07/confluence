@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -35,8 +35,7 @@ class SpaceOut(SpaceBase):
     task_count: int = 0
     blocker_count: int = 0
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class DepartmentOut(BaseModel):
     id: str
@@ -45,5 +44,4 @@ class DepartmentOut(BaseModel):
     description: Optional[str] = None
     spaces: List[SpaceOut] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

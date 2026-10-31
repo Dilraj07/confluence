@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import Optional, List
 from datetime import datetime
 
@@ -15,8 +15,7 @@ class SegmentOut(SegmentBase):
     meeting_id: str
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class MeetingCreate(BaseModel):
     title: str
@@ -49,8 +48,7 @@ class MeetingOut(BaseModel):
     blocker_count: int = 0
     spaces: List[MeetingSpaceOut] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 class MeetingDetailOut(MeetingOut):
     segments: List[SegmentOut] = []
