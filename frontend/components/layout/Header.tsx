@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Space } from '@/types';
+import { Logo } from '@/components/brand/Logo';
 import {
   Sparkles,
   Plus,
@@ -33,6 +34,7 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Breadcrumbs & Title */}
       <div>
         <nav className="flex items-center gap-1.5 text-[11px] text-[#838280] mb-0.5">
+          <Logo variant="icon" size="xs" className="opacity-80 shrink-0" />
           {breadcrumbs.map((crumb, idx) => (
             <React.Fragment key={idx}>
               <span className={idx === breadcrumbs.length - 1 ? 'text-[#1c1b1a] font-medium' : 'hover:text-[#1c1b1a]'}>

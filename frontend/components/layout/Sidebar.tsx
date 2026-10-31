@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { Space } from '@/types';
+import { Logo } from '@/components/brand/Logo';
 import {
   Home,
   Layers,
@@ -49,13 +50,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
   return (
     <aside className="w-64 bg-[#fbfaf7] border-r border-[#e1dcd3] flex flex-col justify-between h-screen sticky top-0 select-none">
-      {/* Top: Organisation Switcher & Brand */}
+      {/* Top: Brand Header & Workspace Switcher */}
       <div className="flex flex-col">
+        {/* Brand Banner */}
+        <div className="px-4 py-3.5 border-b border-[#e1dcd3] bg-white/70 flex items-center justify-between">
+          <Logo variant="full" size="sm" showTagline={true} />
+          <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-[#2a72de] bg-blue-50 px-2 py-0.5 rounded border border-blue-100">
+            v2.4
+          </span>
+        </div>
+
         {/* Workspace Switcher */}
-        <div className="p-3.5 border-b border-[#e1dcd3]">
+        <div className="p-3 border-b border-[#e1dcd3]">
           <div className="flex items-center justify-between p-2 rounded-lg bg-white border border-[#e1dcd3] shadow-xs hover:border-[#838280] transition-all cursor-pointer">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-7 h-7 rounded-md bg-[#1c1b1a] text-[#f7f1e8] flex items-center justify-center font-serif text-sm font-semibold shrink-0">
+              <div className="w-6 h-6 rounded bg-[#1c1b1a] text-[#f7f1e8] flex items-center justify-center font-serif text-xs font-semibold shrink-0">
                 M
               </div>
               <div className="min-w-0">

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Space, AskQueryResponse } from '@/types';
 import { api } from '@/lib/api';
+import { Logo } from '@/components/brand/Logo';
 import {
   Sparkles,
   Send,
@@ -250,6 +251,7 @@ export const AskConfluenceView: React.FC<AskConfluenceViewProps> = ({
       {/* 1. Header */}
       <div className="space-y-1.5">
         <div className="flex items-center gap-2">
+          <Logo variant="icon" size="xs" />
           <span className="text-[10px] font-bold uppercase tracking-wider text-[#2a72de] bg-blue-50 px-2 py-0.5 rounded">
             Agentic AI Organizational Memory
           </span>

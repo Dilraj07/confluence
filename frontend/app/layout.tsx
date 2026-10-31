@@ -4,6 +4,9 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'CONFLUENCE — Contextual Organisational Memory',
   description: 'An intelligent organisational memory network that turns meetings into connected decisions, commitments, and cross-team execution.',
+  icons: {
+    icon: '/icon.svg',
+  },
 };
 
 export default function RootLayout({

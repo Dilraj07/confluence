@@ -1,0 +1,32 @@
+<svg width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="streamPrimary" x1="8" y1="8" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1c1b1a" />
+      <stop offset="55%" stop-color="#2a72de" />
+      <stop offset="100%" stop-color="#4f9cf9" />
+    </linearGradient>
+    <linearGradient id="streamSecondary" x1="40" y1="14" x2="16" y2="34" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2a72de" />
+      <stop offset="70%" stop-color="#6366f1" />
+      <stop offset="100%" stop-color="#1c1b1a" />
+    </linearGradient>
+    <radialGradient id="confluenceGlow" cx="26" cy="24" r="16" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2a72de" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#2a72de" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="48" height="48" rx="12" fill="#f7f1e8" />
+  <circle cx="26" cy="24" r="16" fill="url(#confluenceGlow)" />
+  <path
+    d="M 38 12 C 28 8, 14 11, 10 24 C 8 35, 20 40, 36 37 C 28 37, 16 34, 15 24 C 14 15, 26 12, 38 12 Z"
+    fill="url(#streamPrimary)"
+  />
+  <path
+    d="M 39 15 C 31 16, 20 20, 18 24 C 20 28, 31 32, 39 33 C 33 30, 24 26, 24 24 C 24 22, 33 18, 39 15 Z"
+    fill="url(#streamSecondary)"
+    opacity="0.9"
+  />
+  <circle cx="25" cy="24" r="3.5" fill="#2a72de" stroke="#ffffff" stroke-width="2" />
+  <circle cx="37" cy="13.5" r="2.2" fill="#1c1b1a" stroke="#ffffff" stroke-width="1.25" />
+  <circle cx="37" cy="34.5" r="2.2" fill="#1c1b1a" stroke="#ffffff" stroke-width="1.25" />
+</svg>
